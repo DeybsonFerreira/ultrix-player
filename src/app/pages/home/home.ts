@@ -16,15 +16,6 @@ export class HomeComponent {
 
   constructor(private router: Router, private dialog: MatDialog) { }
 
-  login() {
-    this.router.navigate(['/login']);
-  }
-
-  logout() {
-    localStorage.removeItem('auth'); // remove login
-    this.router.navigate(['/']);     // volta pro login
-  }
-
   goLive() {
     this.router.navigate(['/live']);
   }

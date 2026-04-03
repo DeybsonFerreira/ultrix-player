@@ -329,30 +329,76 @@ export class LiveTvComponent implements OnInit, OnDestroy {
     document.head.appendChild(script);
   }
 
-  initHls(video: HTMLVideoElement, url: string, HlsLib: any) {
-    if (HlsLib.isSupported()) {
-      this.hls = new HlsLib();
-      this.hls.loadSource(url);
-      this.hls.attachMedia(video);
-      this.hls.on(HlsLib.Events.MANIFEST_PARSED, () => {
-        video.play().then(() => {
-          this.isPlaying = true;
-          this.cdr.detectChanges();
-        });
-      });
-      this.hls.on(HlsLib.Events.ERROR, (_: any, data: any) => {
-        if (data.fatal) {
-          this.playerError = 'Erro ao reproduzir o canal HLS.';
-          this.isPlaying = false;
-          this.cdr.detectChanges();
-        }
-      });
-    } else if (video.canPlayType('application/vnd.apple.mpegurl')) {
-      video.src = url;
-      video.play();
-    }
-  }
+  // initHls(video: HTMLVideoElement, url: string, HlsLib: any) {
+  //   if (HlsLib.isSupported()) {
+  //     this.hls = new HlsLib();
+  //     this.hls.loadSource(url);
+  //     this.hls.attachMedia(video);
+  //     this.hls.on(HlsLib.Events.MANIFEST_PARSED, () => {
+  //       video.play().then(() => {
+  //         this.isPlaying = true;
+  //         this.cdr.detectChanges();
+  //       });
+  //     });
+  //     this.hls.on(HlsLib.Events.ERROR, (_: any, data: any) => {
+  //       if (data.fatal) {
+  //         this.playerError = 'Erro ao reproduzir o canal HLS.';
+  //         this.isPlaying = false;
+  //         this.cdr.detectChanges();
+  //       }
+  //     });
+  //   } else if (video.canPlayType('application/vnd.apple.mpegurl')) {
+  //     video.src = url;
+  //     video.play();
+  //   }
+  // }
 
+  initHls(video: HTMLVideoElement, url: string, HlsLib: any) {
+    if (this.hls) { this.hls.destroy(); }
+
+    this.hls = new HlsLib({
+      enableWorker: true,
+      xhrSetup: (xhr: any) => {
+        // Tente forçar o envio de credenciais se necessário
+        // xhr.withCredentials = true; 
+      },
+      // Tenta recuperar automaticamente de erros de rede
+      manifestLoadingMaxRetry: 4,
+      levelLoadingMaxRetry: 4
+    });
+
+    this.hls.loadSource(url);
+    this.hls.attachMedia(video);
+
+    this.hls.on(HlsLib.Events.MANIFEST_PARSED, () => {
+      video.play().catch(e => {
+        console.error("Erro ao dar play:", e);
+        this.playerError = 'Erro ao iniciar reprodução automática.';
+      });
+      this.isPlaying = true;
+      this.cdr.detectChanges();
+    });
+
+    this.hls.on(HlsLib.Events.ERROR, (event: any, data: any) => {
+      if (data.fatal) {
+        switch (data.type) {
+          case HlsLib.ErrorTypes.NETWORK_ERROR:
+            this.playerError = "Erro de rede. Verifique o link.";
+            this.hls.startLoad(); // Tenta recarregar
+            break;
+          case HlsLib.ErrorTypes.MEDIA_ERROR:
+            this.playerError = "Erro de mídia. Tentando recuperar...";
+            this.hls.recoverMediaError();
+            break;
+          default:
+            this.playerError = "Erro fatal no player HLS.";
+            this.destroyPlayer();
+            break;
+        }
+        this.cdr.detectChanges();
+      }
+    });
+  }
   destroyPlayer() {
     if (this.hls) {
       this.hls.destroy();

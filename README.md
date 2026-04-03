@@ -14,8 +14,11 @@ ng generate component pages/config/config-dialog --skip-tests
 
 
 ```
-# Rum on network
+# Run on network
 
 ```
 ng serve --host 0.0.0.0
 ```
+
+# Add Capacitor angular
+[readme-capacitor](Readme-capacitor.md)

@@ -3,7 +3,7 @@
   "version": 1,
   "newProjectRoot": "projects",
   "projects": {
-    "ultrix-tv": {
+    "ultrix-player": {
       "projectType": "application",
       "schematics": {
         "@schematics/angular:component": {
@@ -50,8 +50,8 @@
                 },
                 {
                   "type": "anyComponentStyle",
-                  "maximumWarning": "4kB",
-                  "maximumError": "8kB"
+                  "maximumWarning": "10kB",
+                  "maximumError": "20kB"
                 }
               ],
               "outputHashing": "all"
@@ -68,10 +68,10 @@
           "builder": "@angular/build:dev-server",
           "configurations": {
             "production": {
-              "buildTarget": "ultrix-tv:build:production"
+              "buildTarget": "ultrix-player:build:production"
             },
             "development": {
-              "buildTarget": "ultrix-tv:build:development"
+              "buildTarget": "ultrix-player:build:development"
             }
           },
           "defaultConfiguration": "development"
