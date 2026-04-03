@@ -1,1 +1,51 @@
-/* You can add global styles to this file, and also import other style files */
+/* Tema Ultrix TV */
+:root {
+    --primary: #7b2cff;
+    --primary-light: #a66cff;
+    --background: #0b0b0f;
+    --card-bg: #1a1a2e;
+    --text: #ffffff;
+}
+
+body {
+    background: var(--background);
+    color: var(--text);
+    font-family: 'Roboto', sans-serif;
+}
+
+/* Cards estilo Netflix */
+.ultrix-card {
+    background: var(--card-bg);
+    border-radius: 16px;
+    padding: 20px;
+    text-align: center;
+    transition: 0.3s;
+    cursor: pointer;
+}
+
+.ultrix-card:hover {
+    transform: scale(1.05);
+    box-shadow: 0 0 20px var(--primary);
+}
+
+/* Botões */
+button {
+    border-radius: 12px !important;
+}
+
+
+.text-primary {
+    color: var(--primary) !important;
+}
+
+.text-danger {
+    color: #ff4d4d !important;
+}
+
+.text-success {
+    color: #4dff4d !important;
+}
+
+.bg-neon {
+    color: #7b2cff !important;
+}

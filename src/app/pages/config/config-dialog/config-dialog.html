@@ -1,0 +1,41 @@
+<div class="dialog-container">
+    <h2 class="text-neon">Configurações</h2>
+    <div class="form-grid">
+
+        <div class="row">
+            <label>Usuário</label>
+            <input tabindex="0" [(ngModel)]="config.username" placeholder="Digite seu usuário" />
+        </div>
+
+        <div class="row">
+            <label>Senha</label>
+            <input tabindex="0" [(ngModel)]="config.password" type="password" placeholder="••••••••" />
+        </div>
+
+        <div class="row">
+            <label>TV MAC ID</label>
+            <label class="text-danger" for="mc_id">{{config.macId}}</label>
+        </div>
+
+        <div class="row">
+            <label>Código TV</label>
+            <label class="text-danger" for="tv_code">{{config.tvCode}}</label>
+        </div>
+
+        <div class="row">
+            <label>
+                Suporte⭐
+            </label>
+
+            <label for="support" class="text-success">
+                {{config.phoneNumberSupport}}
+            </label>
+        </div>
+    </div>
+
+    <div class="actions">
+        <button class="ultrix-btn" tabindex="0" (click)="save()">Salvar</button>
+        <button class="ultrix-btn secondary" tabindex="0" (click)="close()">Cancelar</button>
+    </div>
+
+</div>

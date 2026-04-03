@@ -1,0 +1,34 @@
+<div class="home-container">
+
+    <div class="top-bar">
+        <h1 class="text-neon">Ultrix TV</h1>
+        <button class="ultrix-btn" (click)="logout()" tabindex="0">
+            ⏻ Sair
+        </button>
+    </div>
+
+    <div class="grid">
+
+        <div class="ultrix-card" tabindex="0" (click)="goLive()">
+            <img src="icons/tv.png">
+            <span>TV Ao Vivo</span>
+        </div>
+
+        <div class="ultrix-card" tabindex="0">
+            <img src="icons/filmes.png">
+            <span>Filmes</span>
+        </div>
+
+        <div class="ultrix-card" tabindex="0">
+            <img src="icons/series.png">
+            <span>Séries</span>
+        </div>
+
+        <div class="ultrix-card" tabindex="0" (click)="openConfig()">
+            <img src="icons/config.png">
+            <span>Configurações</span>
+        </div>
+
+    </div>
+
+</div>

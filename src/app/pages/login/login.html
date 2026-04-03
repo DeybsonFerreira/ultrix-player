@@ -1,0 +1,32 @@
+<div class="login-container">
+
+    <div class="login-card">
+
+        <!-- Overlay escuro -->
+        <div class="overlay"></div>
+
+        <!-- Conteúdo -->
+        <div class="content">
+
+            <h1>Ultrix TV</h1>
+
+            <mat-form-field appearance="outline">
+                <mat-label>Usuário</mat-label>
+                <input matInput [(ngModel)]="username">
+            </mat-form-field>
+
+            <mat-form-field appearance="outline">
+                <mat-label>Senha</mat-label>
+                <input matInput type="password" [(ngModel)]="password">
+            </mat-form-field>
+
+            <span>Suporte⭐: {{phoneNumber}}</span>
+            <button mat-raised-button class="login-btn" (click)="login()">
+                Entrar
+            </button>
+
+        </div>
+
+    </div>
+
+</div>

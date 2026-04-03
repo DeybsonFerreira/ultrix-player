@@ -1,0 +1,168 @@
+/* ===== CONTAINER ===== */
+.dialog-container {
+    position: relative;
+    padding: 40px;
+    border-radius: 25px;
+    background: rgba(10, 10, 25, 0.98);
+    backdrop-filter: blur(15px);
+    color: white;
+    width: 420px;
+    z-index: 1;
+    box-shadow:
+        0 0 10px #7b2cff,
+        0 0 20px #7b2cff,
+        0 0 40px rgba(123, 44, 255, 0.5);
+}
+
+.dialog-container::before {
+    content: '';
+    position: absolute;
+    inset: 0;
+
+    border-radius: 25px;
+    padding: 2px;
+    /* espessura da borda */
+
+    background: linear-gradient(45deg, #7b2cff, #a66cff, #7b2cff);
+
+    /* efeito de borda */
+    -webkit-mask:
+        linear-gradient(#fff 0 0) content-box,
+        linear-gradient(#fff 0 0);
+
+    -webkit-mask-composite: xor;
+    mask-composite: exclude;
+
+    z-index: -1;
+
+    /* 🔥 glow neon */
+    box-shadow:
+        0 0 5px #7b2cff,
+        0 0 10px #7b2cff,
+        0 0 20px #7b2cff,
+        0 0 40px rgba(123, 44, 255, 0.6);
+}
+
+
+/* ===== TÍTULO ===== */
+.text-neon {
+    font-size: 26px;
+    font-weight: 700;
+    text-align: center;
+    margin-bottom: 30px;
+
+    text-shadow:
+        0 0 5px #7b2cff,
+        0 0 10px #7b2cff,
+        0 0 20px #7b2cff;
+}
+
+/* ===== FORM GRID ===== */
+.form-grid {
+    display: flex;
+    flex-direction: column;
+    gap: 20px;
+}
+
+/* ===== LINHA (TABELA) ===== */
+.row {
+    display: grid;
+    grid-template-columns: 120px 1fr;
+    align-items: center;
+    gap: 20px;
+    padding: 5px 0;
+}
+
+/* LABEL */
+.row label {
+    text-align: right;
+    font-size: 14px;
+    opacity: 0.7;
+}
+
+/* INPUT */
+.row input {
+    padding: 14px;
+    border-radius: 12px;
+
+    border: 1px solid rgba(123, 44, 255, 0.3);
+
+    background: rgba(255, 255, 255, 0.05);
+    color: white;
+
+    transition: all 0.25s ease;
+}
+
+/* FOCO */
+.row input:focus {
+    outline: none;
+
+    border: 1px solid #a66cff;
+
+    box-shadow:
+        0 0 10px #7b2cff,
+        0 0 20px rgba(123, 44, 255, 0.4);
+
+    transform: scale(1.02);
+}
+
+/* LINHA ATIVA */
+.row:focus-within {
+    background: rgba(123, 44, 255, 0.08);
+    border-radius: 10px;
+    padding: 10px;
+}
+
+/* ===== BOTÕES ===== */
+.actions {
+    display: flex;
+    justify-content: space-between;
+    gap: 15px;
+    margin-top: 30px;
+}
+
+/* BOTÃO PADRÃO (IGUAL HOME) */
+.ultrix-btn {
+    flex: 1;
+
+    padding: 12px 24px;
+    border-radius: 12px;
+
+    font-size: 16px;
+    font-weight: 600;
+
+    color: white;
+    border: none;
+    cursor: pointer;
+
+    background: linear-gradient(45deg, #7b2cff, #a66cff);
+
+    transition: all 0.3s ease;
+}
+
+/* HOVER */
+.ultrix-btn:hover {
+    transform: scale(1.05);
+    box-shadow: 0 0 15px #7b2cff;
+}
+
+/* FOCO */
+.ultrix-btn:focus {
+    outline: none;
+
+    transform: scale(1.08);
+
+    box-shadow:
+        0 0 20px #a66cff,
+        0 0 40px rgba(166, 108, 255, 0.6);
+}
+
+/* SECUNDÁRIO */
+.ultrix-btn.secondary {
+    background: rgba(255, 255, 255, 0.15);
+}
+
+/* CLIQUE */
+.ultrix-btn:active {
+    transform: scale(0.97);
+}

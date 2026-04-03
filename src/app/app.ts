@@ -1,5 +1,5 @@
 import { Component, signal } from '@angular/core';
-import { RouterOutlet } from '@angular/router';
+import { Router, RouterOutlet } from '@angular/router';
 
 @Component({
   selector: 'app-root',
@@ -9,4 +9,16 @@ import { RouterOutlet } from '@angular/router';
 })
 export class App {
   protected readonly title = signal('ultrix-tv');
+
+  constructor(private router: Router) {
+    this.checkAuth();
+  }
+
+  checkAuth() {
+    const isLogged = localStorage.getItem('auth');
+
+    if (!isLogged) {
+      this.router.navigate(['/']);
+    }
+  }
 }
