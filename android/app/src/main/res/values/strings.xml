@@ -1,0 +1,7 @@
+<?xml version='1.0' encoding='utf-8'?>
+<resources>
+    <string name="app_name">ultrix-player</string>
+    <string name="title_activity_main">ultrix-player</string>
+    <string name="package_name">ultrix.player.app</string>
+    <string name="custom_url_scheme">ultrix.player.app</string>
+</resources>
