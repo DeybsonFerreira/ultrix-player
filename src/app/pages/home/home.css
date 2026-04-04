@@ -1,185 +1,129 @@
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+}
+
 /* ===== CONTAINER ===== */
 .home-container {
-    padding: 60px;
     height: 100vh;
-    background: url('/logo-2.png') center/cover no-repeat;
+    display: flex;
+    flex-direction: column;
+    background: linear-gradient(to bottom, #0b0b12, #141420);
+}
+
+/* ===== TOPO (PRETO PURO) ===== */
+.header {
+    height: 40%;
+    background: #000;
+    display: flex;
+    justify-content: center;
+    align-items: center;
     position: relative;
 }
 
-/* overlay para melhorar contraste */
-.home-container::before {
+/* ===== LOGO ===== */
+.main-logo {
+    width: 500px;
+    max-width: 80%;
+}
+
+/* ===== LINHA DIVISÓRIA NEON ===== */
+.header::after {
     content: '';
     position: absolute;
-    inset: 0;
-    background: rgba(5, 5, 10, 0.75);
+    bottom: 0;
+    left: 0;
+    width: 100%;
+    height: 2px;
+
+    background: linear-gradient(90deg,
+            transparent,
+            #7b2cff,
+            #a66cff,
+            #7b2cff,
+            transparent);
+    box-shadow:
+        0 0 8px #7b2cff,
+        0 0 15px rgba(123, 44, 255, 0.6);
+
+    animation: glowLine 2.5s ease-in-out infinite alternate;
 }
 
-/* conteúdo acima do overlay */
-.home-container>* {
-    position: relative;
-    z-index: 2;
-}
-
-/* ===== TOPO ===== */
-.top-bar {
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    margin-bottom: 60px;
-}
-
-.text-neon {
-    font-size: 36px;
-    font-weight: 700;
-    letter-spacing: 2px;
-    color: #ffffff;
-    /* 🔥 efeito neon roxo */
-    text-shadow:
-        0 0 5px #7b2cff,
-        0 0 10px #7b2cff,
-        0 0 20px #7b2cff,
-        0 0 40px rgba(123, 44, 255, 0.6);
-    /* leve brilho */
-    animation: glowPulse 2.5s infinite alternate;
-}
-
-@keyframes glowPulse {
+/* ANIMAÇÃO DA LINHA */
+@keyframes glowLine {
     from {
-        text-shadow:
-            0 0 5px #7b2cff,
-            0 0 10px #7b2cff,
-            0 0 20px #7b2cff;
+        opacity: 0.6;
+        transform: scaleX(0.95);
     }
 
     to {
-        text-shadow:
-            0 0 10px #a66cff,
-            0 0 20px #a66cff,
-            0 0 40px #a66cff,
-            0 0 60px rgba(166, 108, 255, 0.8);
+        opacity: 1;
+        transform: scaleX(1);
     }
 }
 
-/* botão sair */
-button {
-    height: 45px;
-    font-weight: bold;
-}
-
-button:focus {
-    outline: 3px solid #7b2cff;
-    box-shadow: 0 0 15px #7b2cff;
+/* ===== PARTE DE BAIXO ===== */
+.content {
+    margin-top: 3%;
+    display: flex;
+    justify-content: center;
+    align-items: center;
 }
 
 /* ===== GRID ===== */
 .grid {
     display: grid;
-    grid-template-columns: repeat(4, minmax(220px, 1fr));
-    gap: 40px;
-    max-width: 1400px;
-    margin: 0 auto;
-    justify-content: center;
-
+    grid-template-columns: repeat(4, 1fr);
+    gap: 30px;
+    width: 80%;
+    max-width: 1100px;
 }
 
 /* ===== CARD ===== */
 .ultrix-card {
-    background: rgba(20, 20, 40, 0.6);
-    backdrop-filter: blur(10px);
-    border-radius: 25px;
-    padding: 40px;
+    background: rgba(255, 255, 255, 0.03);
+    border-radius: 18px;
+    padding: 30px 15px;
     text-align: center;
     cursor: pointer;
-    transition: all 0.3s ease;
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    justify-content: center;
-    min-height: 220px;
+    transition: all 0.25s ease;
+    border: 1px solid rgba(255, 255, 255, 0.05);
+    backdrop-filter: blur(5px);
 }
 
 /* ===== ÍCONE ===== */
 .ultrix-card img {
-    width: 220px;
-    margin-bottom: 20px;
-    transition: 0.3s;
-    filter: drop-shadow(0 0 10px #7b2cff);
+    width: 80px;
+    margin-bottom: 15px;
+    opacity: 0.9;
+    transition: 0.25s;
 }
 
 /* ===== TEXTO ===== */
 .ultrix-card span {
-    font-size: 20px;
-    color: white;
+    color: #eaeaf0;
+    font-size: 16px;
     font-weight: 500;
 }
 
 /* ===== HOVER ===== */
 .ultrix-card:hover {
-    transform: scale(1.08);
-    box-shadow:
-        0 0 30px #7b2cff,
-        inset 0 0 10px rgba(123, 44, 255, 0.3);
+    transform: translateY(-5px);
+    border: 1px solid rgba(123, 44, 255, 0.5);
+    background: rgba(123, 44, 255, 0.08);
 }
 
+/* ===== HOVER ÍCONE ===== */
 .ultrix-card:hover img {
-    filter: drop-shadow(0 0 20px #a66cff);
+    transform: scale(1.05);
 }
 
-/* ===== FOCO (ESSENCIAL PARA TV) ===== */
+/* ===== FOCO (IMPORTANTE PRA TV) ===== */
 .ultrix-card:focus {
     outline: none;
-    transform: scale(1.12);
-    box-shadow:
-        0 0 40px #a66cff,
-        0 0 80px rgba(166, 108, 255, 0.5);
-}
-
-/* efeito extra no foco */
-.ultrix-card:focus img {
-    transform: scale(1.1);
-}
-
-
-/* ===== BOTÃO ULTRIX ===== */
-.ultrix-btn {
-    padding: 12px 24px;
-    border-radius: 12px;
-
-    font-size: 16px;
-    font-weight: 600;
-    letter-spacing: 1px;
-
-    color: white;
-    border: none;
-    cursor: pointer;
-
-    /* 🔥 gradiente roxo */
-    background: linear-gradient(45deg, #7b2cff, #a66cff);
-
-    transition: all 0.3s ease;
-
-    display: flex;
-    align-items: center;
-    gap: 8px;
-}
-
-/* HOVER */
-.ultrix-btn:hover {
     transform: scale(1.05);
-    box-shadow: 0 0 15px #7b2cff;
-}
-
-/* FOCO (TV) */
-.ultrix-btn:focus {
-    outline: none;
-    transform: scale(1.08);
-
-    box-shadow:
-        0 0 20px #a66cff,
-        0 0 40px rgba(166, 108, 255, 0.6);
-}
-
-/* CLIQUE */
-.ultrix-btn:active {
-    transform: scale(0.98);
+    border: 2px solid #7b2cff;
+    background: rgba(123, 44, 255, 0.12);
+    box-shadow: 0 0 20px rgba(123, 44, 255, 0.4);
 }

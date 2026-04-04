@@ -1,32 +1,35 @@
 <div class="home-container">
 
-    <div class="top-bar">
-        <h1 class="text-neon">Ultrix Player</h1>
-        <button class="ultrix-btn" tabindex="0">
-            ⏻ Sair
-        </button>
+    <!-- TOPO (PRETO COM LOGO) -->
+    <div class="header">
+        <img src="logo.png" class="main-logo">
     </div>
 
-    <div class="grid">
+    <!-- PARTE DE BAIXO (CARDS) -->
+    <div class="content">
 
-        <div class="ultrix-card" tabindex="0" (click)="goLive()">
-            <img src="icons/tv.png">
-            <span>TV Ao Vivo</span>
-        </div>
+        <div class="grid">
 
-        <div class="ultrix-card" tabindex="0">
-            <img src="icons/filmes.png">
-            <span>Filmes</span>
-        </div>
+            <div class="ultrix-card" tabindex="0" (click)="goLive()">
+                <img src="icons/tv.png">
+                <span>TV Ao Vivo</span>
+            </div>
 
-        <div class="ultrix-card" tabindex="0">
-            <img src="icons/series.png">
-            <span>Séries</span>
-        </div>
+            <div class="ultrix-card" tabindex="0">
+                <img src="icons/filmes.png">
+                <span>Filmes</span>
+            </div>
 
-        <div class="ultrix-card" tabindex="0" (click)="openConfig()">
-            <img src="icons/config.png">
-            <span>Configurações</span>
+            <div class="ultrix-card" tabindex="0">
+                <img src="icons/series.png">
+                <span>Séries</span>
+            </div>
+
+            <div class="ultrix-card" tabindex="0" (click)="openConfig()">
+                <img src="icons/config.png">
+                <span>Configurações</span>
+            </div>
+
         </div>
 
     </div>
