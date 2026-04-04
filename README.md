@@ -13,6 +13,8 @@ ng generate service services/configService  --skip-tests
 ng generate component pages/config/config-dialog --skip-tests
 
 
+https://raw.githubusercontent.com/joaoguidugli/FTA-IPTV-Brasil/master/playlist.m3u8
+Servidor de teste
 ```
 # Run on network
 
