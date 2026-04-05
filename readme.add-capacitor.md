@@ -11,6 +11,8 @@ Este guia descreve como adicionar e configurar o **Capacitor** para transformar 
 No terminal, na raiz do projeto, instale o CLI e o Core do Capacitor:
 ```bash
 npm install @capacitor/core @capacitor/cli
+npm install @capacitor/filesystem
+
 ```
 
 ## 2. Inicializar o Capacitor

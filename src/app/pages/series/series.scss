@@ -1,7 +1,9 @@
 // ═══════════════════════════════════════════════════════
-//  ULTRIX PLAYER — LIVE TV STYLES
-//  Paleta: roxo neon (#7b2cff / #a66cff) + escuro
+//  ULTRIX TV — FILMES / SÉRIES (mesmo visual do live-tv)
+//  Cole este arquivo tanto em movies.scss quanto series.scss
+//  Ajuste apenas os seletores raiz (.movies-container / .series-container)
 // ═══════════════════════════════════════════════════════
+
 $neon: #7b2cff;
 $neon-light: #a66cff;
 $bg-deep: #06060f;
@@ -12,30 +14,13 @@ $bg-active: rgba(123, 44, 255, 0.25);
 $text-muted: rgba(255, 255, 255, 0.45);
 
 @mixin neon-glow($color: $neon) {
-    box-shadow:
-        0 0 8px $color,
-        0 0 18px rgba($color, 0.5);
+    box-shadow: 0 0 8px $color, 0 0 18px rgba($color, 0.5);
 }
 
-@mixin neon-text($color: $neon) {
-    text-shadow:
-        0 0 5px $color,
-        0 0 12px $color,
-        0 0 24px rgba($color, 0.5);
-}
-
-@keyframes glowPulse {
-    from {
-        text-shadow: 0 0 5px $neon, 0 0 12px $neon;
-    }
-
-    to {
-        text-shadow: 0 0 10px $neon-light, 0 0 24px $neon-light, 0 0 48px rgba($neon-light, 0.6);
-    }
-}
-
-// ─── CONTAINER RAIZ ────────────────────────────────────
-.live-container {
+// ─── Container raiz ────────────────────────────────────
+// Use .movies-container em movies.scss e .series-container em series.scss
+.movies-container,
+.series-container {
     width: 100vw;
     height: 100vh;
     background: $bg-deep;
@@ -48,189 +33,7 @@ $text-muted: rgba(255, 255, 255, 0.45);
     color: white;
 }
 
-
-
-
-
-
-
-
-.section-label {
-    display: block;
-    font-size: 13px;
-    color: $text-muted;
-    margin-bottom: 10px;
-    letter-spacing: 0.5px;
-}
-
-.url-row {
-    display: flex;
-    gap: 10px;
-}
-
-.neon-input {
-    flex: 1;
-    padding: 13px 16px;
-    background: rgba(255, 255, 255, 0.05);
-    border: 1px solid rgba($neon, 0.3);
-    border-radius: 12px;
-    color: white;
-    font-size: 14px;
-    transition: all 0.25s;
-
-    &::placeholder {
-        color: rgba(255, 255, 255, 0.25);
-    }
-
-    &:focus {
-        outline: none;
-        border-color: $neon-light;
-        @include neon-glow($neon);
-    }
-}
-
-.divider {
-    text-align: center;
-    margin: 20px 0;
-    position: relative;
-    color: $text-muted;
-    font-size: 13px;
-
-    &::before,
-    &::after {
-        content: '';
-        position: absolute;
-        top: 50%;
-        width: 42%;
-        height: 1px;
-        background: rgba($neon, 0.2);
-    }
-
-    &::before {
-        left: 0;
-    }
-
-    &::after {
-        right: 0;
-    }
-}
-
-.feedback {
-    margin-top: 14px;
-    padding: 12px 16px;
-    border-radius: 10px;
-    font-size: 13px;
-
-    &.error {
-        background: rgba(255, 60, 60, 0.1);
-        border: 1px solid rgba(255, 60, 60, 0.3);
-        color: #ff7070;
-    }
-
-    &.success {
-        background: rgba(0, 220, 120, 0.1);
-        border: 1px solid rgba(0, 220, 120, 0.3);
-        color: #5dffc0;
-    }
-}
-
-.back-btn {
-    display: block;
-    width: 100%;
-    margin-top: 24px;
-    padding: 10px;
-    background: transparent;
-    border: none;
-    color: $text-muted;
-    font-size: 14px;
-    cursor: pointer;
-    transition: color 0.2s;
-    text-align: center;
-
-    &:hover {
-        color: white;
-    }
-
-    &:focus {
-        outline: none;
-        color: $neon-light;
-    }
-}
-
-.spinner {
-    display: inline-block;
-    animation: spin 0.8s linear infinite;
-}
-
-@keyframes spin {
-    from {
-        transform: rotate(0deg);
-    }
-
-    to {
-        transform: rotate(360deg);
-    }
-}
-
-// ─── BOTÕES ────────────────────────────────────────────
-.ultrix-btn {
-    padding: 13px 22px;
-    border-radius: 12px;
-    font-size: 14px;
-    font-weight: 600;
-    color: white;
-    border: none;
-    cursor: pointer;
-    background: linear-gradient(135deg, $neon, $neon-light);
-    transition: all 0.25s;
-    white-space: nowrap;
-
-    &:hover {
-        transform: scale(1.04);
-        @include neon-glow($neon);
-    }
-
-    &:focus {
-        outline: none;
-        transform: scale(1.06);
-        @include neon-glow($neon-light);
-    }
-
-    &:active {
-        transform: scale(0.97);
-    }
-
-    &:disabled {
-        opacity: 0.5;
-        cursor: not-allowed;
-        transform: none;
-    }
-
-    &.secondary {
-        background: rgba(255, 255, 255, 0.08);
-        border: 1px solid rgba($neon, 0.3);
-
-        &:hover {
-            background: rgba($neon, 0.15);
-        }
-    }
-
-    &.full-width {
-        width: 100%;
-    }
-}
-
-// ═══════════════════════════════════════════════════════
-//  LAYOUT DO PLAYER
-// ═══════════════════════════════════════════════════════
-.player-layout {
-    flex: 1;
-    display: flex;
-    height: 100vh;
-    overflow: hidden;
-}
-
-// ─── SIDEBAR ───────────────────────────────────────────
+// ─── Sidebar ───────────────────────────────────────────
 .sidebar {
     width: 300px;
     min-width: 260px;
@@ -341,9 +144,8 @@ $text-muted: rgba(255, 255, 255, 0.45);
 .sidebar-list {
     flex: 1;
     overflow-y: auto;
-    padding: 8px 8px;
+    padding: 8px;
 
-    // Scrollbar estilizada
     &::-webkit-scrollbar {
         width: 4px;
     }
@@ -356,13 +158,8 @@ $text-muted: rgba(255, 255, 255, 0.45);
         background: rgba($neon, 0.3);
         border-radius: 2px;
     }
-
-    &::-webkit-scrollbar-thumb:hover {
-        background: rgba($neon, 0.6);
-    }
 }
 
-// Grupo
 .group-item {
     display: flex;
     align-items: center;
@@ -409,7 +206,6 @@ $text-muted: rgba(255, 255, 255, 0.45);
     flex-shrink: 0;
 }
 
-// Canal
 .channel-item {
     display: flex;
     align-items: center;
@@ -483,7 +279,7 @@ $text-muted: rgba(255, 255, 255, 0.45);
     flex-shrink: 0;
 }
 
-// ─── ÁREA DO PLAYER ────────────────────────────────────
+// ─── Área do player ────────────────────────────────────
 .player-area {
     flex: 1;
     display: flex;
@@ -492,7 +288,6 @@ $text-muted: rgba(255, 255, 255, 0.45);
     overflow: hidden;
 }
 
-// Estado vazio
 .player-empty {
     flex: 1;
     display: flex;
@@ -522,7 +317,6 @@ $text-muted: rgba(255, 255, 255, 0.45);
     }
 }
 
-// Player wrapper
 .player-wrapper {
     flex: 1;
     display: flex;
@@ -530,7 +324,6 @@ $text-muted: rgba(255, 255, 255, 0.45);
     height: 100%;
 }
 
-// Info bar
 .player-info-bar {
     display: flex;
     align-items: center;
@@ -539,6 +332,12 @@ $text-muted: rgba(255, 255, 255, 0.45);
     background: rgba($neon, 0.05);
     border-bottom: 1px solid rgba($neon, 0.12);
     flex-shrink: 0;
+}
+
+.channel-info {
+    display: flex;
+    align-items: center;
+    gap: 14px;
 }
 
 .now-playing-logo {
@@ -559,12 +358,22 @@ $text-muted: rgba(255, 255, 255, 0.45);
     font-size: 10px;
     font-weight: 700;
     letter-spacing: 2px;
-    color: #ff4444;
-    background: rgba(255, 50, 50, 0.15);
-    border: 1px solid rgba(255, 50, 50, 0.3);
     padding: 2px 6px;
     border-radius: 4px;
     width: fit-content;
+}
+
+// Labels coloridos por tipo
+.now-label.movie-label {
+    color: #ffaa00;
+    background: rgba(255, 170, 0, 0.15);
+    border: 1px solid rgba(255, 170, 0, 0.3);
+}
+
+.now-label.series-label {
+    color: #00ccff;
+    background: rgba(0, 204, 255, 0.15);
+    border: 1px solid rgba(0, 204, 255, 0.3);
 }
 
 .now-name {
@@ -583,10 +392,8 @@ $text-muted: rgba(255, 255, 255, 0.45);
     font-weight: 300;
     color: rgba(255, 255, 255, 0.6);
     font-variant-numeric: tabular-nums;
-    letter-spacing: 1px;
 }
 
-// Vídeo
 .video-container {
     flex: 1;
     position: relative;
@@ -640,12 +447,64 @@ $text-muted: rgba(255, 255, 255, 0.45);
     animation: spin 0.8s linear infinite;
 }
 
-// Controles do player
+@keyframes spin {
+    from {
+        transform: rotate(0deg);
+    }
+
+    to {
+        transform: rotate(360deg);
+    }
+}
+
+// ─── Barra de progresso ────────────────────────────────
+.progress-bar-row {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    padding: 10px 24px 4px;
+    background: rgba(8, 8, 20, 0.98);
+    flex-shrink: 0;
+}
+
+.time-label {
+    font-size: 12px;
+    color: $text-muted;
+    font-variant-numeric: tabular-nums;
+    min-width: 40px;
+
+    &:last-child {
+        text-align: right;
+    }
+}
+
+.progress-slider {
+    flex: 1;
+    -webkit-appearance: none;
+    appearance: none;
+    height: 4px;
+    border-radius: 2px;
+    background: rgba(255, 255, 255, 0.1);
+    outline: none;
+    cursor: pointer;
+
+    &::-webkit-slider-thumb {
+        -webkit-appearance: none;
+        width: 14px;
+        height: 14px;
+        border-radius: 50%;
+        background: $neon-light;
+        box-shadow: 0 0 6px $neon;
+        cursor: pointer;
+    }
+}
+
+// ─── Controles ─────────────────────────────────────────
 .player-controls {
     display: flex;
     align-items: center;
     gap: 12px;
-    padding: 16px 24px;
+    padding: 12px 24px 16px;
     background: rgba(8, 8, 20, 0.98);
     border-top: 1px solid rgba($neon, 0.12);
     flex-shrink: 0;
@@ -720,24 +579,4 @@ $text-muted: rgba(255, 255, 255, 0.45);
         box-shadow: 0 0 6px $neon;
         cursor: pointer;
     }
-
-    &:focus {
-        background: rgba($neon, 0.2);
-    }
-}
-
-.channel-info {
-    display: flex;
-    flex-direction: column;
-    gap: 4px;
-    align-items: center;
-}
-
-.channel-group-tag {
-    font-size: 10px;
-    text-transform: uppercase;
-    color: #7b2cff;
-    /* O seu roxo neon */
-    opacity: 0.7;
-    letter-spacing: 1px;
 }

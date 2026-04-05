@@ -1,0 +1,49 @@
+<!-- ── TELA DE IMPORTAÇÃO ─────────────────────────── -->
+<div class="import-screen">
+
+    <div class="import-card">
+        <div class="import-logo">
+            <span class="neon-icon">📡</span>
+            <h1 class="text-neon">TV Ao Vivo</h1>
+            <p class="subtitle">Importe sua playlist M3U para começar</p>
+        </div>
+
+        <!-- URL -->
+        <div class="import-section">
+            <label class="section-label">🌐 URL da Playlist M3U</label>
+            <div class="url-row">
+                <input class="neon-input" [(ngModel)]="m3uUrl" placeholder="http://servidor.com/playlist.m3u"
+                    tabindex="0" />
+                <button class="ultrix-btn" (click)="importFromUrl()" [disabled]="isLoading" tabindex="0">
+                    <span *ngIf="!isLoading">Carregar</span>
+                    <span *ngIf="isLoading" class="spinner">⟳</span>
+                </button>
+            </div>
+        </div>
+
+        <!-- Divisor -->
+        <div class="divider">
+            <span>ou</span>
+        </div>
+
+        <!-- Arquivo -->
+        <div class="import-section">
+            <label class="section-label">📁 Arquivo Local (.m3u / .m3u8)</label>
+            <button class="ultrix-btn secondary full-width" (click)="triggerFileInput()" [disabled]="isLoading"
+                tabindex="0">
+                <span *ngIf="!isLoading">📂 Selecionar Arquivo</span>
+                <span *ngIf="isLoading" class="spinner">⟳ Processando...</span>
+            </button>
+            <input #fileInput type="file" accept=".m3u,.m3u8,.txt" style="display:none"
+                (change)="onFileSelected($event)" />
+        </div>
+
+        <!-- Feedback -->
+        <div class="feedback error" *ngIf="importError">⚠ {{ importError }}</div>
+        <div class="feedback success" *ngIf="importSuccess">✓ {{ importSuccess }}</div>
+
+        <!-- Botão voltar -->
+        <button class="back-btn" (click)="goHome()" tabindex="0">← Voltar ao Menu</button>
+    </div>
+
+</div>

@@ -1,7 +1,11 @@
+import { ContentType } from "./contentType";
+
 export interface Channel {
     id: string;
     name: string;
-    logo: string;
-    group: string;
     url: string;
+    logo?: string;
+    group: string;
+    tvgId?: string;
+    type: ContentType;
 }

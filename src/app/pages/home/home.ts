@@ -16,9 +16,9 @@ export class HomeComponent {
 
   constructor(private router: Router, private dialog: MatDialog) { }
 
-  goLive() {
-    this.router.navigate(['/live']);
-  }
+  goLive() { this.router.navigate(['/live']); }
+  goMovies() { this.router.navigate(['/movies']); }
+  goSeries() { this.router.navigate(['/series']); }
 
   openConfig() {
     this.dialog.open(ConfigDialogComponent, {

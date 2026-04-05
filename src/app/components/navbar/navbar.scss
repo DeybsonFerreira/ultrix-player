@@ -1,0 +1,138 @@
+/* VARIÁVEIS ULTRIX */
+$neon: #7b2cff;
+$neon-light: #a66cff;
+$bg-deep: #000000;
+$text-muted: rgba(255, 255, 255, 0.45);
+
+.navbar-container {
+    background-color: $bg-deep;
+    padding: 0 60px;
+    height: 100px;
+    /* Altura fixa para alinhar tudo verticalmente */
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    border-bottom: 1px solid rgba($neon, 0.15);
+    box-shadow: 0 4px 30px rgba(0, 0, 0, 0.5);
+    position: sticky;
+    top: 0;
+    z-index: 1000;
+}
+
+/* LINKS DE NAVEGAÇÃO */
+.nav-links {
+    display: flex;
+    gap: 40px;
+    flex: 1;
+    /* Garante que o lado esquerdo ocupe espaço igual ao direito */
+}
+
+.nav-item {
+    position: relative;
+    color: $text-muted;
+    font-size: 14px;
+    font-weight: 600;
+    letter-spacing: 2px;
+    text-transform: uppercase;
+    cursor: pointer;
+    text-decoration: none;
+    outline: none;
+    transition: all 0.4s ease;
+
+    &::after {
+        content: '';
+        position: absolute;
+        bottom: -10px;
+        left: 50%;
+        transform: translateX(-50%);
+        width: 0;
+        height: 2px;
+        background: linear-gradient(90deg, $neon, $neon-light);
+        transition: width 0.3s ease;
+        box-shadow: 0 0 10px $neon;
+    }
+
+    &:hover,
+    &.active {
+        color: #fff;
+        text-shadow: 0 0 10px rgba($neon-light, 0.6);
+    }
+
+    &.active::after {
+        width: 100%;
+    }
+
+    &:focus {
+        color: $neon-light;
+        transform: scale(1.1);
+    }
+}
+
+/* INPUT DE BUSCA (CENTRALIZADO) */
+.search-row {
+    flex: 2;
+    /* Dá mais destaque ao centro */
+    display: flex;
+    justify-content: center;
+}
+
+.search-wrapper {
+    position: relative;
+    width: 100%;
+    max-width: 350px;
+    display: flex;
+    align-items: center;
+}
+
+.search-icon {
+    position: absolute;
+    left: 15px;
+    font-size: 14px;
+    opacity: 0.4;
+    transition: 0.3s;
+}
+
+.search-input {
+    width: 100%;
+    padding: 12px 15px 12px 45px;
+    background: rgba(255, 255, 255, 0.03);
+    border: 1px solid rgba($neon, 0.2);
+    border-radius: 50px;
+    /* Estilo pílula moderno */
+    color: white;
+    font-size: 13px;
+    letter-spacing: 1px;
+    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+    backdrop-filter: blur(5px);
+
+    &::placeholder {
+        color: rgba(255, 255, 255, 0.2);
+    }
+
+    &:focus {
+        outline: none;
+        width: 115%;
+        /* Expansão suave no foco */
+        background: rgba($neon, 0.05);
+        border-color: $neon-light;
+        box-shadow: 0 0 20px rgba($neon, 0.2);
+
+        &+.search-icon {
+            opacity: 1;
+            text-shadow: 0 0 10px $neon;
+        }
+    }
+}
+
+/* LOGO */
+.nav-logo {
+    flex: 1;
+    display: flex;
+    justify-content: flex-end;
+}
+
+.logo-img {
+    height: 100px;
+    width: auto;
+
+}

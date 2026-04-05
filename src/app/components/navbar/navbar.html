@@ -1,0 +1,19 @@
+<nav class="navbar-container">
+  <div class="nav-links">
+    <a *ngFor="let item of menuItems" class="nav-item" [ngClass]="{'active': activeIdItem === item.id}"
+      (click)="setActive(item.id)" tabindex="0">
+      {{ item.label }}
+    </a>
+  </div>
+
+  <div class="search-row">
+    <div class="search-wrapper">
+      <span class="search-icon">🔍</span>
+      <input type="text" (input)="onTyping($event)" class="search-input" placeholder="BUSCAR CANAL..." tabindex="0" />
+    </div>
+  </div>
+
+  <div class="nav-logo">
+    <img src="logo.png" alt="Ultrix TV" class="logo-img">
+  </div>
+</nav>

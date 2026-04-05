@@ -1,58 +1,10 @@
-<!-- ═══════════════════════════════════════════════════
-     ULTRIX PLAYER — LIVE TV PAGE
-     Layout: [GRUPOS | CANAIS] [PLAYER]
-════════════════════════════════════════════════════ -->
+<app-navbar (searchEvent)="searchQuery = $event"></app-navbar>
 
 <div class="live-container">
 
     <!-- ── TELA DE IMPORTAÇÃO ─────────────────────────── -->
     <div class="import-screen" *ngIf="viewMode === 'import'">
-
-        <div class="import-card">
-            <div class="import-logo">
-                <span class="neon-icon">📡</span>
-                <h1 class="text-neon">TV Ao Vivo</h1>
-                <p class="subtitle">Importe sua playlist M3U para começar</p>
-            </div>
-
-            <!-- URL -->
-            <div class="import-section">
-                <label class="section-label">🌐 URL da Playlist M3U</label>
-                <div class="url-row">
-                    <input class="neon-input" [(ngModel)]="m3uUrl" placeholder="http://servidor.com/playlist.m3u"
-                        tabindex="0" />
-                    <button class="ultrix-btn" (click)="importFromUrl()" [disabled]="isLoading" tabindex="0">
-                        <span *ngIf="!isLoading">Carregar</span>
-                        <span *ngIf="isLoading" class="spinner">⟳</span>
-                    </button>
-                </div>
-            </div>
-
-            <!-- Divisor -->
-            <div class="divider">
-                <span>ou</span>
-            </div>
-
-            <!-- Arquivo -->
-            <div class="import-section">
-                <label class="section-label">📁 Arquivo Local (.m3u / .m3u8)</label>
-                <button class="ultrix-btn secondary full-width" (click)="triggerFileInput()" [disabled]="isLoading"
-                    tabindex="0">
-                    <span *ngIf="!isLoading">📂 Selecionar Arquivo</span>
-                    <span *ngIf="isLoading" class="spinner">⟳ Processando...</span>
-                </button>
-                <input #fileInput type="file" accept=".m3u,.m3u8,.txt" style="display:none"
-                    (change)="onFileSelected($event)" />
-            </div>
-
-            <!-- Feedback -->
-            <div class="feedback error" *ngIf="importError">⚠ {{ importError }}</div>
-            <div class="feedback success" *ngIf="importSuccess">✓ {{ importSuccess }}</div>
-
-            <!-- Botão voltar -->
-            <button class="back-btn" (click)="goHome()" tabindex="0">← Voltar ao Menu</button>
-        </div>
-
+        <app-import></app-import>
     </div>
 
     <!-- ── LAYOUT DO PLAYER ───────────────────────────── -->
@@ -65,20 +17,15 @@
             <div class="sidebar-header">
                 <button class="icon-btn" (click)="goHome()" title="Menu" tabindex="0">⌂</button>
                 <span class="sidebar-title" *ngIf="sidebarMode === 'groups'">Grupos</span>
-                <span class="sidebar-title" *ngIf="sidebarMode === 'channels'">
-                    <button class="back-icon-btn" (click)="backToGroups()" tabindex="0">‹</button>
+                <span class="sidebar-title pointer" *ngIf="sidebarMode === 'channels'" (click)="backToGroups()">
+                    <button class="back-icon-btn" tabindex="0">‹</button>
                     {{ selectedGroup?.name }}
                 </span>
                 <button class="icon-btn small" (click)="clearPlaylist()" title="Trocar playlist" tabindex="0">↩</button>
             </div>
 
-            <!-- Busca (apenas na lista de canais) -->
-            <div class="search-row" *ngIf="sidebarMode === 'channels'">
-                <input class="search-input" [(ngModel)]="searchQuery" placeholder="🔍 Buscar canal..." tabindex="0" />
-            </div>
-
             <!-- Lista de GRUPOS -->
-            <div class="sidebar-list" *ngIf="sidebarMode === 'groups'">
+            <div class="sidebar-list" *ngIf="sidebarMode === 'groups' && !searchQuery">
                 <div class="group-item" *ngFor="let group of groups" (click)="selectGroup(group)"
                     [class.active]="selectedGroup?.name === group.name" tabindex="0"
                     (keydown.enter)="selectGroup(group)">
@@ -87,20 +34,27 @@
                 </div>
             </div>
 
-            <!-- Lista de CANAIS -->
-            <div class="sidebar-list" *ngIf="sidebarMode === 'channels'">
+            <!-- Lista de Canais -->
+            <div class="sidebar-list" *ngIf="sidebarMode === 'channels' || searchQuery">
+
                 <div class="channel-item" *ngFor="let channel of filteredChannels" (click)="selectChannel(channel)"
                     [class.active]="selectedChannel?.id === channel.id" tabindex="0"
                     (keydown.enter)="selectChannel(channel)">
+
                     <img *ngIf="channel.logo" class="channel-logo" [src]="channel.logo" [alt]="channel.name"
                         onerror="this.style.display='none'" />
                     <span class="channel-logo-placeholder" *ngIf="!channel.logo">📺</span>
-                    <span class="channel-name">{{ channel.name }}</span>
+
+                    <div class="channel-info">
+                        <span class="channel-name">{{ channel.name }}</span>
+                        <span class="group-tag" *ngIf="searchQuery">{{ channel.group }}</span>
+                    </div>
+
                     <span class="play-icon" *ngIf="selectedChannel?.id === channel.id">▶</span>
                 </div>
 
                 <div class="empty-state" *ngIf="filteredChannels.length === 0">
-                    Nenhum canal encontrado
+                    Nenhum canal encontrado para "{{ searchQuery }}"
                 </div>
             </div>
 
