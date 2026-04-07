@@ -26,11 +26,7 @@ function classifyGroup(groupName: string): ContentType {
   return 'live';
 }
 
-// ─── Chave de storage ─────────────────────────────────────────────────────
-const STORAGE_KEY = 'channels';
-
 // ─── Serviço ──────────────────────────────────────────────────────────────
-
 @Injectable({ providedIn: 'root' })
 export class IptvService {
 
@@ -64,7 +60,7 @@ export class IptvService {
 
   // ── Parse ─────────────────────────────────────────────
 
-  parseM3U(content: string): { ok: boolean; error?: string; total?: number } {
+  parseM3U(content: string, storageKey: string, storageValue: string): { ok: boolean; error?: string; total?: number } {
     const lines = content.split('\n').map(l => l.trim()).filter(Boolean);
 
     if (!lines[0]?.startsWith('#EXTM3U')) {
@@ -106,7 +102,7 @@ export class IptvService {
     this._loaded = true;
 
     // Salva de forma assíncrona — não bloqueia a UI
-    this.saveToStorage();
+    this.saveToStorage(storageKey, storageValue);
 
     return { ok: true, total: channels.length };
   }
@@ -114,20 +110,25 @@ export class IptvService {
   // ── Persistência ──────────────────────────────────────
 
   /** Salva os canais de forma persistente (Filesystem ou localStorage) */
-  async saveToStorage(): Promise<void> {
+  async saveToStorage(storageKey: string, storageValue: string): Promise<void> {
     try {
       const payload = JSON.stringify(this._allChannels);
-      await this.storage.save(STORAGE_KEY, payload);
+      await this.storage.save(storageKey, storageValue);
       console.log(`[IptvService] ${this._allChannels.length} canais salvos`);
     } catch (e) {
       console.error('[IptvService] Erro ao salvar:', e);
     }
   }
 
+  async loadStorage(storageKey: string) {
+    const raw = await this.storage.load(storageKey);
+    return raw;
+  }
+
   /** Carrega os canais do storage. Retorna true se encontrou dados. */
-  async loadFromStorage(): Promise<boolean> {
+  async loadFromStorage(storageKey: string): Promise<boolean> {
     try {
-      const raw = await this.storage.load(STORAGE_KEY);
+      const raw = await this.storage.load(storageKey);
       if (!raw) return false;
 
       const parsed: Channel[] = JSON.parse(raw);
@@ -149,8 +150,8 @@ export class IptvService {
   }
 
   /** Remove os canais do storage e da memória */
-  async clearStorage(): Promise<void> {
-    await this.storage.remove(STORAGE_KEY);
+  async clearStorage(storageKey: string): Promise<void> {
+    await this.storage.remove(storageKey);
     this._allChannels = [];
     this._loaded = false;
     console.log('[IptvService] Storage limpo');

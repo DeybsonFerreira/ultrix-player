@@ -6,6 +6,7 @@ import { ChannelGroup } from '../../models/channelGroup';
 import { Channel } from '../../models/channel';
 import { IptvService } from '../../services/iptv-service';
 import { NavbarComponent } from '../../components/navbar/navbar';
+import { CacheKeys } from '../../models/constants';
 
 const HLS_CONFIG = {
   maxBufferLength: 60,
@@ -64,7 +65,7 @@ export class MoviesComponent implements OnInit, OnDestroy {
   viewMode = 'player';
   ngOnInit(): void {
 
-    if (!this.iptv.isLoaded) this.iptv.loadFromStorage();
+    if (!this.iptv.isLoaded) this.iptv.loadFromStorage(CacheKeys.IPTV_LINK);
     this.groups = this.iptv.getGroupsByType('movie');
     if (this.groups.length == 0) {
       this.viewMode = 'import';
@@ -125,7 +126,7 @@ export class MoviesComponent implements OnInit, OnDestroy {
   preloadHls() {
     if ((window as any).Hls) return;
     const script = document.createElement('script');
-    script.src = 'assets/hls.min.js';
+    script.src = 'js/hls.min.js';
     script.onerror = () => {
       const cdn = document.createElement('script');
       cdn.src = 'https://cdn.jsdelivr.net/npm/hls.js@1.5.7/dist/hls.min.js';

@@ -1,3 +1,25 @@
+$neon: #7b2cff;
+$neon-light: #a66cff;
+$bg-deep: #06060f;
+$bg-card: rgba(14, 14, 30, 0.97);
+$bg-item: rgba(20, 20, 45, 0.7);
+$bg-hover: rgba(123, 44, 255, 0.15);
+$bg-active: rgba(123, 44, 255, 0.25);
+$text-muted: rgba(255, 255, 255, 0.45);
+
+@mixin neon-glow($color: $neon) {
+    box-shadow:
+        0 0 8px $color,
+        0 0 18px rgba($color, 0.5);
+}
+
+@mixin neon-text($color: $neon) {
+    text-shadow:
+        0 0 5px $color,
+        0 0 12px $color,
+        0 0 24px rgba($color, 0.5);
+}
+
 /* ===== CONTAINER ===== */
 .dialog-container {
     position: relative;
@@ -70,26 +92,15 @@
     grid-template-columns: 120px 1fr;
     align-items: center;
     gap: 20px;
-    padding: 5px 0;
-}
-
-/* LABEL */
-.row label {
-    text-align: right;
-    font-size: 14px;
-    opacity: 0.7;
 }
 
 /* INPUT */
 .row input {
     padding: 14px;
     border-radius: 12px;
-
     border: 1px solid rgba(123, 44, 255, 0.3);
-
     background: rgba(255, 255, 255, 0.05);
     color: white;
-
     transition: all 0.25s ease;
 }
 
@@ -165,4 +176,74 @@
 /* CLIQUE */
 .ultrix-btn:active {
     transform: scale(0.97);
+}
+
+.neon-input {
+    flex: 1;
+    padding: 13px 16px;
+    background: rgba(255, 255, 255, 0.05);
+    border: 1px solid rgba($neon, 0.3);
+    border-radius: 12px;
+    color: white;
+    font-size: 14px;
+    transition: all 0.25s;
+    width: 90%;
+
+    &::placeholder {
+        color: rgba(255, 255, 255, 0.25);
+    }
+
+    &:focus {
+        outline: none;
+        border-color: $neon-light;
+        @include neon-glow($neon);
+    }
+}
+
+.form-group {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+    margin-bottom: 50px;
+}
+
+
+.form-group .input-row-import {
+    display: flex;
+    gap: 8px;
+}
+
+.form-group input {
+    flex: 1;
+}
+
+.form-group button {
+    width: 50px;
+    cursor: pointer;
+}
+
+.divider {
+    text-align: center;
+    margin: 20px 0;
+    position: relative;
+    color: $text-muted;
+    font-size: 13px;
+
+    &::before,
+    &::after {
+        content: '';
+        position: absolute;
+        top: 50%;
+        width: 42%;
+        height: 1px;
+        background: rgba($neon, 0.2);
+    }
+
+    &::before {
+        left: 0;
+    }
+
+    &::after {
+        right: 0;
+    }
 }

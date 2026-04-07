@@ -2,13 +2,8 @@
 
 <div class="live-container">
 
-    <!-- ── TELA DE IMPORTAÇÃO ─────────────────────────── -->
-    <div class="import-screen" *ngIf="viewMode === 'import'">
-        <app-import></app-import>
-    </div>
-
     <!-- ── LAYOUT DO PLAYER ───────────────────────────── -->
-    <div class="player-layout" *ngIf="viewMode === 'player'">
+    <div class="player-layout">
 
         <!-- SIDEBAR ESQUERDA -->
         <aside class="sidebar">
@@ -107,7 +102,7 @@
                     <!-- Loading -->
                     <div class="player-loading" *ngIf="!isPlaying && !playerError && selectedChannel">
                         <div class="loading-spinner"></div>
-                        <span>Carregando canal...</span>
+                        <span>Carregando...</span>
                     </div>
                 </div>
 

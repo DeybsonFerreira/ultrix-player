@@ -6,6 +6,7 @@ import { ChannelGroup } from '../../models/channelGroup';
 import { Channel } from '../../models/channel';
 import { IptvService } from '../../services/iptv-service';
 import { NavbarComponent } from '../../components/navbar/navbar';
+import { CacheKeys } from '../../models/constants';
 
 const HLS_CONFIG = {
   maxBufferLength: 60,
@@ -62,7 +63,7 @@ export class SeriesComponent implements OnInit, OnDestroy {
   ) { }
 
   ngOnInit(): void {
-    if (!this.iptv.isLoaded) this.iptv.loadFromStorage();
+    if (!this.iptv.isLoaded) this.iptv.loadFromStorage(CacheKeys.IPTV_LINK);
     // Carrega apenas grupos classificados como 'series'
     this.groups = this.iptv.getGroupsByType('series');
     this.preloadHls();

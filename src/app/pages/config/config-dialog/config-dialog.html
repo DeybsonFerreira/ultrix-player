@@ -1,16 +1,27 @@
 <div class="dialog-container">
-    <h2 class="text-neon">Configurações</h2>
+    <h2 class="text-neon">Configurações 📡</h2>
+
+    <div class="form-group">
+        <label>🌐Importar Playlist M3U manualmente</label>
+        <div class="input-row-import">
+            <input tabindex="0" class="neon-input" [(ngModel)]="m3uUrl"
+                placeholder="http://servidor.com/playlist.m3u" />
+
+            <button (click)="importFromUrl()" [disabled]="isLoading">➕
+                <span *ngIf="isLoading" class="spinner">⟳</span>
+            </button>
+        </div>
+    </div>
+
+    <div class="text-success">{{this.importSuccess}} </div>
+    <div class="text-danger">{{this.importError}} </div>
+
+    <div class="divider"></div>
+
+    <br>
+
+
     <div class="form-grid">
-
-        <div class="row">
-            <label>Usuário</label>
-            <input tabindex="0" [(ngModel)]="config.username" placeholder="Digite seu usuário" />
-        </div>
-
-        <div class="row">
-            <label>Senha</label>
-            <input tabindex="0" [(ngModel)]="config.password" type="password" placeholder="••••••••" />
-        </div>
 
         <div class="row">
             <label>TV MAC ID</label>
@@ -32,6 +43,24 @@
             </label>
         </div>
     </div>
+
+    <div class="divider"> </div>
+    <br>
+
+    <mat-list>
+        <div class="text-success" mat-subheader>Canais Importados</div>
+        @for (server of servers; track servers) {
+        <mat-list-item>
+            <mat-icon matListItemIcon>folder</mat-icon>
+            <div matListItemTitle>{{server}}</div>
+            <button (click)="removeServer(server)" matIconButton matListItemMeta>
+                <mat-icon class="text-danger">close</mat-icon>
+            </button>
+        </mat-list-item>
+        }
+        <div class="divider"> </div>
+    </mat-list>
+
 
     <div class="actions">
         <button class="ultrix-btn" tabindex="0" (click)="save()">Salvar</button>

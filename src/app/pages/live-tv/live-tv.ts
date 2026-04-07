@@ -6,7 +6,7 @@ import { NavbarComponent } from '../../components/navbar/navbar';
 import { Channel } from '../../models/channel';
 import { ChannelGroup } from '../../models/channelGroup';
 import { IptvService } from '../../services/iptv-service';
-import { ImportComponent } from '../../components/import/import';
+import { CacheKeys } from '../../models/constants';
 
 
 // ─── Configuração HLS para WebView/APK ─────────────────
@@ -40,16 +40,14 @@ const HLS_CONFIG = {
   templateUrl: './live-tv.html',
   styleUrl: './live-tv.scss',
   standalone: true,
-  imports: [CommonModule, FormsModule, NavbarComponent, ImportComponent]
+  imports: [CommonModule, FormsModule, NavbarComponent]
 })
 export class LiveTvComponent implements OnInit, OnDestroy {
 
   @ViewChild('videoPlayer') videoPlayerRef!: ElementRef<HTMLVideoElement>;
 
   // Estado da UI
-  viewMode = 'player';
   sidebarMode: 'groups' | 'channels' = 'groups';
-  isStorageLoading: boolean = true;   // spinner enquanto carrega do disco
 
   // Dados
   allChannels: Channel[] = [];
@@ -80,22 +78,12 @@ export class LiveTvComponent implements OnInit, OnDestroy {
   ) { }
 
   async ngOnInit(): Promise<void> {
-    this.startClock();
+
+    if (!this.iptv.isLoaded) this.iptv.loadFromStorage(CacheKeys.IPTV_LINK);
+
+    this.loadLiveGroups();
     this.preloadHls();
-
-    // Carrega canais do storage persistente (async)
-    this.isStorageLoading = true;
-    const hasData = await this.iptv.loadFromStorage();
-    
-    if (hasData) {
-      this.loadLiveGroups();
-      this.viewMode = 'player';
-    } else {
-      this.viewMode = 'import';
-    }
-
-    this.isStorageLoading = false;
-    this.cdr.detectChanges();
+    this.startClock();
   }
 
   ngOnDestroy(): void {
@@ -128,12 +116,11 @@ export class LiveTvComponent implements OnInit, OnDestroy {
   }
 
   clearPlaylist() {
-    this.iptv.clearStorage();
+    this.iptv.clearStorage(CacheKeys.IPTV_LINK);
     this.groups = [];
     this.allChannels = [];
     this.selectedGroup = null;
     this.selectedChannel = null;
-    this.viewMode = 'import';
     this.sidebarMode = 'groups';
     this.destroyPlayer();
     // this.m3uUrl = '';

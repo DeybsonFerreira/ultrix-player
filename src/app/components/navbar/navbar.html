@@ -1,7 +1,7 @@
 <nav class="navbar-container">
   <div class="nav-links">
-    <a *ngFor="let item of menuItems" class="nav-item" [ngClass]="{'active': activeIdItem === item.id}"
-      (click)="setActive(item.id)" tabindex="0">
+    <a *ngFor="let item of menuItems" class="nav-item" routerLinkActive="active"
+      [routerLinkActiveOptions]="{ exact: true }" [routerLink]="item.actionLink">
       {{ item.label }}
     </a>
   </div>
