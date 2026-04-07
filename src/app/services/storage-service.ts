@@ -1,18 +1,5 @@
 import { Injectable } from '@angular/core';
 
-/**
- * StorageService — persistência robusta para APK/TV
- *
- * Cascata de estratégias:
- *  1. Capacitor Filesystem (arquivo físico na pasta de dados do app)
- *     → persiste mesmo se o Android limpar o cache do WebView
- *  2. localStorage (fallback para browser / dev)
- *
- * Como usar:
- *   await this.storage.save('channels', JSON.stringify(data));
- *   const raw = await this.storage.load('channels');
- */
-
 const FILE_PREFIX = 'ultrix_'; // prefixo dos arquivos salvos
 
 @Injectable({ providedIn: 'root' })

@@ -23,7 +23,7 @@ import { MatIconModule } from '@angular/material/icon';
 export class ConfigDialogComponent implements AfterViewInit {
 
   // Import
-  m3uUrl: string = '';
+  m3uUrl: string = 'https://iptv-org.github.io/iptv/index.m3u';
   isLoading: boolean = false;
   importError: string = '';
   importSuccess: string = '';
@@ -74,7 +74,7 @@ export class ConfigDialogComponent implements AfterViewInit {
 
     try {
       const res = await fetch(this.m3uUrl.trim());
-      console.log('Fetch response:', res);
+
       if (!res.ok) throw new Error(`HTTP ${res.status}`);
       this.processM3UContent(await res.text(), this.m3uUrl.trim(), CacheKeys.IPTV_LINK);
     } catch {
@@ -99,7 +99,8 @@ export class ConfigDialogComponent implements AfterViewInit {
     }
   }
 
-  processM3UContent(content: string, storageValue: string, storageKey: string,) {
+  processM3UContent(content: string, storageValue: string, storageKey: string) {
+    console.log(content)
     const result = this.iptv.parseM3U(content, storageKey, storageValue);
 
     if (!result.ok) {
