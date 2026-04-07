@@ -1,0 +1,49 @@
+# Git
+.git
+.gitignore
+
+# Dependencies
+node_modules
+
+# IDE
+.vscode
+.idea
+*.swp
+*.swo
+
+# OS files
+.DS_Store
+Thumbs.db
+
+# Build artifacts
+dist
+build
+coverage
+
+# Tests
+.karma-runner.conf.js
+test/
+
+# Documentation
+*.md
+
+# Android build artifacts
+android/.gradle
+android/build
+android/app/build
+
+# Environment files
+.env
+.env.local
+
+# Capacitor
+capacitor.config.ts
+package-lock.json
+
+# Logs
+logs
+*.log
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+lerna-debug.log*

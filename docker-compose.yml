@@ -1,0 +1,14 @@
+version: '3.8'
+
+services:
+  ultrix-player:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: ultrix-player
+    ports:
+      - "4200:4200"
+    environment:
+      - NODE_ENV=production
+    restart: unless-stopped
+    # healthcheck já definido no Dockerfile
