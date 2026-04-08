@@ -10,13 +10,11 @@
 
             <!-- Header da sidebar -->
             <div class="sidebar-header">
-                <button class="icon-btn" (click)="goHome()" title="Menu" tabindex="0">⌂</button>
-                <span class="sidebar-title" *ngIf="sidebarMode === 'groups'">Grupos</span>
+                <span class="sidebar-title" *ngIf="sidebarMode === 'groups'"> 📺 Canais </span>
                 <span class="sidebar-title pointer" *ngIf="sidebarMode === 'channels'" (click)="backToGroups()">
                     <button class="back-icon-btn" tabindex="0">‹</button>
                     {{ selectedGroup?.name }}
                 </span>
-                <button class="icon-btn small" (click)="clearPlaylist()" title="Trocar playlist" tabindex="0">↩</button>
             </div>
 
             <!-- Lista de GRUPOS -->

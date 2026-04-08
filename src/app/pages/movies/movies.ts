@@ -6,22 +6,8 @@ import { ChannelGroup } from '../../models/channelGroup';
 import { Channel } from '../../models/channel';
 import { IptvService } from '../../services/iptv-service';
 import { NavbarComponent } from '../../components/navbar/navbar';
-import { CacheKeys } from '../../models/constants';
-
-const HLS_CONFIG = {
-  maxBufferLength: 60,
-  maxMaxBufferLength: 600,
-  maxBufferSize: 60 * 1000 * 1000,
-  manifestLoadingMaxRetry: 6,
-  manifestLoadingRetryDelay: 1000,
-  levelLoadingMaxRetry: 6,
-  levelLoadingRetryDelay: 1000,
-  fragLoadingMaxRetry: 6,
-  fragLoadingRetryDelay: 1000,
-  xhrSetup: (xhr: XMLHttpRequest, _url: string) => { xhr.withCredentials = false; },
-  enableWorker: false,
-  debug: false,
-};
+import { HLS_CONFIG } from '../../models/hls.config';
+import { PlayerService } from '../../services/player-service';
 
 @Component({
   selector: 'app-movies',
@@ -59,19 +45,14 @@ export class MoviesComponent implements OnInit, OnDestroy {
   constructor(
     private router: Router,
     private iptv: IptvService,
-    private cdr: ChangeDetectorRef
+    private cdr: ChangeDetectorRef,
+    private playerService: PlayerService
   ) { }
 
-  viewMode = 'player';
-  ngOnInit(): void {
-
-    if (!this.iptv.isLoaded) this.iptv.loadFromStorage(CacheKeys.IPTV_LINK);
+  async ngOnInit() {
+    await this.iptv.reloadm3u();
     this.groups = this.iptv.getGroupsByType('movie');
-    if (this.groups.length == 0) {
-      this.viewMode = 'import';
-    }
-
-    this.preloadHls();
+    this.playerService.preloadHls();
     this.startClock();
   }
 
@@ -91,8 +72,6 @@ export class MoviesComponent implements OnInit, OnDestroy {
     this.currentTime = now.toLocaleTimeString('pt-BR', { hour: '2-digit', minute: '2-digit' });
     this.cdr.detectChanges();
   }
-
-  goHome() { this.router.navigate(['/']); }
 
   get filteredMovies(): Channel[] {
     if (!this.selectedGroup) return [];
@@ -123,17 +102,6 @@ export class MoviesComponent implements OnInit, OnDestroy {
   }
 
   // ─── Player ────────────────────────────────────────────────────────────
-  preloadHls() {
-    if ((window as any).Hls) return;
-    const script = document.createElement('script');
-    script.src = 'js/hls.min.js';
-    script.onerror = () => {
-      const cdn = document.createElement('script');
-      cdn.src = 'https://cdn.jsdelivr.net/npm/hls.js@1.5.7/dist/hls.min.js';
-      document.head.appendChild(cdn);
-    };
-    document.head.appendChild(script);
-  }
 
   async playItem(item: Channel) {
     this.destroyPlayer();

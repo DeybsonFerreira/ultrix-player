@@ -11,6 +11,7 @@ import { CommonModule } from '@angular/common';
 import { CacheKeys } from '../../../models/constants';
 import { MatListModule } from '@angular/material/list';
 import { MatIconModule } from '@angular/material/icon';
+import { DexieService } from '../../../services/dexie-service';
 
 
 
@@ -40,32 +41,18 @@ export class ConfigDialogComponent implements AfterViewInit {
     private dialogRef: MatDialogRef<ConfigDialogComponent>,
     private configService: ConfigService,
     private iptv: IptvService,
-    private cdr: ChangeDetectorRef
+    private cdr: ChangeDetectorRef,
+    private dexie: DexieService
   ) {
     this.config = this.configService.getConfig();
-    this.loadServers();
+    // this.loadServers();
   }
 
-  save() {
-    this.configService.saveLogin(this.config);
-    this.dialogRef.close();
-  }
-
-  close() {
-    this.dialogRef.close();
-  }
-
-  removeServer(serverName: string) {
-    const key = serverName.replace('Servidor ', CacheKeys.IPTV_LINK).replace(' #', '_');
-
-    this.iptv.clearStorage(key).then(() => {
-      this.servers = this.servers.filter(s => s !== serverName);
-      this.cdr.detectChanges();
-    });
-
-  }
   async importFromUrl() {
-    if (!this.m3uUrl.trim()) { this.importError = 'Informe uma URL válida.'; return; }
+    if (!this.m3uUrl.trim()) {
+      this.importError = 'Informe uma URL válida.';
+      return;
+    }
 
     this.isLoading = true;
     this.importError = '';
@@ -75,8 +62,14 @@ export class ConfigDialogComponent implements AfterViewInit {
     try {
       const res = await fetch(this.m3uUrl.trim());
 
-      if (!res.ok) throw new Error(`HTTP ${res.status}`);
-      this.processM3UContent(await res.text(), this.m3uUrl.trim(), CacheKeys.IPTV_LINK);
+      if (!res.ok)
+        throw new Error(`HTTP ${res.status}`);
+
+      let result = await res.text();
+      await this.processM3UContent(result);
+      await this.dexie.saveToDatabaseDexie(result);
+
+
     } catch {
       this.importError = 'Não foi possível carregar a URL. Use o arquivo local.';
       this.isLoading = false;
@@ -84,24 +77,9 @@ export class ConfigDialogComponent implements AfterViewInit {
     }
   }
 
-  loadServers() {
-    for (let i = 0; i < 3; i++) {
-      let key = CacheKeys.IPTV_LINK;
+  async processM3UContent(content: string) {
 
-      if (i != 0)
-        key = `${CacheKeys.IPTV_LINK}_${i + 1}`;
-
-      this.iptv.loadStorage(key).then((result) => {
-        if (result) {
-          this.servers.push(key.replace(CacheKeys.IPTV_LINK, 'Servidor ').replace('_', ' #'));
-        }
-      });
-    }
-  }
-
-  processM3UContent(content: string, storageValue: string, storageKey: string) {
-    console.log(content)
-    const result = this.iptv.parseM3U(content, storageKey, storageValue);
+    const result = await this.iptv.parseM3U(content);
 
     if (!result.ok) {
       this.importError = result.error!;
@@ -124,5 +102,65 @@ export class ConfigDialogComponent implements AfterViewInit {
       this.cdr.detectChanges();
     }, 1500);
   }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+  save() {
+    this.configService.saveLogin(this.config);
+    this.dialogRef.close();
+  }
+
+  close() {
+    this.dialogRef.close();
+  }
+
+  removeServer(serverName: string) {
+    const key = serverName.replace('Servidor ', CacheKeys.IPTV_LINK).replace(' #', '_');
+
+    // this.iptv.clearStorage(key).then(() => {
+    //   this.servers = this.servers.filter(s => s !== serverName);
+    //   this.cdr.detectChanges();
+    // });
+
+  }
+
+
+  loadServers() {
+    // for (let i = 0; i < 3; i++) {
+    //   let key = CacheKeys.IPTV_LINK;
+
+    //   if (i != 0)
+    //     key = `${CacheKeys.IPTV_LINK}_${i + 1}`;
+
+    //   this.iptv.loadStorage(key).then((result) => {
+    //     if (result) {
+    //       this.servers.push(key.replace(CacheKeys.IPTV_LINK, 'Servidor ').replace('_', ' #'));
+    //     }
+    //   });
+    // }
+  }
+
+
 
 }
