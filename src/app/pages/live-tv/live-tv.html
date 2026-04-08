@@ -3,36 +3,56 @@
 <div class="live-container">
 
     <!-- ── LAYOUT DO PLAYER ───────────────────────────── -->
-    <div class="player-layout">
+    <div class="player-layout" [class.fullscreen-mode]="isFullscreen">
 
-        <!-- SIDEBAR ESQUERDA -->
-        <aside class="sidebar">
+        <!-- COLUNA 1: GRUPOS -->
+        <aside class="sidebar groups-panel" *ngIf="!isFullscreen">
 
-            <!-- Header da sidebar -->
             <div class="sidebar-header">
-                <span class="sidebar-title" *ngIf="sidebarMode === 'groups'"> 📺 Canais </span>
-                <span class="sidebar-title pointer" *ngIf="sidebarMode === 'channels'" (click)="backToGroups()">
-                    <button class="back-icon-btn" tabindex="0">‹</button>
-                    {{ selectedGroup?.name }}
-                </span>
+                <span class="sidebar-title">📺 Grupos</span>
             </div>
 
-            <!-- Lista de GRUPOS -->
-            <div class="sidebar-list" *ngIf="sidebarMode === 'groups' && !searchQuery">
+            <div class="sidebar-list">
                 <div class="group-item" *ngFor="let group of groups" (click)="selectGroup(group)"
                     [class.active]="selectedGroup?.name === group.name" tabindex="0"
                     (keydown.enter)="selectGroup(group)">
                     <span class="group-name">{{ group.name }}</span>
                     <span class="group-badge">{{ group.channels.length }}</span>
                 </div>
+
+                <div class="empty-state" *ngIf="groups.length === 0">
+                    Nenhum grupo encontrado
+                </div>
             </div>
 
-            <!-- Lista de Canais -->
-            <div class="sidebar-list" *ngIf="sidebarMode === 'channels' || searchQuery">
+            <div class="sidebar-footer">
+                <span>{{ groups.length }} grupos</span>
+            </div>
 
-                <div class="channel-item" *ngFor="let channel of filteredChannels" (click)="selectChannel(channel)"
+        </aside>
+
+        <!-- COLUNA 2: CANAIS -->
+        <aside class="sidebar channels-panel" *ngIf="!isFullscreen"
+            [class.panel-visible]="selectedGroup || searchQuery">
+
+            <div class="sidebar-header">
+                <span class="sidebar-title">
+                    <span *ngIf="!searchQuery">{{ selectedGroup?.name || 'Canais' }}</span>
+                    <span *ngIf="searchQuery">🔍 Busca</span>
+                </span>
+                <span class="channel-count-badge" *ngIf="filteredChannels.length > 0">
+                    {{ filteredChannels.length }}
+                </span>
+            </div>
+
+            <div class="sidebar-list" *ngIf="selectedGroup || searchQuery">
+
+                <div class="channel-item" *ngFor="let channel of filteredChannels; let i = index"
+                    (click)="selectChannel(channel)" (dblclick)="selectChannelAndFullscreen(channel)"
                     [class.active]="selectedChannel?.id === channel.id" tabindex="0"
                     (keydown.enter)="selectChannel(channel)">
+
+                    <span class="channel-number">{{ i + 1 }}</span>
 
                     <img *ngIf="channel.logo" class="channel-logo" [src]="channel.logo" [alt]="channel.name"
                         onerror="this.style.display='none'" />
@@ -46,19 +66,24 @@
                     <span class="play-icon" *ngIf="selectedChannel?.id === channel.id">▶</span>
                 </div>
 
-                <div class="empty-state" *ngIf="filteredChannels.length === 0">
+                <div class="empty-state" *ngIf="filteredChannels.length === 0 && searchQuery">
                     Nenhum canal encontrado para "{{ searchQuery }}"
                 </div>
             </div>
 
-            <!-- Info total -->
+            <!-- Estado inicial (nenhum grupo selecionado) -->
+            <div class="channels-empty-hint" *ngIf="!selectedGroup && !searchQuery">
+                <span class="hint-icon">←</span>
+                <span>Selecione um grupo</span>
+            </div>
+
             <div class="sidebar-footer">
-                <span>{{ allChannels.length }} canais · {{ groups.length }} grupos</span>
+                <span>{{ allChannels.length }} canais no total</span>
             </div>
 
         </aside>
 
-        <!-- ÁREA DO PLAYER -->
+        <!-- COLUNA 3: PLAYER -->
         <main class="player-area">
 
             <!-- Estado vazio -->
@@ -67,15 +92,16 @@
                     <span class="empty-icon">📺</span>
                     <h2>Selecione um canal</h2>
                     <p>Escolha um grupo e depois um canal na lista ao lado</p>
+                    <p class="hint-dblclick">💡 Duplo clique no canal para abrir em tela cheia</p>
                 </div>
             </div>
 
             <!-- Player ativo -->
             <div class="player-wrapper" *ngIf="selectedChannel">
 
-                <!-- Info do canal -->
-                <div class="player-info-bar">
-                    <div class="channel-info">
+                <!-- Info do canal (oculta em fullscreen, aparece no hover) -->
+                <div class="player-info-bar" [class.fullscreen-bar]="isFullscreen">
+                    <div class="channel-info-row">
                         <img *ngIf="selectedChannel.logo" class="now-playing-logo" [src]="selectedChannel.logo"
                             [alt]="selectedChannel.name" onerror="this.style.display='none'" />
                         <div class="now-playing-text">
@@ -88,7 +114,7 @@
                 </div>
 
                 <!-- Vídeo -->
-                <div class="video-container">
+                <div class="video-container" (dblclick)="toggleFullscreen()">
                     <video #videoPlayer class="video-player" [volume]="volume / 100" playsinline autoplay></video>
 
                     <!-- Erro do player -->
@@ -102,10 +128,15 @@
                         <div class="loading-spinner"></div>
                         <span>Carregando...</span>
                     </div>
+
+                    <!-- Hint tela cheia (aparece brevemente) -->
+                    <div class="fullscreen-hint" *ngIf="showFullscreenHint">
+                        <span>⛶ Duplo clique para {{ isFullscreen ? 'sair da' : 'entrar em' }} tela cheia</span>
+                    </div>
                 </div>
 
                 <!-- Controles -->
-                <div class="player-controls">
+                <div class="player-controls" [class.fullscreen-controls]="isFullscreen">
                     <button class="ctrl-btn" (click)="prevChannel()" tabindex="0" title="Canal anterior">⏮</button>
                     <button class="ctrl-btn play-pause" (click)="togglePlay()" tabindex="0">
                         {{ isPlaying ? '⏸' : '▶' }}
@@ -119,6 +150,13 @@
                         <input type="range" class="volume-slider" min="0" max="100" [value]="volume"
                             (input)="setVolume($event)" tabindex="0" />
                     </div>
+
+                    <!-- Botão Tela Cheia -->
+                    <button class="ctrl-btn fullscreen-btn" (click)="toggleFullscreen()" tabindex="0"
+                        [title]="isFullscreen ? 'Sair da tela cheia (F)' : 'Tela cheia (F)'">
+                        {{ isFullscreen ? '⛶' : '⛶' }}
+                        <span class="fullscreen-label">{{ isFullscreen ? 'Sair' : 'Tela Cheia' }}</span>
+                    </button>
                 </div>
 
             </div>

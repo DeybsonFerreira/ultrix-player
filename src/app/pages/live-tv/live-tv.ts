@@ -1,4 +1,4 @@
-import { ChangeDetectorRef, Component, OnInit, OnDestroy, ViewChild, ElementRef } from '@angular/core';
+import { ChangeDetectorRef, Component, OnInit, OnDestroy, ViewChild, ElementRef, HostListener } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { NavbarComponent } from '../../components/navbar/navbar';
@@ -29,7 +29,6 @@ export class LiveTvComponent implements OnInit, OnDestroy {
     selectedChannel: Channel | null = null;
     searchQuery: string = '';
 
-
     // Player
     isPlaying: boolean = false;
     isBuffering: boolean = false;
@@ -37,6 +36,11 @@ export class LiveTvComponent implements OnInit, OnDestroy {
     currentTime: string = '00:00';
     volume: number = 80;
     isMuted: boolean = false;
+
+    // Tela cheia
+    isFullscreen: boolean = false;
+    showFullscreenHint: boolean = false;
+    private fullscreenHintTimeout: any;
 
     private hls: any = null;
     private clockInterval: any;
@@ -55,12 +59,23 @@ export class LiveTvComponent implements OnInit, OnDestroy {
         this.loadLiveGroups();
         this.playerService.preloadHls();
         this.startClock();
+
+        // Sincroniza estado de fullscreen com o evento nativo do navegador
+        document.addEventListener('fullscreenchange', this.onFullscreenChange.bind(this));
     }
 
     ngOnDestroy(): void {
         this.destroyPlayer();
         if (this.clockInterval) clearInterval(this.clockInterval);
         if (this.retryTimeout) clearTimeout(this.retryTimeout);
+        if (this.fullscreenHintTimeout) clearTimeout(this.fullscreenHintTimeout);
+        document.removeEventListener('fullscreenchange', this.onFullscreenChange.bind(this));
+    }
+
+    // Tecla Escape — sair do fullscreen
+    @HostListener('document:keydown.escape')
+    onEscape() {
+        if (this.isFullscreen) this.exitFullscreen();
     }
 
     // ─── Carrega apenas os grupos de TV AO VIVO ────────────────────────────
@@ -83,17 +98,15 @@ export class LiveTvComponent implements OnInit, OnDestroy {
 
     // ─── SIDEBAR ───────────────────────────────────────────
     get filteredChannels(): Channel[] {
-        // Se houver busca, filtra no array mestre (todos os canais)
         if (this.searchQuery) {
             const q = this.searchQuery.toLowerCase();
-            return this.allChannels.filter(c => c.name.toLowerCase().includes(q));
+            let channels = this.iptv.getByType('live');
+            return channels.filter(c => c.name.toLowerCase().includes(q)).slice(0, 10);
         }
-        // Se não houver busca, filtra apenas no grupo selecionado
         return this.selectedGroup ? this.selectedGroup.channels : [];
     }
 
     get totalLiveChannels(): number { return this.iptv.getCount('live'); }
-
 
     selectGroup(group: ChannelGroup) {
         this.selectedGroup = group;
@@ -114,8 +127,59 @@ export class LiveTvComponent implements OnInit, OnDestroy {
         setTimeout(() => this.playChannel(channel), 100);
     }
 
-    // ─── PLAYER ────────────────────────────────────────────
+    /** Seleciona o canal E entra em tela cheia (duplo clique na lista) */
+    selectChannelAndFullscreen(channel: Channel) {
+        this.selectChannel(channel);
+        setTimeout(() => this.enterFullscreen(), 200);
+    }
 
+    // ─── TELA CHEIA ────────────────────────────────────────
+
+    toggleFullscreen() {
+        this.isFullscreen ? this.exitFullscreen() : this.enterFullscreen();
+    }
+
+    enterFullscreen() {
+        this.isFullscreen = true;
+        this.showFullscreenHintBriefly();
+        this.cdr.detectChanges();
+
+        // Tenta fullscreen nativo do navegador no elemento do player
+        const el = this.videoPlayerRef?.nativeElement?.closest('.player-area') as HTMLElement;
+        if (el?.requestFullscreen) {
+            el.requestFullscreen().catch(() => {
+                // Se o navegador bloquear, mantém apenas o modo CSS
+            });
+        }
+    }
+
+    exitFullscreen() {
+        this.isFullscreen = false;
+        this.cdr.detectChanges();
+
+        if (document.fullscreenElement) {
+            document.exitFullscreen().catch(() => { });
+        }
+    }
+
+    private onFullscreenChange() {
+        // Sincroniza o estado Angular com o fullscreen nativo
+        if (!document.fullscreenElement && this.isFullscreen) {
+            this.isFullscreen = false;
+            this.cdr.detectChanges();
+        }
+    }
+
+    private showFullscreenHintBriefly() {
+        this.showFullscreenHint = true;
+        if (this.fullscreenHintTimeout) clearTimeout(this.fullscreenHintTimeout);
+        this.fullscreenHintTimeout = setTimeout(() => {
+            this.showFullscreenHint = false;
+            this.cdr.detectChanges();
+        }, 2500);
+    }
+
+    // ─── PLAYER ────────────────────────────────────────────
 
     async playChannel(channel: Channel) {
         this.destroyPlayer();
@@ -132,7 +196,7 @@ export class LiveTvComponent implements OnInit, OnDestroy {
 
         isHls ? this.tryPlayHls(video, url) : this.tryPlayNative(video, url);
     }
-    // ── Estratégia 1: hls.js (melhor para streams IPTV M3U8)
+
     tryPlayHls(video: HTMLVideoElement, url: string) {
         const HlsLib = (window as any).Hls;
 
