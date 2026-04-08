@@ -1,24 +1,25 @@
 // ═══════════════════════════════════════════════════════
-//  ULTRIX TV — FILMES / SÉRIES (mesmo visual do live-tv)
-//  Cole este arquivo tanto em movies.scss quanto series.scss
-//  Ajuste apenas os seletores raiz (.movies-container / .series-container)
+//  ULTRIX TV — FILMES  |  Layout Netflix + Virtual Scroll
 // ═══════════════════════════════════════════════════════
 
 $neon: #7b2cff;
 $neon-light: #a66cff;
 $bg-deep: #06060f;
-$bg-card: rgba(14, 14, 30, 0.97);
-$bg-item: rgba(20, 20, 45, 0.7);
 $bg-hover: rgba(123, 44, 255, 0.15);
 $bg-active: rgba(123, 44, 255, 0.25);
 $text-muted: rgba(255, 255, 255, 0.45);
+
+// Dimensões fixas dos cartões — DEVE bater com as constantes do .ts
+$card-width: 160px;
+$card-height: 290px; // poster (240px) + info (50px)
+$card-gap: 18px;
+$row-padding: 28px;
 
 @mixin neon-glow($color: $neon) {
     box-shadow: 0 0 8px $color, 0 0 18px rgba($color, 0.5);
 }
 
 // ─── Container raiz ────────────────────────────────────
-// Use .movies-container em movies.scss e .series-container em series.scss
 .movies-container,
 .series-container {
     width: 100vw;
@@ -35,8 +36,8 @@ $text-muted: rgba(255, 255, 255, 0.45);
 
 // ─── Sidebar ───────────────────────────────────────────
 .sidebar {
-    width: 300px;
-    min-width: 260px;
+    width: 270px;
+    min-width: 230px;
     background: rgba(8, 8, 20, 0.98);
     border-right: 1px solid rgba($neon, 0.15);
     display: flex;
@@ -48,97 +49,16 @@ $text-muted: rgba(255, 255, 255, 0.45);
 .sidebar-header {
     display: flex;
     align-items: center;
-    gap: 10px;
-    padding: 18px 16px;
+    padding: 20px 16px;
     border-bottom: 1px solid rgba($neon, 0.12);
     background: rgba($neon, 0.05);
     flex-shrink: 0;
 }
 
 .sidebar-title {
-    flex: 1;
-    font-size: 14px;
-    font-weight: 600;
-    color: rgba(255, 255, 255, 0.85);
-    white-space: nowrap;
-    overflow: hidden;
-    text-overflow: ellipsis;
-    display: flex;
-    align-items: center;
-    gap: 6px;
-}
-
-.icon-btn {
-    background: none;
-    border: none;
-    color: $text-muted;
-    font-size: 18px;
-    cursor: pointer;
-    padding: 4px 6px;
-    border-radius: 6px;
-    transition: all 0.2s;
-    flex-shrink: 0;
-
-    &:hover {
-        color: white;
-        background: rgba($neon, 0.15);
-    }
-
-    &:focus {
-        outline: none;
-        color: $neon-light;
-    }
-
-    &.small {
-        font-size: 14px;
-    }
-}
-
-.back-icon-btn {
-    background: none;
-    border: none;
-    color: $neon-light;
-    font-size: 20px;
-    cursor: pointer;
-    padding: 0;
-    line-height: 1;
-    transition: color 0.2s;
-
-    &:hover {
-        color: white;
-    }
-
-    &:focus {
-        outline: none;
-    }
-}
-
-.search-row {
-    padding: 12px 14px;
-    border-bottom: 1px solid rgba($neon, 0.1);
-    flex-shrink: 0;
-}
-
-.search-input {
-    width: 100%;
-    padding: 9px 13px;
-    background: rgba(255, 255, 255, 0.05);
-    border: 1px solid rgba($neon, 0.2);
-    border-radius: 10px;
-    color: white;
-    font-size: 13px;
-    box-sizing: border-box;
-    transition: all 0.2s;
-
-    &::placeholder {
-        color: rgba(255, 255, 255, 0.2);
-    }
-
-    &:focus {
-        outline: none;
-        border-color: rgba($neon, 0.5);
-        background: rgba($neon, 0.05);
-    }
+    font-size: 15px;
+    font-weight: 700;
+    color: rgba(255, 255, 255, 0.9);
 }
 
 .sidebar-list {
@@ -167,7 +87,7 @@ $text-muted: rgba(255, 255, 255, 0.45);
     padding: 12px 14px;
     border-radius: 10px;
     cursor: pointer;
-    transition: all 0.2s;
+    transition: all 0.18s;
     margin-bottom: 2px;
 
     &:hover {
@@ -182,6 +102,8 @@ $text-muted: rgba(255, 255, 255, 0.45);
 
     &.active {
         background: $bg-active;
+        border-left: 3px solid $neon;
+        padding-left: 11px;
     }
 }
 
@@ -206,70 +128,6 @@ $text-muted: rgba(255, 255, 255, 0.45);
     flex-shrink: 0;
 }
 
-.channel-item {
-    display: flex;
-    align-items: center;
-    gap: 10px;
-    padding: 10px 12px;
-    border-radius: 10px;
-    cursor: pointer;
-    transition: all 0.2s;
-    margin-bottom: 2px;
-
-    &:hover {
-        background: $bg-hover;
-    }
-
-    &:focus {
-        outline: none;
-        background: $bg-hover;
-        border: 1px solid rgba($neon, 0.3);
-    }
-
-    &.active {
-        background: $bg-active;
-        border-left: 3px solid $neon;
-        padding-left: 9px;
-    }
-}
-
-.channel-logo {
-    width: 30px;
-    height: 30px;
-    object-fit: contain;
-    border-radius: 6px;
-    flex-shrink: 0;
-}
-
-.channel-logo-placeholder {
-    font-size: 18px;
-    width: 30px;
-    text-align: center;
-    flex-shrink: 0;
-}
-
-.channel-name {
-    flex: 1;
-    font-size: 13px;
-    color: rgba(255, 255, 255, 0.82);
-    white-space: nowrap;
-    overflow: hidden;
-    text-overflow: ellipsis;
-}
-
-.play-icon {
-    color: $neon-light;
-    font-size: 11px;
-    flex-shrink: 0;
-}
-
-.empty-state {
-    text-align: center;
-    color: $text-muted;
-    font-size: 13px;
-    padding: 32px 16px;
-}
-
 .sidebar-footer {
     padding: 12px 16px;
     border-top: 1px solid rgba($neon, 0.1);
@@ -279,16 +137,17 @@ $text-muted: rgba(255, 255, 255, 0.45);
     flex-shrink: 0;
 }
 
-// ─── Área do player ────────────────────────────────────
-.player-area {
+// ─── Área principal ────────────────────────────────────
+.main-area {
     flex: 1;
     display: flex;
     flex-direction: column;
-    background: #020208;
     overflow: hidden;
+    min-width: 0;
 }
 
-.player-empty {
+// ─── Estado vazio ──────────────────────────────────────
+.browse-empty {
     flex: 1;
     display: flex;
     align-items: center;
@@ -302,7 +161,7 @@ $text-muted: rgba(255, 255, 255, 0.45);
         font-size: 64px;
         display: block;
         margin-bottom: 16px;
-        opacity: 0.3;
+        opacity: 0.25;
     }
 
     h2 {
@@ -317,30 +176,260 @@ $text-muted: rgba(255, 255, 255, 0.45);
     }
 }
 
-.player-wrapper {
+// ─── Browse view ───────────────────────────────────────
+.browse-view {
     flex: 1;
     display: flex;
     flex-direction: column;
-    height: 100%;
+    overflow: hidden;
+    min-width: 0;
 }
 
-.player-info-bar {
+.browse-header {
     display: flex;
     align-items: center;
     justify-content: space-between;
-    padding: 14px 20px;
+    padding: 18px $row-padding 14px;
+    border-bottom: 1px solid rgba($neon, 0.1);
+    background: rgba(8, 8, 20, 0.6);
+    flex-shrink: 0;
+    gap: 20px;
+}
+
+.browse-title {
+    font-size: 18px;
+    font-weight: 700;
+    color: white;
+    margin: 0;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    display: flex;
+    align-items: baseline;
+    gap: 10px;
+}
+
+.browse-count {
+    font-size: 12px;
+    font-weight: 400;
+    color: $text-muted;
+}
+
+
+// ─── Virtual Scroll viewport ───────────────────────────
+// O CDK precisa que o viewport tenha altura definida
+.virtual-viewport {
+    flex: 1;
+    width: 100%;
+    // height é preenchida pelo flex pai
+    height: 100%;
+    contain: strict; // otimização de repaint
+}
+
+// ─── Linha de cartazes ─────────────────────────────────
+// Cada "linha" renderizada pelo cdkVirtualFor
+.movie-row {
+    display: flex;
+    flex-direction: row;
+    gap: $card-gap;
+    padding: 0 $row-padding;
+    // altura total = $card-height + $card-gap (espaço entre linhas)
+    height: calc(#{$card-height} + #{$card-gap});
+    align-items: flex-start;
+    padding-top: $card-gap;
+    box-sizing: border-box;
+}
+
+// ─── Cartão de filme ───────────────────────────────────
+.movie-card {
+    // Largura FIXA — não cresce nem encolhe independente de quantos filmes existam
+    width: $card-width;
+    min-width: $card-width;
+    max-width: $card-width;
+    height: $card-height;
+    flex-shrink: 0;
+
+    cursor: pointer;
+    border-radius: 10px;
+    overflow: hidden;
+    background: rgba(14, 14, 30, 0.8);
+    outline: none;
+    transition: transform 0.2s ease, box-shadow 0.2s ease;
+
+    &:hover,
+    &:focus {
+        transform: scale(1.07) translateY(-4px);
+        box-shadow: 0 14px 40px rgba(0, 0, 0, 0.75), 0 0 0 2px rgba($neon, 0.55);
+        z-index: 2;
+        position: relative;
+
+        .card-overlay {
+            opacity: 1;
+        }
+
+        .card-poster img {
+            transform: scale(1.06);
+        }
+    }
+
+    // Célula fantasma — mantém o espaço mas não é clicável
+    &.ghost {
+        background: transparent;
+        pointer-events: none;
+        box-shadow: none;
+    }
+}
+
+// ─── Poster ────────────────────────────────────────────
+.card-poster {
+    position: relative;
+    width: 100%;
+    height: 240px; // proporção 2:3 para $card-width: 160px
+    overflow: hidden;
+    background: rgba(20, 20, 45, 0.9);
+
+    img {
+        width: 100%;
+        height: 100%;
+        object-fit: cover;
+        display: block;
+        transition: transform 0.3s ease;
+    }
+}
+
+.card-poster-placeholder {
+    width: 100%;
+    height: 100%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background: linear-gradient(160deg, rgba($neon, 0.12) 0%, rgba(6, 6, 15, 0.9) 100%);
+
+    span {
+        font-size: 40px;
+        opacity: 0.35;
+    }
+}
+
+.card-overlay {
+    position: absolute;
+    inset: 0;
+    background: rgba(0, 0, 0, 0.52);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    opacity: 0;
+    transition: opacity 0.2s ease;
+}
+
+.play-btn-card {
+    background: rgba($neon, 0.9);
+    border: none;
+    color: white;
+    width: 52px;
+    height: 52px;
+    border-radius: 50%;
+    font-size: 20px;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding-left: 4px;
+    @include neon-glow($neon);
+    transition: transform 0.15s;
+
+    &:hover {
+        transform: scale(1.12);
+    }
+}
+
+// ─── Info do cartão ────────────────────────────────────
+.card-info {
+    padding: 8px 10px 10px;
+    height: 50px; // $card-height - 240px
+    box-sizing: border-box;
+    display: flex;
+    align-items: center;
+}
+
+.card-title {
+    font-size: 11.5px;
+    font-weight: 500;
+    color: rgba(255, 255, 255, 0.82);
+    display: -webkit-box;
+    -webkit-line-clamp: 2;
+    -webkit-box-orient: vertical;
+    overflow: hidden;
+    line-height: 1.4;
+}
+
+.empty-state {
+    text-align: center;
+    color: $text-muted;
+    font-size: 14px;
+    padding: 48px 16px;
+}
+
+// ─── Player fullscreen ─────────────────────────────────
+.player-fullscreen {
+    position: fixed;
+    inset: 0;
+    z-index: 1000;
+    background: rgba(0, 0, 0, 0.92);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    animation: fadeInOverlay 0.2s ease;
+}
+
+@keyframes fadeInOverlay {
+    from {
+        opacity: 0;
+    }
+
+    to {
+        opacity: 1;
+    }
+}
+
+.player-panel {
+    width: 100%;
+    height: 100%;
+    display: flex;
+    flex-direction: column;
+    background: #020208;
+    animation: slideUpPanel 0.25s ease;
+}
+
+@keyframes slideUpPanel {
+    from {
+        transform: translateY(20px);
+        opacity: 0;
+    }
+
+    to {
+        transform: translateY(0);
+        opacity: 1;
+    }
+}
+
+.player-topbar {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 14px 22px;
     background: rgba($neon, 0.05);
     border-bottom: 1px solid rgba($neon, 0.12);
     flex-shrink: 0;
 }
 
-.channel-info {
+.player-movie-info {
     display: flex;
     align-items: center;
     gap: 14px;
 }
 
-.now-playing-logo {
+.player-logo {
     width: 44px;
     height: 44px;
     object-fit: contain;
@@ -348,50 +437,52 @@ $text-muted: rgba(255, 255, 255, 0.45);
     background: rgba(255, 255, 255, 0.05);
 }
 
-.now-playing-text {
-    display: flex;
-    flex-direction: column;
-    gap: 2px;
-}
-
-.now-label {
+.player-label {
+    display: block;
     font-size: 10px;
     font-weight: 700;
     letter-spacing: 2px;
-    padding: 2px 6px;
-    border-radius: 4px;
-    width: fit-content;
-}
-
-// Labels coloridos por tipo
-.now-label.movie-label {
     color: #ffaa00;
     background: rgba(255, 170, 0, 0.15);
     border: 1px solid rgba(255, 170, 0, 0.3);
+    border-radius: 4px;
+    padding: 2px 6px;
+    width: fit-content;
+    margin-bottom: 3px;
 }
 
-.now-label.series-label {
-    color: #00ccff;
-    background: rgba(0, 204, 255, 0.15);
-    border: 1px solid rgba(0, 204, 255, 0.3);
-}
-
-.now-name {
+.player-movie-name {
+    display: block;
     font-size: 16px;
     font-weight: 600;
     color: white;
 }
 
-.now-group {
+.player-group {
+    display: block;
     font-size: 12px;
     color: $text-muted;
 }
 
-.clock {
-    font-size: 22px;
-    font-weight: 300;
-    color: rgba(255, 255, 255, 0.6);
-    font-variant-numeric: tabular-nums;
+.close-btn {
+    background: rgba(255, 255, 255, 0.07);
+    border: 1px solid rgba(255, 255, 255, 0.15);
+    color: rgba(255, 255, 255, 0.7);
+    width: 40px;
+    height: 40px;
+    border-radius: 50%;
+    font-size: 16px;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: all 0.2s;
+
+    &:hover {
+        background: rgba(255, 60, 60, 0.25);
+        color: white;
+        border-color: rgba(255, 60, 60, 0.5);
+    }
 }
 
 .video-container {
@@ -415,13 +506,43 @@ $text-muted: rgba(255, 255, 255, 0.45);
     flex-direction: column;
     align-items: center;
     justify-content: center;
-    gap: 12px;
+    gap: 16px;
     background: rgba(0, 0, 0, 0.85);
     color: #ff7070;
     font-size: 15px;
+    text-align: center;
+    padding: 24px;
 
     .error-icon {
         font-size: 40px;
+    }
+
+    .error-msg {
+        white-space: pre-line; // respeita \n nas mensagens
+        line-height: 1.6;
+        max-width: 400px;
+    }
+}
+
+.retry-btn {
+    margin-top: 4px;
+    padding: 12px 28px;
+    background: rgba($neon, 0.15);
+    border: 1px solid rgba($neon, 0.5);
+    color: $neon-light;
+    font-size: 14px;
+    font-weight: 600;
+    border-radius: 10px;
+    cursor: pointer;
+    transition: all 0.2s;
+    letter-spacing: 0.5px;
+
+    &:hover,
+    &:focus {
+        background: rgba($neon, 0.35);
+        color: white;
+        outline: none;
+        @include neon-glow($neon);
     }
 }
 
@@ -457,7 +578,6 @@ $text-muted: rgba(255, 255, 255, 0.45);
     }
 }
 
-// ─── Barra de progresso ────────────────────────────────
 .progress-bar-row {
     display: flex;
     align-items: center;
@@ -471,7 +591,7 @@ $text-muted: rgba(255, 255, 255, 0.45);
     font-size: 12px;
     color: $text-muted;
     font-variant-numeric: tabular-nums;
-    min-width: 40px;
+    min-width: 44px;
 
     &:last-child {
         text-align: right;
@@ -499,7 +619,6 @@ $text-muted: rgba(255, 255, 255, 0.45);
     }
 }
 
-// ─── Controles ─────────────────────────────────────────
 .player-controls {
     display: flex;
     align-items: center;
@@ -557,7 +676,6 @@ $text-muted: rgba(255, 255, 255, 0.45);
     display: flex;
     align-items: center;
     gap: 10px;
-    margin-left: auto;
 }
 
 .volume-slider {
@@ -579,4 +697,12 @@ $text-muted: rgba(255, 255, 255, 0.45);
         box-shadow: 0 0 6px $neon;
         cursor: pointer;
     }
+}
+
+.clock-player {
+    font-size: 18px;
+    font-weight: 300;
+    color: rgba(255, 255, 255, 0.5);
+    font-variant-numeric: tabular-nums;
+    margin-left: auto;
 }

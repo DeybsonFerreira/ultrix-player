@@ -6,9 +6,9 @@ import { DexieService } from './dexie-service';
 import { m3uListResult } from '../models/m3uListResult';
 
 // ─── Palavras-chave para classificação ───────────────────────────────────
-const SERIES_KEYWORDS = ['serie', 'series', 'séries'];
-const MOVIE_KEYWORDS = ['filme', 'filmes', 'movies', 'movie'];
-const LIVE_KEYWORDS = ['canais', 'ao vivo', 'tv'];
+const SERIES_KEYWORDS = ['serie', 'série', 'S •'];
+const MOVIE_KEYWORDS = ['filme', 'movie', 'F •'];
+const LIVE_KEYWORDS = ['canais', 'canal', 'ao vivo'];
 
 function classifyContent(name: string, group: string): ContentType {
 
