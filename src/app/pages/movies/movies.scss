@@ -23,7 +23,7 @@ $row-padding: 28px;
 .movies-container,
 .series-container {
     width: 100vw;
-    height: 100vh;
+    height: 80%;
     background: $bg-deep;
     background-image:
         radial-gradient(ellipse at 20% 50%, rgba($neon, 0.06) 0%, transparent 60%),

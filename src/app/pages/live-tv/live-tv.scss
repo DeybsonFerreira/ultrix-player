@@ -11,6 +11,8 @@ $bg-hover: rgba(123, 44, 255, 0.15);
 $bg-active: rgba(123, 44, 255, 0.25);
 $text-muted: rgba(255, 255, 255, 0.45);
 
+
+
 @mixin neon-glow($color: $neon) {
     box-shadow:
         0 0 8px $color,
@@ -64,10 +66,13 @@ $text-muted: rgba(255, 255, 255, 0.45);
     }
 }
 
+.main-wrapper {
+    height: 100%;
+}
+
 // ─── CONTAINER RAIZ ────────────────────────────────────
 .live-container {
-    width: 100vw;
-    height: 100vh;
+    height: 80%;
     background: $bg-deep;
     background-image:
         radial-gradient(ellipse at 20% 50%, rgba($neon, 0.06) 0%, transparent 60%),
@@ -76,7 +81,10 @@ $text-muted: rgba(255, 255, 255, 0.45);
     overflow: hidden;
     font-family: 'Segoe UI', system-ui, sans-serif;
     color: white;
+    width: 100%;
 }
+
+
 
 // ─── BOTÕES GERAIS ─────────────────────────────────────
 .ultrix-btn {
@@ -132,8 +140,7 @@ $text-muted: rgba(255, 255, 255, 0.45);
 .player-layout {
     flex: 1;
     display: flex;
-    height: 100vh;
-    overflow: hidden;
+    height: 100%;
 
     // Fullscreen: esconde os painéis laterais
     &.fullscreen-mode {

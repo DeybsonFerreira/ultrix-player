@@ -7,11 +7,16 @@
     --text: #ffffff;
 }
 
+
+html,
 body {
     background: var(--background);
     color: var(--text);
     font-family: 'Roboto', sans-serif;
     margin: 0;
+    padding: 0;
+    width: 100%;
+    height: 100%;
 }
 
 /* Cards estilo Netflix */
