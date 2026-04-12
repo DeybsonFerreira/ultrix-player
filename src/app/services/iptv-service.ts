@@ -3,10 +3,10 @@ import { ContentType } from '../models/contentType';
 import { Channel } from '../models/channel';
 import { ChannelGroup } from '../models/channelGroup';
 import { DexieService } from './dexie-service';
-import { m3uListResult } from '../models/m3uListResult';
+import { m3uListResult, m3uResult } from '../models/m3uListResult';
 
 // ─── Palavras-chave para classificação ───────────────────────────────────
-const SERIES_KEYWORDS = ['serie', 'série', 'S •','C •'];
+const SERIES_KEYWORDS = ['serie', 'série', 'S •', 'C •'];
 const MOVIE_KEYWORDS = ['filme', 'movie', 'F •'];
 const LIVE_KEYWORDS = ['canais', 'canal', 'ao vivo'];
 
@@ -53,11 +53,9 @@ export class IptvService {
 
   async reloadm3u() {
     if (!this.isLoaded) {
-      const result: m3uListResult = await this.dexie.getPlaylistFromDexie();
-      if (result.ok) {
-        await this.parseM3U(result.data);
-        // this.cdr.detectChanges();
-
+      const result: m3uResult = await this.dexie.getPlaylistFromDexieActive();
+      if (result.ok && result.data) {
+        await this.parseM3U(result.data.content);
       }
     }
   }
@@ -73,7 +71,8 @@ export class IptvService {
       if (!map.has(ch.group)) map.set(ch.group, []);
       map.get(ch.group)!.push(ch);
     }
-    return Array.from(map.entries()).map(([name, channels]) => ({ name, channels }));
+    let result = Array.from(map.entries()).map(([name, channels]) => ({ name, channels }));
+    return result;
   }
 
   getCount(type: ContentType): number {

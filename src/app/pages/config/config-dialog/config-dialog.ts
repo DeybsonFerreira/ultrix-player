@@ -8,10 +8,12 @@ import { MatButtonModule } from '@angular/material/button';
 import { FormsModule } from '@angular/forms';
 import { IptvService } from '../../../services/iptv-service';
 import { CommonModule } from '@angular/common';
-import { CacheKeys } from '../../../models/constants';
+import { Constants } from '../../../models/constants';
 import { MatListModule } from '@angular/material/list';
 import { MatIconModule } from '@angular/material/icon';
 import { DexieService } from '../../../services/dexie-service';
+import { db, PlaylistData } from '../../../models/db';
+import { MessageService } from '../../../services/message-service';
 
 
 
@@ -29,23 +31,29 @@ export class ConfigDialogComponent implements AfterViewInit {
   importError: string = '';
   importSuccess: string = '';
   config: appConfig;
-  servers: string[] = [];
-
-  ngAfterViewInit() {
-    setTimeout(() => {
-      document.querySelector('input')?.focus();
-    }, 100);
-  }
+  servers: PlaylistData[] = [];
 
   constructor(
     private dialogRef: MatDialogRef<ConfigDialogComponent>,
     private configService: ConfigService,
     private iptv: IptvService,
     private cdr: ChangeDetectorRef,
-    private dexie: DexieService
+    private dexie: DexieService,
+    private message: MessageService
+
   ) {
     this.config = this.configService.getConfig();
-    // this.loadServers();
+  }
+
+  async ngAfterViewInit() {
+    this.focoOnInput();
+    await this.loadServers();
+  }
+
+  focoOnInput() {
+    setTimeout(() => {
+      document.querySelector('input')?.focus();
+    }, 100);
   }
 
   async importFromUrl() {
@@ -103,29 +111,6 @@ export class ConfigDialogComponent implements AfterViewInit {
     }, 1500);
   }
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
   save() {
     this.configService.saveLogin(this.config);
     this.dialogRef.close();
@@ -135,31 +120,44 @@ export class ConfigDialogComponent implements AfterViewInit {
     this.dialogRef.close();
   }
 
-  removeServer(serverName: string) {
-    const key = serverName.replace('Servidor ', CacheKeys.IPTV_LINK).replace(' #', '_');
 
-    // this.iptv.clearStorage(key).then(() => {
-    //   this.servers = this.servers.filter(s => s !== serverName);
-    //   this.cdr.detectChanges();
-    // });
+  async loadServers() {
 
+    this.servers = [];
+    const serverResult = await this.dexie.getPlaylistFromDexie();
+
+    if (serverResult.ok) {
+
+      serverResult.data.forEach(item => {
+        let serverName = `${Constants.serverNameText}${item.id}`;
+        item.content = serverName;
+        this.servers.push(item);
+      });
+    }
+    this.cdr.detectChanges();
+  }
+
+  async removeServer(server: PlaylistData) {
+    if (server?.id) {
+      await this.dexie.removeById(server?.id);
+      this.loadServers();
+    }
+  }
+
+  async selectServerActive(server: PlaylistData) {
+    const currentActive = await db.playlists.filter(playlist => playlist.active === true).first();
+    if (currentActive?.id == server?.id) {
+      this.message.error('Já selecionado');
+      return;
+    }
+    if (currentActive)
+      await db.playlists.update(currentActive?.id, { active: false });
+
+    await db.playlists.update(server?.id, { active: true });
+    await this.loadServers();
   }
 
 
-  loadServers() {
-    // for (let i = 0; i < 3; i++) {
-    //   let key = CacheKeys.IPTV_LINK;
-
-    //   if (i != 0)
-    //     key = `${CacheKeys.IPTV_LINK}_${i + 1}`;
-
-    //   this.iptv.loadStorage(key).then((result) => {
-    //     if (result) {
-    //       this.servers.push(key.replace(CacheKeys.IPTV_LINK, 'Servidor ').replace('_', ' #'));
-    //     }
-    //   });
-    // }
-  }
 
 
 

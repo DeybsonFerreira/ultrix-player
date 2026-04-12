@@ -1,7 +1,7 @@
 import { Injectable } from '@angular/core';
-import { CacheKeys } from '../models/constants';
+import { Constants } from '../models/constants';
 import { db } from '../models/db';
-import { m3uListResult } from '../models/m3uListResult';
+import { m3uListResult, m3uResult } from '../models/m3uListResult';
 
 @Injectable({ providedIn: 'root' })
 export class DexieService {
@@ -9,11 +9,17 @@ export class DexieService {
   async saveToDatabaseDexie(content: string) {
     try {
 
-      await db.playlists.put({
-        storageKey: CacheKeys.IPTV_LINK,
-        content: content,
-        updatedAt: Date.now()
-      }, CacheKeys.IPTV_LINK);
+
+      await db.transaction('rw', db.playlists, async () => {
+        const currentActive = await db.playlists.filter(playlist => playlist.active === true).first();
+        //desativa o ativo
+        if (currentActive?.id) {
+          await db.playlists.update(currentActive.id, { active: false });
+        }
+
+        //cria novo ativo
+        await db.playlists.add({ content, active: true, name: Constants.serverNameText });
+      });
 
       return { ok: true };
     } catch (error) {
@@ -24,23 +30,49 @@ export class DexieService {
 
   async getPlaylistFromDexie(): Promise<m3uListResult> {
     try {
-      const data = await db.playlists
-        .where('storageKey')
-        .equals(CacheKeys.IPTV_LINK)
-        .first();
+      const data = await db.playlists.toArray();
 
       if (!data) {
-        let result: m3uListResult = { ok: false, data: 'Playlist não encontrada.' };
+        let result: m3uListResult = { ok: false, data: [] };
         return result;
       }
 
-      let result: m3uListResult = { ok: true, data: data.content };
+      let result: m3uListResult = { ok: true, data: data };
       return result;
     } catch (error) {
       console.error('Erro ao buscar no Dexie:', error);
-      let result: m3uListResult = { ok: false, data: 'Erro ao buscar playlist.' };
+      let result: m3uListResult = { ok: false, data: [] };
       return result;
     }
   }
+
+  async getPlaylistFromDexieActive(): Promise<m3uResult> {
+    try {
+      const data = await db.playlists.filter(x => x.active === true).first()
+
+      if (!data) {
+        let result: m3uResult = { ok: false, data: null };
+        return result;
+      }
+
+      let result: m3uResult = { ok: true, data: data };
+      return result;
+    } catch (error) {
+      console.error('Erro ao buscar no Dexie:', error);
+      let result: m3uResult = { ok: false, data: null };
+      return result;
+    }
+  }
+
+  async removeById(id: number): Promise<boolean> {
+    try {
+      await db.playlists.delete(id);
+      return true;
+    } catch (error) {
+      console.error('Erro ao remover do Dexie:', error);
+      return false;
+    }
+  }
+
 
 }

@@ -47,24 +47,31 @@
     <div class="divider"> </div>
     <br>
 
-    <mat-list>
-        <div class="text-success" mat-subheader>Canais Importados</div>
-        @for (server of servers; track servers) {
-        <mat-list-item>
+    <mat-list *ngIf="servers.length > 0" class="server-list">
+        <div mat-subheader>Selecione: servidores disponíveis</div>
+        @for (server of servers; track $index){
+        <mat-list-item class="ultrix-btn" (click)="selectServerActive(server)">
             <mat-icon matListItemIcon>folder</mat-icon>
-            <div matListItemTitle>{{server}}</div>
-            <button (click)="removeServer(server)" matIconButton matListItemMeta>
+            <div matListItemTitle>{{server?.name}}{{server?.id}}
+                <button *ngIf="server.active" matIconButton matListItemMeta>
+                    <mat-icon class=" text-success">check_small</mat-icon>
+                </button>
+            </div>
+
+            <button (click)="removeServer(server); $event.stopPropagation()" matIconButton matListItemMeta>
                 <mat-icon class="text-danger">close</mat-icon>
             </button>
+
         </mat-list-item>
-        }
         <div class="divider"> </div>
+        }
+
     </mat-list>
 
 
     <div class="actions">
-        <button class="ultrix-btn" tabindex="0" (click)="save()">Salvar</button>
-        <button class="ultrix-btn secondary" tabindex="0" (click)="close()">Cancelar</button>
+        <!-- <button class="ultrix-btn" tabindex="0" (click)="save()">Salvar</button> -->
+        <button class="ultrix-btn secondary" tabindex="0" (click)="close()">Sair</button>
     </div>
 
 </div>

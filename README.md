@@ -9,9 +9,11 @@ ng generate component pages/config/config-dialog --skip-tests
 ng generate service services/iptvService  --skip-tests
 ng generate service services/storageService  --skip-tests
 ng generate service services/configService  --skip-tests
+ng generate service services/messageService
 
 ng generate component components/navbar --skip-tests
 ng generate component components/import --skip-tests
+ng generate component components/messages --skip-tests
 
 -- Servidor Teste
 https://raw.githubusercontent.com/joaoguidugli/FTA-IPTV-Brasil/master/playlist.m3u8

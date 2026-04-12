@@ -59,3 +59,18 @@ button {
 .pointer {
     cursor: pointer;
 }
+
+.snackbar-success {
+    background: #4caf50;
+    color: #fff;
+}
+
+.snackbar-error {
+    background: #f44336;
+    color: #fff;
+}
+
+.snackbar-warning {
+    background: #ff9800;
+    color: #fff;
+}
