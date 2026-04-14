@@ -1,250 +1,142 @@
 $neon: #7b2cff;
 $neon-light: #a66cff;
-$bg-deep: #06060f;
-$bg-card: rgba(14, 14, 30, 0.97);
-$bg-item: rgba(20, 20, 45, 0.7);
-$bg-hover: rgba(123, 44, 255, 0.15);
-$bg-active: rgba(123, 44, 255, 0.25);
-$text-muted: rgba(255, 255, 255, 0.45);
+$bg-dialog: rgba(10, 10, 25, 0.98);
+$text-muted: rgba(255, 255, 255, 0.5);
 
 @mixin neon-glow($color: $neon) {
-    box-shadow:
-        0 0 8px $color,
-        0 0 18px rgba($color, 0.5);
+    box-shadow: 0 0 10px $color, 0 0 20px rgba($color, 0.4);
 }
 
-@mixin neon-text($color: $neon) {
-    text-shadow:
-        0 0 5px $color,
-        0 0 12px $color,
-        0 0 24px rgba($color, 0.5);
-}
-
-/* ===== CONTAINER ===== */
 .dialog-container {
-    position: relative;
-    padding: 40px;
-    border-radius: 25px;
-    background: rgba(10, 10, 25, 0.98);
-    backdrop-filter: blur(15px);
+    padding: 30px;
+    border-radius: 20px;
+    background: $bg-dialog;
     color: white;
-    width: 420px;
-    z-index: 1;
-    box-shadow:
-        0 0 10px #7b2cff,
-        0 0 20px #7b2cff,
-        0 0 40px rgba(123, 44, 255, 0.5);
+    width: 450px;
+    border: 1px solid rgba($neon, 0.3);
+    @include neon-glow();
 }
 
-.dialog-container::before {
-    content: '';
-    position: absolute;
-    inset: 0;
-
-    border-radius: 25px;
-    padding: 2px;
-    /* espessura da borda */
-
-    background: linear-gradient(45deg, #7b2cff, #a66cff, #7b2cff);
-
-    /* efeito de borda */
-    -webkit-mask:
-        linear-gradient(#fff 0 0) content-box,
-        linear-gradient(#fff 0 0);
-
-    -webkit-mask-composite: xor;
-    mask-composite: exclude;
-
-    z-index: -1;
-
-    /* 🔥 glow neon */
-    box-shadow:
-        0 0 5px #7b2cff,
-        0 0 10px #7b2cff,
-        0 0 20px #7b2cff,
-        0 0 40px rgba(123, 44, 255, 0.6);
-}
-
-
-/* ===== TÍTULO ===== */
 .text-neon {
-    font-size: 26px;
-    font-weight: 700;
+    font-size: 24px;
     text-align: center;
-    margin-bottom: 30px;
-
-    text-shadow:
-        0 0 5px #7b2cff,
-        0 0 10px #7b2cff,
-        0 0 20px #7b2cff;
+    margin-bottom: 25px;
+    text-shadow: 0 0 10px $neon;
 }
 
-/* ===== FORM GRID ===== */
-.form-grid {
-    display: flex;
-    flex-direction: column;
-    gap: 20px;
-}
-
-/* ===== LINHA (TABELA) ===== */
-.row {
-    display: grid;
-    grid-template-columns: 120px 1fr;
-    align-items: center;
-    gap: 20px;
-}
-
-/* INPUT */
-.row input {
-    padding: 14px;
-    border-radius: 12px;
-    border: 1px solid rgba(123, 44, 255, 0.3);
-    background: rgba(255, 255, 255, 0.05);
-    color: white;
-    transition: all 0.25s ease;
-}
-
-/* FOCO */
-.row input:focus {
-    outline: none;
-
-    border: 1px solid #a66cff;
-
-    box-shadow:
-        0 0 10px #7b2cff,
-        0 0 20px rgba(123, 44, 255, 0.4);
-
-    transform: scale(1.02);
-}
-
-/* LINHA ATIVA */
-.row:focus-within {
-    background: rgba(123, 44, 255, 0.08);
-    border-radius: 10px;
-    padding: 10px;
-}
-
-/* ===== BOTÕES ===== */
-.actions {
-    display: flex;
-    justify-content: space-between;
-    gap: 15px;
-    margin-top: 30px;
-}
-
-/* BOTÃO PADRÃO (IGUAL HOME) */
-.ultrix-btn {
-    flex: 1;
-
-    padding: 12px 24px;
-    border-radius: 12px;
-
-    font-size: 16px;
-    font-weight: 600;
-
-    color: white;
-    border: none;
-    cursor: pointer;
-
-    background: linear-gradient(45deg, #7b2cff, #a66cff);
-
-    transition: all 0.3s ease;
-}
-
-/* HOVER */
-.ultrix-btn:hover {
-    transform: scale(1.05);
-    box-shadow: 0 0 15px #7b2cff;
-}
-
-/* FOCO */
-.ultrix-btn:focus {
-    outline: none;
-
-    transform: scale(1.08);
-
-    box-shadow:
-        0 0 20px #a66cff,
-        0 0 40px rgba(166, 108, 255, 0.6);
-}
-
-/* SECUNDÁRIO */
-.ultrix-btn.secondary {
-    background: rgba(255, 255, 255, 0.15);
-}
-
-/* CLIQUE */
-.ultrix-btn:active {
-    transform: scale(0.97);
+.label-accent {
+    font-size: 14px;
+    color: $neon-light;
+    margin-bottom: 8px;
+    display: block;
 }
 
 .neon-input {
     flex: 1;
-    padding: 13px 16px;
+    padding: 12px 16px;
     background: rgba(255, 255, 255, 0.05);
     border: 1px solid rgba($neon, 0.3);
-    border-radius: 12px;
+    border-radius: 10px;
     color: white;
-    font-size: 14px;
-    transition: all 0.25s;
-    width: 90%;
-
-    &::placeholder {
-        color: rgba(255, 255, 255, 0.25);
-    }
+    outline: none;
 
     &:focus {
-        outline: none;
         border-color: $neon-light;
-        @include neon-glow($neon);
+        background: rgba($neon, 0.1);
+        @include neon-glow();
     }
 }
 
-
-.form-group {
+.info-grid {
     display: flex;
     flex-direction: column;
-    gap: 8px;
-    margin-bottom: 50px;
+    gap: 12px;
 }
 
-
-.form-group .input-row-import {
+.info-row {
     display: flex;
-    gap: 8px;
+    justify-content: space-between;
+    align-items: center;
+    padding: 8px 12px;
+    background: rgba(255, 255, 255, 0.03);
+    border-radius: 8px;
+
+    .highlight {
+        color: #ff2c7b;
+        font-family: 'Courier New', monospace;
+    }
 }
 
-.form-group input {
-    flex: 1;
-}
-
-.form-group button {
-    width: 50px;
+.server-item {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 12px 15px;
+    margin-bottom: 8px;
+    border-radius: 10px;
+    background: rgba(255, 255, 255, 0.05);
     cursor: pointer;
+    outline: none;
+    border: 2px solid transparent;
+
+    &:focus {
+        background: rgba($neon, 0.2);
+        border-color: $neon-light;
+        transform: scale(1.02);
+    }
+
+    &.active {
+        border-left: 4px solid $neon;
+    }
+}
+
+.scrollable-list {
+    max-height: 200px;
+    overflow-y: auto;
+    padding-right: 5px;
+
+    &::-webkit-scrollbar {
+        width: 4px;
+    }
+
+    &::-webkit-scrollbar-thumb {
+        background: $neon;
+        border-radius: 10px;
+    }
+}
+
+.ultrix-btn {
+    padding: 12px 20px;
+    border-radius: 10px;
+    border: none;
+    background: linear-gradient(45deg, $neon, $neon-light);
+    color: white;
+    font-weight: bold;
+    cursor: pointer;
+    outline: none;
+
+    &:focus {
+        @include neon-glow($neon-light);
+        transform: scale(1.05);
+    }
+
+    &.secondary {
+        background: rgba(255, 255, 255, 0.1);
+    }
+}
+
+.feedback-msg {
+    font-size: 13px;
+    margin-top: 10px;
+    text-align: center;
 }
 
 .divider {
-    text-align: center;
+    height: 1px;
+    background: rgba($neon, 0.2);
     margin: 20px 0;
-    position: relative;
-    color: $text-muted;
-    font-size: 13px;
+}
 
-    &::before,
-    &::after {
-        content: '';
-        position: absolute;
-        top: 50%;
-        width: 42%;
-        height: 1px;
-        background: rgba($neon, 0.2);
-    }
-
-    &::before {
-        left: 0;
-    }
-
-    &::after {
-        right: 0;
-    }
+#urlInput {
+    width: 70%;
 }

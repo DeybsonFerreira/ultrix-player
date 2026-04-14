@@ -17,8 +17,9 @@ export class DexieService {
           await db.playlists.update(currentActive.id, { active: false });
         }
 
-        //cria novo ativo
-        await db.playlists.add({ content, active: true, name: Constants.serverNameText });
+        const lastItem = await db.playlists.orderBy('number').last();
+        const lastNumber = lastItem?.number ?? 0;
+        await db.playlists.add({ content, active: true, name: Constants.serverNameText, number: lastNumber + 1 });
       });
 
       return { ok: true };

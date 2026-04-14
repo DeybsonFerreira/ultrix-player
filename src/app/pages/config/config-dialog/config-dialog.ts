@@ -1,31 +1,38 @@
-import { AfterViewInit, ChangeDetectorRef, Component } from '@angular/core';
-import { MatDialogRef } from '@angular/material/dialog';
-import { appConfig } from '../../../models/appConfig';
-import { ConfigService } from '../../../services/config-service';
-import { MatDialogModule } from '@angular/material/dialog';
+import { AfterViewInit, ChangeDetectorRef, Component, ViewChild, ElementRef } from '@angular/core';
+import { MatDialogRef, MatDialogModule } from '@angular/material/dialog';
+import { CommonModule } from '@angular/common';
+import { FormsModule } from '@angular/forms';
 import { MatInputModule } from '@angular/material/input';
 import { MatButtonModule } from '@angular/material/button';
-import { FormsModule } from '@angular/forms';
-import { IptvService } from '../../../services/iptv-service';
-import { CommonModule } from '@angular/common';
-import { Constants } from '../../../models/constants';
 import { MatListModule } from '@angular/material/list';
 import { MatIconModule } from '@angular/material/icon';
+
+import { appConfig } from '../../../models/appConfig';
+import { ConfigService } from '../../../services/config-service';
+import { IptvService } from '../../../services/iptv-service';
+import { Constants } from '../../../models/constants';
 import { DexieService } from '../../../services/dexie-service';
 import { db, PlaylistData } from '../../../models/db';
 import { MessageService } from '../../../services/message-service';
 
-
-
 @Component({
   selector: 'app-config-dialog',
-  imports: [FormsModule, CommonModule, MatDialogModule, MatInputModule, MatButtonModule, MatListModule, MatIconModule],
+  standalone: true,
+  imports: [
+    CommonModule,
+    FormsModule,
+    MatDialogModule,
+    MatInputModule,
+    MatButtonModule,
+    MatListModule,
+    MatIconModule
+  ],
   templateUrl: './config-dialog.html',
   styleUrl: './config-dialog.scss',
 })
 export class ConfigDialogComponent implements AfterViewInit {
+  @ViewChild('urlInput') urlInput!: ElementRef;
 
-  // Import
   m3uUrl: string = 'https://iptv-org.github.io/iptv/index.m3u';
   isLoading: boolean = false;
   importError: string = '';
@@ -40,25 +47,27 @@ export class ConfigDialogComponent implements AfterViewInit {
     private cdr: ChangeDetectorRef,
     private dexie: DexieService,
     private message: MessageService
-
   ) {
     this.config = this.configService.getConfig();
   }
 
   async ngAfterViewInit() {
-    this.focoOnInput();
+    this.setInitialFocus();
     await this.loadServers();
   }
 
-  focoOnInput() {
+  private setInitialFocus() {
+    // Timeout ligeiramente maior para garantir renderização em TVs mais lentas
     setTimeout(() => {
-      document.querySelector('input')?.focus();
-    }, 100);
+      this.urlInput?.nativeElement?.focus();
+    }, 400);
   }
 
   async importFromUrl() {
-    if (!this.m3uUrl.trim()) {
-      this.importError = 'Informe uma URL válida.';
+    const cleanUrl = this.m3uUrl?.trim();
+
+    if (!cleanUrl || !cleanUrl.startsWith('http')) {
+      this.importError = 'Por favor, insira uma URL válida (http/https).';
       return;
     }
 
@@ -66,99 +75,80 @@ export class ConfigDialogComponent implements AfterViewInit {
     this.importError = '';
     this.importSuccess = '';
 
-
     try {
-      const res = await fetch(this.m3uUrl.trim());
+      const res = await fetch(cleanUrl);
+      if (!res.ok) throw new Error(`Erro na conexão: ${res.status}`);
 
-      if (!res.ok)
-        throw new Error(`HTTP ${res.status}`);
+      const content = await res.text();
 
-      let result = await res.text();
-      await this.processM3UContent(result);
-      await this.dexie.saveToDatabaseDexie(result);
+      // Validação básica de cabeçalho M3U
+      if (!content.includes('#EXTM3U')) {
+        throw new Error('O link informado não é uma lista M3U válida.');
+      }
 
+      const parseResult = await this.iptv.parseM3U(content);
 
-    } catch {
-      this.importError = 'Não foi possível carregar a URL. Use o arquivo local.';
+      if (parseResult.ok) {
+        await this.dexie.saveToDatabaseDexie(content);
+        this.showSuccessMessage(parseResult);
+        await this.loadServers();
+      } else {
+        this.importError = parseResult.error || 'Erro ao processar lista.';
+      }
+
+    } catch (err: any) {
+      this.importError = err.message || 'Falha ao carregar URL.';
+    } finally {
       this.isLoading = false;
       this.cdr.detectChanges();
     }
   }
 
-  async processM3UContent(content: string) {
+  private showSuccessMessage(result: any) {
+    const counts = {
+      live: this.iptv.getCount('live'),
+      movie: this.iptv.getCount('movie'),
+      series: this.iptv.getCount('series')
+    };
 
-    const result = await this.iptv.parseM3U(content);
+    this.importSuccess = `✅ ${result.total} itens: ${counts.live} TV, ${counts.movie} Filmes, ${counts.series} Séries`;
+  }
 
-    if (!result.ok) {
-      this.importError = result.error!;
-      this.isLoading = false;
-      this.cdr.detectChanges();
+  async loadServers() {
+    const result = await this.dexie.getPlaylistFromDexie();
+    if (result.ok) {
+      result.data.forEach(a => a.content = 'hide')
+      this.servers = result.data;
+    }
+    this.cdr.detectChanges();
+  }
+
+  async selectServerActive(server: PlaylistData) {
+    if (server.active) {
+      this.message.error('Este servidor já está ativo');
       return;
     }
 
-    const liveCount = this.iptv.getCount('live');
-    const movieCount = this.iptv.getCount('movie');
-    const seriesCount = this.iptv.getCount('series');
+    try {
+      // Desativa todos e ativa o selecionado (Transação atômica idealmente)
+      await db.playlists.filter(playlist => playlist.active === true).modify({ active: false });
+      await db.playlists.update(server.id!, { active: true });
 
-    this.importSuccess =
-      `${result.total} itens importados: ` +
-      `📺 ${liveCount} canais · 🎬 ${movieCount} filmes · 📺 ${seriesCount} séries`;
-
-    this.isLoading = false;
-
-    setTimeout(() => {
-      this.cdr.detectChanges();
-    }, 1500);
+      this.message.success('Servidor alterado com sucesso');
+      await this.loadServers();
+    } catch (err) {
+      this.message.error('Erro ao trocar de servidor');
+    }
   }
 
-  save() {
-    this.configService.saveLogin(this.config);
-    this.dialogRef.close();
+  async removeServer(server: PlaylistData) {
+    if (confirm('Deseja remover este servidor?')) {
+      await this.dexie.removeById(server.id!);
+      await this.loadServers();
+    }
   }
 
   close() {
     this.dialogRef.close();
   }
-
-
-  async loadServers() {
-
-    this.servers = [];
-    const serverResult = await this.dexie.getPlaylistFromDexie();
-
-    if (serverResult.ok) {
-
-      serverResult.data.forEach(item => {
-        let serverName = `${Constants.serverNameText}${item.id}`;
-        item.content = serverName;
-        this.servers.push(item);
-      });
-    }
-    this.cdr.detectChanges();
-  }
-
-  async removeServer(server: PlaylistData) {
-    if (server?.id) {
-      await this.dexie.removeById(server?.id);
-      this.loadServers();
-    }
-  }
-
-  async selectServerActive(server: PlaylistData) {
-    const currentActive = await db.playlists.filter(playlist => playlist.active === true).first();
-    if (currentActive?.id == server?.id) {
-      this.message.error('Já selecionado');
-      return;
-    }
-    if (currentActive)
-      await db.playlists.update(currentActive?.id, { active: false });
-
-    await db.playlists.update(server?.id, { active: true });
-    await this.loadServers();
-  }
-
-
-
-
-
 }

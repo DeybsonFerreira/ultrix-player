@@ -3,5 +3,6 @@ export const CacheKeys = {
 };
 
 export const Constants = {
-    serverNameText: `Ultrix-server`
+    serverNameText: `Ultrix-server`,
+    databaseName: `UltrixDatabase`,
 }
