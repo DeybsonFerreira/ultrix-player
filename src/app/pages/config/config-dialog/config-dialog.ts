@@ -10,7 +10,6 @@ import { MatIconModule } from '@angular/material/icon';
 import { appConfig } from '../../../models/appConfig';
 import { ConfigService } from '../../../services/config-service';
 import { IptvService } from '../../../services/iptv-service';
-import { Constants } from '../../../models/constants';
 import { DexieService } from '../../../services/dexie-service';
 import { db, PlaylistData } from '../../../models/db';
 import { MessageService } from '../../../services/message-service';

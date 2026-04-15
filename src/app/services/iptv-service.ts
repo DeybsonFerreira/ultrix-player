@@ -6,25 +6,26 @@ import { DexieService } from './dexie-service';
 import { m3uListResult, m3uResult } from '../models/m3uListResult';
 
 // ─── Palavras-chave para classificação ───────────────────────────────────
-const SERIES_KEYWORDS = ['serie', 'série', 'S •', 'C •'];
+const SERIES_KEYWORDS = ['serie', 'série', 'S •', 's0'];
 const MOVIE_KEYWORDS = ['filme', 'movie', 'F •'];
-const LIVE_KEYWORDS = ['canais', 'canal', 'ao vivo'];
+const LIVE_KEYWORDS = ['canais', 'canal', 'ao vivo', 'sbt', 'sky', 'band', 'tv'];
 
 function classifyContent(name: string, group: string): ContentType {
 
+  //verificar aqui
   const nameLower = name.toLowerCase();
   const groupLower = group.toLowerCase();
   const fullText = `${nameLower} ${groupLower}`;
 
-  if (LIVE_KEYWORDS.some(k => fullText.includes(k.toLowerCase()))) {
+  if (LIVE_KEYWORDS.some(k => groupLower.includes(k.toLowerCase()))) {
     return 'live';
   }
 
-  if (SERIES_KEYWORDS.some(k => fullText.includes(k.toLowerCase()))) {
+  if (SERIES_KEYWORDS.some(k => groupLower.includes(k.toLowerCase()))) {
     return 'series';
   }
 
-  if (MOVIE_KEYWORDS.some(k => fullText.includes(k.toLowerCase()))) {
+  if (MOVIE_KEYWORDS.some(k => groupLower.includes(k.toLowerCase()))) {
     return 'movie';
   }
 
