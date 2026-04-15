@@ -1,105 +1,209 @@
-<app-navbar (searchEvent)="searchQuery = $event"></app-navbar>
+<app-navbar (searchEvent)="onGlobalSearch($event)"></app-navbar>
 
-<div class="series-container">
+<div class="series-root" [class.fullscreen-mode]="view === 'player'">
 
-  <!-- SIDEBAR -->
-  <aside class="sidebar">
+  <!-- ═══════════════════════════════════════════════
+       VIEW: CATEGORIAS (direita) + CARTAZES (centro)
+  ════════════════════════════════════════════════ -->
+  <ng-container *ngIf="view !== 'player'">
 
-    <div class="sidebar-header">
-      <button class="icon-btn" (click)="goHome()" title="Menu" tabindex="0">⌂</button>
-      <span class="sidebar-title" *ngIf="sidebarMode === 'groups'">📺 Séries</span>
-      <span class="sidebar-title" *ngIf="sidebarMode === 'channels'">
-        <button class="back-icon-btn" (click)="backToGroups()" tabindex="0">‹</button>
-        {{ selectedGroup?.name }}
-      </span>
-    </div>
+    <!-- ÁREA PRINCIPAL -->
+    <div class="browse-layout">
 
-    <div class="search-row" *ngIf="sidebarMode === 'channels'">
-      <input class="search-input" [(ngModel)]="searchQuery" placeholder="🔍 Buscar episódio..." tabindex="0" />
-    </div>
-
-    <!-- Grupos (séries/temporadas) -->
-    <div class="sidebar-list" *ngIf="sidebarMode === 'groups'">
-      <div class="group-item" *ngFor="let group of groups" (click)="selectGroup(group)"
-        [class.active]="selectedGroup?.name === group.name" tabindex="0" (keydown.enter)="selectGroup(group)">
-        <span class="group-name">{{ group.name }}</span>
-        <span class="group-badge">{{ group.channels.length }}</span>
-      </div>
-    </div>
-
-    <!-- Episódios do grupo -->
-    <div class="sidebar-list" *ngIf="sidebarMode === 'channels'">
-      <div class="channel-item" *ngFor="let episode of filteredEpisodes" (click)="selectEpisode(episode)"
-        [class.active]="selectedEpisode?.id === episode.id" tabindex="0" (keydown.enter)="selectEpisode(episode)">
-        <img *ngIf="episode.logo" class="channel-logo" [src]="episode.logo" [alt]="episode.name"
-          onerror="this.style.display='none'" />
-        <span class="channel-logo-placeholder" *ngIf="!episode.logo">🎞</span>
-        <span class="channel-name">{{ episode.name }}</span>
-        <span class="play-icon" *ngIf="selectedEpisode?.id === episode.id">▶</span>
-      </div>
-      <div class="empty-state" *ngIf="filteredEpisodes.length === 0">Nenhum episódio encontrado</div>
-    </div>
-
-    <div class="sidebar-footer">{{ totalSeries }} episódios disponíveis</div>
-  </aside>
-
-  <!-- PLAYER AREA -->
-  <main class="player-area">
-
-    <div class="player-empty" *ngIf="!selectedEpisode">
-      <div class="empty-content">
-        <span class="empty-icon">📺</span>
-        <h2>Selecione um episódio</h2>
-        <p>Escolha uma série e depois o episódio na lista ao lado</p>
-      </div>
-    </div>
-
-    <div class="player-wrapper" *ngIf="selectedEpisode">
-
-      <div class="player-info-bar">
-        <div class="channel-info">
-          <img *ngIf="selectedEpisode.logo" class="now-playing-logo" [src]="selectedEpisode.logo"
-            [alt]="selectedEpisode.name" onerror="this.style.display='none'" />
-          <div class="now-playing-text">
-            <span class="now-label series-label">SÉRIE</span>
-            <span class="now-name">{{ selectedEpisode.name }}</span>
-            <span class="now-group">{{ selectedEpisode.group }}</span>
+      <!-- HEADER DE BROWSE -->
+      <div class="browse-header">
+        <div class="browse-header-left">
+          <button class="icon-btn home-btn" (click)="goHome()" title="Home" tabindex="0">⌂</button>
+          <div class="browse-title-block">
+            <span class="browse-label">ULTRIX TV</span>
+            <h1 class="browse-title">
+              <span *ngIf="view === 'categories'">Séries &amp; Shows</span>
+              <span *ngIf="view === 'posters'">
+                <button class="breadcrumb-btn" (click)="backToCategories()">Séries</button>
+                <span class="breadcrumb-sep">›</span>
+                {{ selectedGroup?.name }}
+              </span>
+              <span *ngIf="view === 'episodes'">
+                <button class="breadcrumb-btn" (click)="backToCategories()">Séries</button>
+                <span class="breadcrumb-sep">›</span>
+                <button class="breadcrumb-btn" (click)="backToPosters()">{{ selectedGroup?.name }}</button>
+                <span class="breadcrumb-sep">›</span>
+                {{ selectedSeriesTitle }}
+              </span>
+            </h1>
           </div>
         </div>
-        <div class="clock">{{ currentTime }}</div>
-      </div>
-
-      <div class="video-container">
-        <video #videoPlayer class="video-player" playsinline autoplay></video>
-        <div class="player-error-overlay" *ngIf="playerError">
-          <span class="error-icon">⚠</span><span>{{ playerError }}</span>
+        <div class="browse-search" *ngIf="view !== 'categories'">
+          <input class="search-input" [(ngModel)]="searchQuery"
+            [placeholder]="view === 'posters' ? '🔍 Buscar série...' : '🔍 Buscar episódio...'" tabindex="0" />
         </div>
-        <div class="player-loading" *ngIf="isBuffering && !playerError">
-          <div class="loading-spinner"></div><span>Carregando...</span>
+        <div class="browse-count">
+          <span>{{ totalSeries }} episódios</span>
         </div>
       </div>
 
-      <!-- Barra de progresso -->
-      <div class="progress-bar-row">
-        <span class="time-label">{{ currentTime }}</span>
-        <input type="range" class="progress-slider" min="0" max="100" [value]="progressPercent" (input)="seek($event)"
-          tabindex="0" />
-        <span class="time-label">{{ duration }}</span>
+      <!-- ── VIEW: CATEGORIAS ── -->
+      <div class="categories-view" *ngIf="view === 'categories'">
+        <div class="categories-search-row">
+          <input class="search-input big-search" [(ngModel)]="searchQuery"
+            placeholder="🔍 Buscar categoria, série ou episódio..." tabindex="0" />
+        </div>
+        <div class="categories-grid">
+          <div class="category-card" *ngFor="let group of filteredGroups" (click)="selectGroup(group)" tabindex="0"
+            (keydown.enter)="selectGroup(group)">
+            <div class="category-poster-strip">
+              <img *ngFor="let ep of group.channels.slice(0,3)" [src]="ep.logo || ''" class="strip-thumb"
+                onerror="this.style.display='none'" />
+              <span class="strip-placeholder" *ngIf="!group.channels[0]?.logo">🎬</span>
+            </div>
+            <div class="category-info">
+              <span class="category-name">{{ group.name }}</span>
+              <span class="category-badge">{{ group.channels.length }}</span>
+            </div>
+          </div>
+        </div>
+        <div class="empty-state" *ngIf="filteredGroups.length === 0">Nenhuma categoria encontrada</div>
       </div>
 
-      <div class="player-controls">
-        <button class="ctrl-btn" (click)="prevEpisode()" tabindex="0" title="Episódio anterior">⏮</button>
-        <button class="ctrl-btn play-pause" (click)="togglePlay()" tabindex="0">{{ isPlaying ? '⏸' : '▶' }}</button>
-        <button class="ctrl-btn" (click)="nextEpisode()" tabindex="0" title="Próximo episódio">⏭</button>
-        <div class="volume-section">
-          <button class="ctrl-btn small" (click)="toggleMute()" tabindex="0">{{ isMuted ? '🔇' : volume > 50 ? '🔊' :
-            '🔉' }}</button>
-          <input type="range" class="volume-slider" min="0" max="100" [value]="volume" (input)="setVolume($event)"
+      <!-- ── VIEW: CARTAZES (poster grid com virtual scroll) ── -->
+      <div class="posters-view" *ngIf="view === 'posters'">
+        <cdk-virtual-scroll-viewport class="posters-scroll-viewport" [itemSize]="POSTER_ROW_HEIGHT"
+          (scrolledIndexChange)="onPostersScrolled($event)">
+          <div class="posters-row-wrapper" *cdkVirtualFor="let row of posterRows; trackBy: trackByIdx">
+            <div class="poster-card" *ngFor="let series of row; trackBy: trackBySeriesTitle"
+              (click)="selectSeries(series)" tabindex="0" (keydown.enter)="selectSeries(series)">
+              <div class="poster-img-wrap">
+                <img *ngIf="series.logo" [src]="series.logo" class="poster-img" [alt]="series.title"
+                  onerror="this.src=''; this.parentElement.classList.add('no-img')" />
+                <div class="poster-no-img" *ngIf="!series.logo">
+                  <span class="poster-no-icon">🎬</span>
+                </div>
+                <div class="poster-overlay">
+                  <button class="poster-play-btn">▶</button>
+                </div>
+                <div class="poster-ep-count">{{ series.episodes.length }} ep.</div>
+              </div>
+              <div class="poster-meta">
+                <span class="poster-title">{{ series.title }}</span>
+              </div>
+            </div>
+          </div>
+          <!-- Padding final para não cortar último row -->
+          <div style="height: 40px"></div>
+        </cdk-virtual-scroll-viewport>
+      </div>
+
+      <!-- ── VIEW: EPISÓDIOS ── -->
+      <div class="episodes-view" *ngIf="view === 'episodes'">
+        <div class="series-hero" *ngIf="selectedSeriesGroup">
+          <div class="hero-poster">
+            <img *ngIf="selectedSeriesGroup.episodes[0]?.logo" [src]="selectedSeriesGroup.episodes[0].logo"
+              class="hero-img" onerror="this.style.display='none'" />
+            <span class="hero-no-img" *ngIf="!selectedSeriesGroup.episodes[0]?.logo">🎬</span>
+          </div>
+          <div class="hero-info">
+            <span class="hero-label">SÉRIE</span>
+            <h2 class="hero-title">{{ selectedSeriesTitle }}</h2>
+            <span class="hero-sub">{{ selectedSeriesGroup.episodes.length }} episódios disponíveis</span>
+            <button class="hero-play-btn" (click)="playEpisode(selectedSeriesGroup.episodes[0])">
+              ▶ Assistir do início
+            </button>
+          </div>
+        </div>
+
+        <div class="episodes-list-header">
+          <span class="episodes-list-label">Episódios</span>
+          <input class="search-input ep-search" [(ngModel)]="searchQuery" placeholder="🔍 Buscar episódio..."
             tabindex="0" />
         </div>
+
+        <cdk-virtual-scroll-viewport class="episodes-scroll-viewport" [itemSize]="EP_ITEM_HEIGHT">
+          <div class="episode-item" *cdkVirtualFor="let ep of filteredEpisodes; trackBy: trackByEpId"
+            (click)="playEpisode(ep)" tabindex="0" (keydown.enter)="playEpisode(ep)">
+            <div class="ep-num">{{ ep.epIndex }}</div>
+            <img *ngIf="ep.logo" class="ep-thumb" [src]="ep.logo" [alt]="ep.name" onerror="this.style.display='none'" />
+            <span class="ep-thumb-placeholder" *ngIf="!ep.logo">🎞</span>
+            <div class="ep-info">
+              <span class="ep-name">{{ ep.name }}</span>
+              <span class="ep-group">{{ ep.group }}</span>
+            </div>
+            <button class="ep-play-btn">▶</button>
+          </div>
+          <div class="empty-state" *ngIf="filteredEpisodes.length === 0">Nenhum episódio encontrado</div>
+        </cdk-virtual-scroll-viewport>
       </div>
 
     </div>
-  </main>
+
+    <!-- SIDEBAR DIREITA: CATEGORIAS -->
+    <aside class="cat-sidebar" *ngIf="view === 'posters' || view === 'episodes'">
+      <div class="cat-sidebar-header">
+        <span class="cat-sidebar-title">📺 Categorias</span>
+      </div>
+      <div class="cat-sidebar-list">
+        <div class="cat-sidebar-item" *ngFor="let g of groups" [class.active]="selectedGroup?.name === g.name"
+          (click)="selectGroup(g)" tabindex="0" (keydown.enter)="selectGroup(g)">
+          <span class="cat-item-name">{{ g.name }}</span>
+          <span class="cat-item-badge">{{ g.channels.length }}</span>
+        </div>
+      </div>
+    </aside>
+
+  </ng-container>
+
+  <!-- ═══════════════════════════════════════════════
+       VIEW: PLAYER FULLSCREEN
+  ════════════════════════════════════════════════ -->
+  <div class="player-fullscreen" *ngIf="view === 'player' && selectedEpisode">
+
+    <!-- Botão voltar -->
+    <button class="back-from-player" (click)="closePlayer()" tabindex="0" title="Voltar">
+      ‹ Voltar
+    </button>
+
+    <div class="player-info-bar">
+      <div class="channel-info">
+        <img *ngIf="selectedEpisode.logo" class="now-playing-logo" [src]="selectedEpisode.logo"
+          [alt]="selectedEpisode.name" onerror="this.style.display='none'" />
+        <div class="now-playing-text">
+          <span class="now-label series-label">SÉRIE</span>
+          <span class="now-name">{{ selectedEpisode.name }}</span>
+          <span class="now-group">{{ selectedEpisode.group }}</span>
+        </div>
+      </div>
+      <div class="clock">{{ currentTime }}</div>
+    </div>
+
+    <div class="video-container">
+      <video #videoPlayer class="video-player" playsinline autoplay></video>
+      <div class="player-error-overlay" *ngIf="playerError">
+        <span class="error-icon">⚠</span><span>{{ playerError }}</span>
+      </div>
+      <div class="player-loading" *ngIf="isBuffering && !playerError">
+        <div class="loading-spinner"></div><span>Carregando...</span>
+      </div>
+    </div>
+
+    <div class="progress-bar-row">
+      <span class="time-label">{{ videoCurrentTime }}</span>
+      <input type="range" class="progress-slider" min="0" max="100" [value]="progressPercent" (input)="seek($event)"
+        tabindex="0" />
+      <span class="time-label">{{ duration }}</span>
+    </div>
+
+    <div class="player-controls">
+      <button class="ctrl-btn" (click)="prevEpisode()" tabindex="0" title="Episódio anterior">⏮</button>
+      <button class="ctrl-btn play-pause" (click)="togglePlay()" tabindex="0">{{ isPlaying ? '⏸' : '▶' }}</button>
+      <button class="ctrl-btn" (click)="nextEpisode()" tabindex="0" title="Próximo episódio">⏭</button>
+      <div class="volume-section">
+        <button class="ctrl-btn small" (click)="toggleMute()" tabindex="0">
+          {{ isMuted ? '🔇' : volume > 50 ? '🔊' : '🔉' }}
+        </button>
+        <input type="range" class="volume-slider" min="0" max="100" [value]="volume" (input)="setVolume($event)"
+          tabindex="0" />
+      </div>
+    </div>
+
+  </div>
 
 </div>

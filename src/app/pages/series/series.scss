@@ -1,11 +1,11 @@
 // ═══════════════════════════════════════════════════════
-//  ULTRIX TV — FILMES / SÉRIES (mesmo visual do live-tv)
-//  Cole este arquivo tanto em movies.scss quanto series.scss
-//  Ajuste apenas os seletores raiz (.movies-container / .series-container)
+//  ULTRIX TV — SÉRIES  |  Cinematic Dark Theme
 // ═══════════════════════════════════════════════════════
 
 $neon: #7b2cff;
 $neon-light: #a66cff;
+$accent: #00ccff;
+$gold: #ffaa00;
 $bg-deep: #06060f;
 $bg-card: rgba(14, 14, 30, 0.97);
 $bg-item: rgba(20, 20, 45, 0.7);
@@ -17,111 +17,141 @@ $text-muted: rgba(255, 255, 255, 0.45);
     box-shadow: 0 0 8px $color, 0 0 18px rgba($color, 0.5);
 }
 
-// ─── Container raiz ────────────────────────────────────
-// Use .movies-container em movies.scss e .series-container em series.scss
-.movies-container,
-.series-container {
+// ─── Root ─────────────────────────────────────────────────────────────────────
+
+.series-root {
     width: 100vw;
-    height: 80%;
+    height: calc(100vh - 56px); // abaixo da navbar
     background: $bg-deep;
     background-image:
-        radial-gradient(ellipse at 20% 50%, rgba($neon, 0.06) 0%, transparent 60%),
-        radial-gradient(ellipse at 80% 20%, rgba($neon-light, 0.04) 0%, transparent 50%);
+        radial-gradient(ellipse at 15% 50%, rgba($neon, 0.07) 0%, transparent 55%),
+        radial-gradient(ellipse at 85% 15%, rgba($accent, 0.04) 0%, transparent 50%);
     display: flex;
     overflow: hidden;
     font-family: 'Segoe UI', system-ui, sans-serif;
     color: white;
+    position: relative;
+
+    &.fullscreen-mode {
+        flex-direction: column;
+    }
 }
 
-// ─── Sidebar ───────────────────────────────────────────
-.sidebar {
-    width: 300px;
-    min-width: 260px;
-    background: rgba(8, 8, 20, 0.98);
-    border-right: 1px solid rgba($neon, 0.15);
+// ─── Layout de Browse (categorias / cartazes / episódios) ─────────────────────
+
+.browse-layout {
+    flex: 1;
     display: flex;
     flex-direction: column;
     overflow: hidden;
-    flex-shrink: 0;
+    min-width: 0;
 }
 
-.sidebar-header {
+// ─── Header de Browse ─────────────────────────────────────────────────────────
+
+.browse-header {
     display: flex;
     align-items: center;
-    gap: 10px;
-    padding: 18px 16px;
+    gap: 16px;
+    padding: 14px 24px;
+    background: rgba(8, 8, 22, 0.98);
     border-bottom: 1px solid rgba($neon, 0.12);
-    background: rgba($neon, 0.05);
     flex-shrink: 0;
 }
 
-.sidebar-title {
-    flex: 1;
-    font-size: 14px;
-    font-weight: 600;
-    color: rgba(255, 255, 255, 0.85);
-    white-space: nowrap;
-    overflow: hidden;
-    text-overflow: ellipsis;
+.browse-header-left {
     display: flex;
     align-items: center;
-    gap: 6px;
+    gap: 14px;
+    flex: 1;
+    min-width: 0;
 }
 
-.icon-btn {
+.home-btn {
     background: none;
-    border: none;
+    border: 1px solid rgba($neon, 0.25);
     color: $text-muted;
     font-size: 18px;
+    width: 38px;
+    height: 38px;
+    border-radius: 8px;
     cursor: pointer;
-    padding: 4px 6px;
-    border-radius: 6px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
     transition: all 0.2s;
     flex-shrink: 0;
 
     &:hover {
         color: white;
-        background: rgba($neon, 0.15);
-    }
-
-    &:focus {
-        outline: none;
-        color: $neon-light;
-    }
-
-    &.small {
-        font-size: 14px;
+        background: rgba($neon, 0.18);
+        border-color: rgba($neon, 0.5);
     }
 }
 
-.back-icon-btn {
+.browse-title-block {
+    display: flex;
+    flex-direction: column;
+    gap: 2px;
+    min-width: 0;
+}
+
+.browse-label {
+    font-size: 9px;
+    font-weight: 700;
+    letter-spacing: 3px;
+    color: $neon-light;
+    text-transform: uppercase;
+}
+
+.browse-title {
+    font-size: 18px;
+    font-weight: 700;
+    margin: 0;
+    color: white;
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+
+.breadcrumb-btn {
     background: none;
     border: none;
-    color: $neon-light;
-    font-size: 20px;
+    color: $text-muted;
+    font-size: 18px;
+    font-weight: 700;
     cursor: pointer;
     padding: 0;
-    line-height: 1;
     transition: color 0.2s;
 
     &:hover {
-        color: white;
-    }
-
-    &:focus {
-        outline: none;
+        color: $neon-light;
     }
 }
 
-.search-row {
-    padding: 12px 14px;
-    border-bottom: 1px solid rgba($neon, 0.1);
+.breadcrumb-sep {
+    color: rgba($neon, 0.5);
+    font-size: 18px;
+}
+
+.browse-search {
     flex-shrink: 0;
 }
 
+.browse-count {
+    font-size: 12px;
+    color: $text-muted;
+    flex-shrink: 0;
+    white-space: nowrap;
+}
+
+// ─── Barra de busca compartilhada ─────────────────────────────────────────────
+
 .search-input {
-    width: 100%;
-    padding: 9px 13px;
+    padding: 9px 14px;
     background: rgba(255, 255, 255, 0.05);
     border: 1px solid rgba($neon, 0.2);
     border-radius: 10px;
@@ -131,7 +161,7 @@ $text-muted: rgba(255, 255, 255, 0.45);
     transition: all 0.2s;
 
     &::placeholder {
-        color: rgba(255, 255, 255, 0.2);
+        color: rgba(255, 255, 255, 0.22);
     }
 
     &:focus {
@@ -141,10 +171,36 @@ $text-muted: rgba(255, 255, 255, 0.45);
     }
 }
 
-.sidebar-list {
+// ─── VIEW: CATEGORIAS ─────────────────────────────────────────────────────────
+
+.categories-view {
     flex: 1;
+    display: flex;
+    flex-direction: column;
+    overflow: hidden;
+    padding: 24px;
+    gap: 20px;
+}
+
+.categories-search-row {
+    display: flex;
+    justify-content: center;
+
+    .big-search {
+        width: 480px;
+        max-width: 100%;
+        padding: 12px 20px;
+        font-size: 15px;
+        border-radius: 14px;
+    }
+}
+
+.categories-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+    gap: 16px;
     overflow-y: auto;
-    padding: 8px;
+    padding-bottom: 24px;
 
     &::-webkit-scrollbar {
         width: 4px;
@@ -160,44 +216,71 @@ $text-muted: rgba(255, 255, 255, 0.45);
     }
 }
 
-.group-item {
-    display: flex;
-    align-items: center;
-    justify-content: space-between;
-    padding: 12px 14px;
-    border-radius: 10px;
+.category-card {
+    background: rgba(14, 14, 32, 0.9);
+    border: 1px solid rgba($neon, 0.12);
+    border-radius: 14px;
+    overflow: hidden;
     cursor: pointer;
-    transition: all 0.2s;
-    margin-bottom: 2px;
+    transition: all 0.25s;
 
     &:hover {
-        background: $bg-hover;
+        transform: translateY(-4px);
+        border-color: rgba($neon, 0.45);
+        box-shadow: 0 8px 30px rgba($neon, 0.2);
     }
 
     &:focus {
         outline: none;
-        background: $bg-hover;
-        border: 1px solid rgba($neon, 0.3);
-    }
-
-    &.active {
-        background: $bg-active;
+        border-color: $neon;
+        @include neon-glow();
     }
 }
 
-.group-name {
+.category-poster-strip {
+    height: 90px;
+    display: flex;
+    gap: 2px;
+    background: rgba(0, 0, 0, 0.4);
+    overflow: hidden;
+
+    .strip-thumb {
+        flex: 1;
+        object-fit: cover;
+        min-width: 0;
+    }
+
+    .strip-placeholder {
+        flex: 1;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 32px;
+        color: rgba(255, 255, 255, 0.2);
+    }
+}
+
+.category-info {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 12px 14px;
+    gap: 8px;
+}
+
+.category-name {
     font-size: 13px;
-    color: rgba(255, 255, 255, 0.85);
-    flex: 1;
+    font-weight: 600;
+    color: rgba(255, 255, 255, 0.88);
     white-space: nowrap;
     overflow: hidden;
     text-overflow: ellipsis;
-    margin-right: 8px;
+    flex: 1;
 }
 
-.group-badge {
-    background: rgba($neon, 0.25);
-    border: 1px solid rgba($neon, 0.4);
+.category-badge {
+    background: rgba($neon, 0.22);
+    border: 1px solid rgba($neon, 0.35);
     color: $neon-light;
     font-size: 11px;
     font-weight: 700;
@@ -206,15 +289,423 @@ $text-muted: rgba(255, 255, 255, 0.45);
     flex-shrink: 0;
 }
 
-.channel-item {
+// ─── VIEW: CARTAZES (poster grid) ─────────────────────────────────────────────
+
+.posters-view {
+    flex: 1;
+    overflow: hidden;
+    display: flex;
+    flex-direction: column;
+}
+
+.posters-scroll-viewport {
+    flex: 1;
+    width: 100%;
+    contain: strict;
+}
+
+.posters-row-wrapper {
+    display: flex;
+    gap: 16px;
+    padding: 8px 24px;
+    box-sizing: border-box;
+    height: 300px; // == POSTER_ROW_HEIGHT
+}
+
+.poster-card {
+    flex: 0 0 calc((100% - 80px) / 5); // 5 colunas com 4 gaps
+    min-width: 140px;
+    max-width: 200px;
+    cursor: pointer;
+    display: flex;
+    flex-direction: column;
+    border-radius: 12px;
+    overflow: hidden;
+    background: rgba(14, 14, 32, 0.9);
+    border: 1px solid rgba($neon, 0.1);
+    transition: all 0.25s;
+
+    &:hover {
+        transform: translateY(-6px) scale(1.02);
+        border-color: rgba($neon, 0.5);
+        box-shadow: 0 12px 40px rgba($neon, 0.25);
+
+        .poster-overlay {
+            opacity: 1;
+        }
+    }
+
+    &:focus {
+        outline: none;
+        border-color: $neon;
+        @include neon-glow();
+    }
+}
+
+.poster-img-wrap {
+    position: relative;
+    flex: 1;
+    overflow: hidden;
+    background: rgba(0, 0, 0, 0.6);
+    min-height: 0;
+}
+
+.poster-img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    display: block;
+    transition: transform 0.3s ease;
+
+    .poster-card:hover & {
+        transform: scale(1.05);
+    }
+}
+
+.poster-no-img {
+    width: 100%;
+    height: 100%;
     display: flex;
     align-items: center;
-    gap: 10px;
-    padding: 10px 12px;
-    border-radius: 10px;
+    justify-content: center;
+    background: rgba(20, 20, 45, 0.8);
+}
+
+.poster-no-icon {
+    font-size: 40px;
+    opacity: 0.3;
+}
+
+.poster-overlay {
+    position: absolute;
+    inset: 0;
+    background: rgba(0, 0, 0, 0.55);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    opacity: 0;
+    transition: opacity 0.25s;
+}
+
+.poster-play-btn {
+    background: rgba($neon, 0.85);
+    border: none;
+    color: white;
+    width: 48px;
+    height: 48px;
+    border-radius: 50%;
+    font-size: 18px;
     cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: transform 0.15s;
+    @include neon-glow();
+
+    &:hover {
+        transform: scale(1.1);
+    }
+}
+
+.poster-ep-count {
+    position: absolute;
+    top: 8px;
+    right: 8px;
+    background: rgba(0, 0, 0, 0.75);
+    border: 1px solid rgba($accent, 0.4);
+    color: $accent;
+    font-size: 10px;
+    font-weight: 700;
+    padding: 2px 7px;
+    border-radius: 6px;
+}
+
+.poster-meta {
+    padding: 8px 10px;
+    flex-shrink: 0;
+}
+
+.poster-title {
+    font-size: 12px;
+    font-weight: 600;
+    color: rgba(255, 255, 255, 0.85);
+    display: block;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+
+// ─── VIEW: EPISÓDIOS ──────────────────────────────────────────────────────────
+
+.episodes-view {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    overflow: hidden;
+}
+
+.series-hero {
+    display: flex;
+    gap: 24px;
+    padding: 24px 28px 20px;
+    background: linear-gradient(180deg, rgba($neon, 0.08) 0%, transparent 100%);
+    border-bottom: 1px solid rgba($neon, 0.1);
+    flex-shrink: 0;
+}
+
+.hero-poster {
+    width: 80px;
+    height: 110px;
+    border-radius: 10px;
+    overflow: hidden;
+    flex-shrink: 0;
+    background: rgba(20, 20, 45, 0.8);
+    border: 1px solid rgba($neon, 0.2);
+
+    .hero-img {
+        width: 100%;
+        height: 100%;
+        object-fit: cover;
+    }
+
+    .hero-no-img {
+        width: 100%;
+        height: 100%;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 28px;
+        opacity: 0.3;
+    }
+}
+
+.hero-info {
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+    justify-content: center;
+}
+
+.hero-label {
+    font-size: 9px;
+    font-weight: 700;
+    letter-spacing: 3px;
+    color: $accent;
+    text-transform: uppercase;
+}
+
+.hero-title {
+    font-size: 22px;
+    font-weight: 800;
+    margin: 0;
+    color: white;
+}
+
+.hero-sub {
+    font-size: 13px;
+    color: $text-muted;
+}
+
+.hero-play-btn {
+    background: linear-gradient(135deg, $neon, $neon-light);
+    border: none;
+    color: white;
+    padding: 9px 20px;
+    border-radius: 8px;
+    font-size: 13px;
+    font-weight: 700;
+    cursor: pointer;
+    width: fit-content;
+    margin-top: 6px;
     transition: all 0.2s;
+
+    &:hover {
+        transform: translateY(-1px);
+        @include neon-glow();
+    }
+}
+
+.episodes-list-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 14px 28px 12px;
+    flex-shrink: 0;
+}
+
+.episodes-list-label {
+    font-size: 13px;
+    font-weight: 700;
+    letter-spacing: 1px;
+    color: rgba(255, 255, 255, 0.6);
+    text-transform: uppercase;
+}
+
+.ep-search {
+    width: 260px;
+}
+
+.episodes-scroll-viewport {
+    flex: 1;
+    width: 100%;
+    contain: strict;
+}
+
+.episode-item {
+    display: flex;
+    align-items: center;
+    gap: 14px;
+    padding: 12px 28px;
+    height: 72px; // == EP_ITEM_HEIGHT
+    box-sizing: border-box;
+    cursor: pointer;
+    transition: background 0.18s;
+    border-bottom: 1px solid rgba(255, 255, 255, 0.04);
+
+    &:hover {
+        background: $bg-hover;
+
+        .ep-play-btn {
+            opacity: 1;
+            transform: scale(1.1);
+        }
+    }
+
+    &:focus {
+        outline: none;
+        background: $bg-active;
+    }
+}
+
+.ep-num {
+    width: 28px;
+    text-align: center;
+    font-size: 13px;
+    font-weight: 700;
+    color: rgba($neon-light, 0.6);
+    flex-shrink: 0;
+}
+
+.ep-thumb {
+    width: 72px;
+    height: 48px;
+    object-fit: cover;
+    border-radius: 6px;
+    flex-shrink: 0;
+    background: rgba(0, 0, 0, 0.4);
+}
+
+.ep-thumb-placeholder {
+    width: 72px;
+    height: 48px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 22px;
+    flex-shrink: 0;
+    background: rgba(20, 20, 45, 0.8);
+    border-radius: 6px;
+    border: 1px solid rgba($neon, 0.1);
+}
+
+.ep-info {
+    flex: 1;
+    min-width: 0;
+    display: flex;
+    flex-direction: column;
+    gap: 3px;
+}
+
+.ep-name {
+    font-size: 14px;
+    font-weight: 600;
+    color: rgba(255, 255, 255, 0.88);
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+
+.ep-group {
+    font-size: 11px;
+    color: $text-muted;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+
+.ep-play-btn {
+    background: rgba($neon, 0.7);
+    border: none;
+    color: white;
+    width: 34px;
+    height: 34px;
+    border-radius: 50%;
+    font-size: 12px;
+    cursor: pointer;
+    flex-shrink: 0;
+    opacity: 0;
+    transition: all 0.2s;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+// ─── SIDEBAR DIREITA: Categorias ──────────────────────────────────────────────
+
+.cat-sidebar {
+    width: 240px;
+    min-width: 200px;
+    flex-shrink: 0;
+    background: rgba(8, 8, 22, 0.98);
+    border-left: 1px solid rgba($neon, 0.12);
+    display: flex;
+    flex-direction: column;
+    overflow: hidden;
+}
+
+.cat-sidebar-header {
+    padding: 16px 16px 12px;
+    border-bottom: 1px solid rgba($neon, 0.1);
+    background: rgba($neon, 0.04);
+    flex-shrink: 0;
+}
+
+.cat-sidebar-title {
+    font-size: 13px;
+    font-weight: 700;
+    color: rgba(255, 255, 255, 0.8);
+    letter-spacing: 0.5px;
+}
+
+.cat-sidebar-list {
+    flex: 1;
+    overflow-y: auto;
+    padding: 6px;
+
+    &::-webkit-scrollbar {
+        width: 3px;
+    }
+
+    &::-webkit-scrollbar-track {
+        background: transparent;
+    }
+
+    &::-webkit-scrollbar-thumb {
+        background: rgba($neon, 0.3);
+        border-radius: 2px;
+    }
+}
+
+.cat-sidebar-item {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 8px;
+    padding: 9px 12px;
+    border-radius: 8px;
+    cursor: pointer;
     margin-bottom: 2px;
+    transition: all 0.18s;
 
     &:hover {
         background: $bg-hover;
@@ -233,95 +724,61 @@ $text-muted: rgba(255, 255, 255, 0.45);
     }
 }
 
-.channel-logo {
-    width: 30px;
-    height: 30px;
-    object-fit: contain;
-    border-radius: 6px;
-    flex-shrink: 0;
-}
-
-.channel-logo-placeholder {
-    font-size: 18px;
-    width: 30px;
-    text-align: center;
-    flex-shrink: 0;
-}
-
-.channel-name {
-    flex: 1;
-    font-size: 13px;
+.cat-item-name {
+    font-size: 12px;
     color: rgba(255, 255, 255, 0.82);
+    flex: 1;
     white-space: nowrap;
     overflow: hidden;
     text-overflow: ellipsis;
 }
 
-.play-icon {
+.cat-item-badge {
+    background: rgba($neon, 0.2);
+    border: 1px solid rgba($neon, 0.35);
     color: $neon-light;
-    font-size: 11px;
+    font-size: 10px;
+    font-weight: 700;
+    padding: 1px 6px;
+    border-radius: 10px;
     flex-shrink: 0;
 }
 
-.empty-state {
-    text-align: center;
-    color: $text-muted;
-    font-size: 13px;
-    padding: 32px 16px;
-}
+// ─── PLAYER FULLSCREEN ────────────────────────────────────────────────────────
 
-.sidebar-footer {
-    padding: 12px 16px;
-    border-top: 1px solid rgba($neon, 0.1);
-    font-size: 11px;
-    color: $text-muted;
-    text-align: center;
-    flex-shrink: 0;
-}
-
-// ─── Área do player ────────────────────────────────────
-.player-area {
+.player-fullscreen {
     flex: 1;
     display: flex;
     flex-direction: column;
-    background: #020208;
-    overflow: hidden;
+    background: #000;
+    position: relative;
 }
 
-.player-empty {
-    flex: 1;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-}
+.back-from-player {
+    position: absolute;
+    top: 16px;
+    left: 16px;
+    z-index: 100;
+    background: rgba(0, 0, 0, 0.7);
+    border: 1px solid rgba($neon, 0.35);
+    color: white;
+    padding: 8px 18px;
+    border-radius: 8px;
+    font-size: 14px;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.2s;
+    backdrop-filter: blur(6px);
 
-.empty-content {
-    text-align: center;
-
-    .empty-icon {
-        font-size: 64px;
-        display: block;
-        margin-bottom: 16px;
-        opacity: 0.3;
+    &:hover {
+        background: rgba($neon, 0.25);
+        border-color: $neon;
+        @include neon-glow($neon);
     }
 
-    h2 {
-        font-size: 22px;
-        color: rgba(255, 255, 255, 0.5);
-        margin-bottom: 8px;
+    &:focus {
+        outline: none;
     }
-
-    p {
-        font-size: 14px;
-        color: $text-muted;
-    }
-}
-
-.player-wrapper {
-    flex: 1;
-    display: flex;
-    flex-direction: column;
-    height: 100%;
 }
 
 .player-info-bar {
@@ -329,7 +786,7 @@ $text-muted: rgba(255, 255, 255, 0.45);
     align-items: center;
     justify-content: space-between;
     padding: 14px 20px;
-    background: rgba($neon, 0.05);
+    background: rgba(6, 6, 18, 0.95);
     border-bottom: 1px solid rgba($neon, 0.12);
     flex-shrink: 0;
 }
@@ -363,15 +820,8 @@ $text-muted: rgba(255, 255, 255, 0.45);
     width: fit-content;
 }
 
-// Labels coloridos por tipo
-.now-label.movie-label {
-    color: #ffaa00;
-    background: rgba(255, 170, 0, 0.15);
-    border: 1px solid rgba(255, 170, 0, 0.3);
-}
-
 .now-label.series-label {
-    color: #00ccff;
+    color: $accent;
     background: rgba(0, 204, 255, 0.15);
     border: 1px solid rgba(0, 204, 255, 0.3);
 }
@@ -399,6 +849,7 @@ $text-muted: rgba(255, 255, 255, 0.45);
     position: relative;
     background: #000;
     overflow: hidden;
+    min-height: 0;
 }
 
 .video-player {
@@ -457,7 +908,8 @@ $text-muted: rgba(255, 255, 255, 0.45);
     }
 }
 
-// ─── Barra de progresso ────────────────────────────────
+// ─── Barra de progresso ───────────────────────────────────────────────────────
+
 .progress-bar-row {
     display: flex;
     align-items: center;
@@ -499,7 +951,8 @@ $text-muted: rgba(255, 255, 255, 0.45);
     }
 }
 
-// ─── Controles ─────────────────────────────────────────
+// ─── Controles do player ─────────────────────────────────────────────────────
+
 .player-controls {
     display: flex;
     align-items: center;
@@ -578,5 +1031,35 @@ $text-muted: rgba(255, 255, 255, 0.45);
         background: $neon-light;
         box-shadow: 0 0 6px $neon;
         cursor: pointer;
+    }
+}
+
+// ─── Utilitários ──────────────────────────────────────────────────────────────
+
+.empty-state {
+    text-align: center;
+    color: $text-muted;
+    font-size: 14px;
+    padding: 40px 16px;
+}
+
+.icon-btn {
+    background: none;
+    border: none;
+    color: $text-muted;
+    font-size: 18px;
+    cursor: pointer;
+    padding: 4px 6px;
+    border-radius: 6px;
+    transition: all 0.2s;
+
+    &:hover {
+        color: white;
+        background: rgba($neon, 0.15);
+    }
+
+    &:focus {
+        outline: none;
+        color: $neon-light;
     }
 }

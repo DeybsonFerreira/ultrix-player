@@ -88,7 +88,7 @@ export class MoviesComponent implements OnInit, OnDestroy {
   // ── Lifecycle ──────────────────────────────────────────
 
   async ngOnInit() {
-    await this.iptv.reloadm3u();
+    await this.iptv.reloadm3u('movie');
     this.groups = this.iptv.getGroupsByType('movie');
     this.playerService.preloadHls();
     this.startClock();

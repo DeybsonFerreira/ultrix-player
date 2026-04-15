@@ -9,3 +9,19 @@ export interface Channel {
     tvgId?: string;
     type: ContentType;
 }
+
+export interface Episode {
+    name: string;
+    url: string;
+    episode: number;
+}
+
+export interface Season {
+    season: number;
+    episodes: Episode[];
+}
+
+export interface Series {
+    name: string;
+    seasons: Season[];
+}

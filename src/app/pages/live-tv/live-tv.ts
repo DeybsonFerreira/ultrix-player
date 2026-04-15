@@ -55,7 +55,7 @@ export class LiveTvComponent implements OnInit, OnDestroy {
     ) { }
 
     async ngOnInit(): Promise<void> {
-        await this.iptv.reloadm3u();
+        await this.iptv.reloadm3u('live');
         this.loadLiveGroups();
         this.playerService.preloadHls();
         this.startClock();
