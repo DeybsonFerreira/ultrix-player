@@ -14,6 +14,21 @@
         </div>
     </div>
 
+    <div class="form-group" style="margin-top: 20px;">
+        <label class="label-accent">📁 Importar por Arquivo (TXT / M3U)</label>
+        <div class="input-row-import">
+            <input readonly class="neon-input" [value]="selectedFileName || 'Nenhum arquivo selecionado'"
+                placeholder="Selecione um arquivo..." (click)="fileInput.click()" style="cursor: pointer;" />
+
+            <button class="ultrix-btn icon-btn secondary" (click)="fileInput.click()" [disabled]="isLoading"
+                tabindex="0">
+                <span>📂</span>
+            </button>
+
+            <input #fileInput type="file" accept=".txt,.m3u" style="display: none" (change)="onFileSelected($event)">
+        </div>
+    </div>
+
     <div *ngIf="importSuccess" class="text-success feedback-msg">{{importSuccess}}</div>
     <div *ngIf="importError" class="text-danger feedback-msg">{{importError}}</div>
 

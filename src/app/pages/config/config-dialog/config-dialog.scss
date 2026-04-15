@@ -140,3 +140,35 @@ $text-muted: rgba(255, 255, 255, 0.5);
 #urlInput {
     width: 70%;
 }
+
+.input-row-import {
+    display: flex;
+    gap: 10px;
+    align-items: center;
+    width: 100%;
+
+    .neon-input {
+        flex: 1;
+        width: auto; // Garante que o flex-1 comande a largura
+        min-width: 0;
+    }
+
+    .icon-btn {
+        flex-shrink: 0;
+        width: 48px;
+        height: 48px;
+        padding: 0;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+
+        &.secondary {
+            background: rgba(255, 255, 255, 0.1);
+            border-color: rgba(255, 255, 255, 0.2);
+
+            &:hover {
+                background: rgba($neon, 0.2);
+            }
+        }
+    }
+}

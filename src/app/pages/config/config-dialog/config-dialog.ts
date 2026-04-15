@@ -39,6 +39,7 @@ export class ConfigDialogComponent implements AfterViewInit {
   importSuccess: string = '';
   config: appConfig;
   servers: PlaylistData[] = [];
+  selectedFileName: string = '';
 
   constructor(
     private dialogRef: MatDialogRef<ConfigDialogComponent>,
@@ -146,6 +147,51 @@ export class ConfigDialogComponent implements AfterViewInit {
       await this.dexie.removeById(server.id!);
       await this.loadServers();
     }
+  }
+
+  async onFileSelected(event: any) {
+    const file: File = event.target.files[0];
+    if (!file) return;
+
+    this.selectedFileName = file.name;
+    this.isLoading = true;
+    this.importError = '';
+    this.importSuccess = '';
+
+    const reader = new FileReader();
+    reader.onload = async (e: any) => {
+      try {
+        const content = e.target.result;
+
+        if (!content.includes('#EXTM3U')) {
+          throw new Error('O arquivo não é uma lista M3U válida.');
+        }
+
+        const parseResult = await this.iptv.parseM3U(content);
+
+        if (parseResult.ok) {
+          await this.dexie.saveToDatabaseDexie(content);
+          this.showSuccessMessage(parseResult);
+          await this.loadServers();
+        } else {
+          this.importError = parseResult.error || 'Erro ao processar arquivo.';
+        }
+      } catch (err: any) {
+        this.importError = err.message || 'Erro ao ler arquivo.';
+      } finally {
+        this.isLoading = false;
+        event.target.value = ''; // Limpa o input
+        this.cdr.detectChanges();
+      }
+    };
+
+    reader.onerror = () => {
+      this.importError = 'Falha ao ler arquivo do disco.';
+      this.isLoading = false;
+      this.cdr.detectChanges();
+    };
+
+    reader.readAsText(file);
   }
 
   close() {
