@@ -24,9 +24,9 @@ function classifyContent(name: string, group: string, url: string): ContentType 
   if (/\d{1,2}x\d{1,2}/.test(name)) return 'series';
 
   // 🥈 Keywords
+  if (LIVE_KEYWORDS.some(k => text.includes(k))) return 'live';
   if (SERIES_KEYWORDS.some(k => text.includes(k))) return 'series';
   if (MOVIE_KEYWORDS.some(k => text.includes(k))) return 'movie';
-  if (LIVE_KEYWORDS.some(k => text.includes(k))) return 'live';
 
   return 'live';
 }
@@ -84,7 +84,6 @@ export class IptvService {
   async reloadm3u(type: ContentType) {
     if (!this.isLoaded) {
       this._allChannels = []
-      this._allSeries = []
 
       const result: m3uResult = await this.dexie.getPlaylistFromDexieActive();
       if (result.ok && result.data) {
