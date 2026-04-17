@@ -10,18 +10,9 @@ export interface Channel {
     type: ContentType;
 }
 
-export interface Episode {
-    name: string;
-    url: string;
-    episode: number;
-}
 
-export interface Season {
-    season: number;
-    episodes: Episode[];
-}
-
-export interface Series {
-    name: string;
-    seasons: Season[];
+export interface ChannelGroup {
+    name: string;      // ex: "AMAZON PRIME VIDEO"
+    channels: Channel[]; // lista de canais/séries
+    type: string;
 }

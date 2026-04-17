@@ -15,8 +15,7 @@ import { CdkVirtualScrollViewport, ScrollingModule } from '@angular/cdk/scrollin
 import { Subject } from 'rxjs';
 import { debounceTime, distinctUntilChanged, takeUntil } from 'rxjs/operators';
 
-import { ChannelGroup } from '../../models/channelGroup';
-import { Channel } from '../../models/channel';
+import { Channel, ChannelGroup } from '../../models/channel';
 import { IptvService } from '../../services/iptv-service';
 import { NavbarComponent } from '../../components/navbar/navbar';
 import { HLS_CONFIG } from '../../models/hls.config';

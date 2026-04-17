@@ -1,9 +1,9 @@
 import { Injectable } from '@angular/core';
 import { ContentType } from '../models/contentType';
-import { Channel, Series } from '../models/channel';
-import { ChannelGroup } from '../models/channelGroup';
+import { Channel, ChannelGroup } from '../models/channel';
 import { DexieService } from './dexie-service';
 import { m3uResult } from '../models/m3uListResult';
+import { Series, SeriesGroup } from '../models/serie';
 
 // ─── Palavras-chave para classificação ───────────────────────────────────
 const SERIES_KEYWORDS = ['serie', 'série', 'temporada', 'season'];
@@ -70,6 +70,7 @@ export class IptvService {
   }
 
   private _allChannels: Channel[] = [];
+  private _allSeries: Series[] = [];
   private _loaded = false;
 
 
@@ -78,25 +79,30 @@ export class IptvService {
 
   get isLoaded(): boolean { return this._loaded; }
   get totalChannels(): number { return this._allChannels.length; }
+  get totalSeries(): number { return this._allSeries.length; }
 
-  async reloadm3u(type: ContentType): Promise<Channel[] | Series[] | string> {
+  async reloadm3u(type: ContentType) {
     if (!this.isLoaded) {
+      this._allChannels = []
+      this._allSeries = []
+
       const result: m3uResult = await this.dexie.getPlaylistFromDexieActive();
       if (result.ok && result.data) {
 
         const parsed = this.parseM3U(result.data.content);
 
         if (type == 'live')
-          return parsed.filter(x => x.type === 'live');
+          this._allChannels = parsed.filter(x => x.type === 'live');
 
         if (type == 'movie')
-          return parsed.filter(x => x.type === 'movie');
+          this._allChannels = parsed.filter(x => x.type === 'movie');
 
-        if (type == 'series')
-          return this.buildSeriesStructure(parsed);
+        if (type == 'series') {
+          this._allChannels = parsed.filter(x => x.type === 'series');
+          // this._allSeries = this.buildSeriesStructure(parsed);
+        }
       }
     }
-    return '';
   }
 
   getByType(type: ContentType): Channel[] {
@@ -105,12 +111,26 @@ export class IptvService {
 
   getGroupsByType(type: ContentType): ChannelGroup[] {
     const channels = this.getByType(type);
-    const map = new Map<string, Channel[]>();
-    for (const ch of channels) {
-      if (!map.has(ch.group)) map.set(ch.group, []);
-      map.get(ch.group)!.push(ch);
+    const groups = new Map<string, Channel[]>();
+
+    // Agrupar canais por grupo
+    for (const channel of channels) {
+      const groupName = channel.group;
+
+      if (!groups.has(groupName)) {
+        groups.set(groupName, []);
+      }
+
+      groups.get(groupName)!.push(channel);
     }
-    let result = Array.from(map.entries()).map(([name, channels]) => ({ name, channels }));
+
+    // Transformar o Map em array de ChannelGroup
+    const result: ChannelGroup[] = [];
+
+    for (const [name, groupChannels] of groups.entries()) {
+      result.push({ name, channels: groupChannels, type: type.toString() });
+    }
+
     return result;
   }
 
@@ -154,15 +174,7 @@ export class IptvService {
 
       const type = classifyContent(name, group, url);
 
-      channels.push({
-        id: `ch_${channels.length}`,
-        name,
-        url,
-        logo,
-        group,
-        tvgId,
-        type
-      });
+      channels.push({ id: `ch_${channels.length}`, name, url, logo, group, tvgId, type });
     }
 
     return channels;
@@ -182,7 +194,8 @@ export class IptvService {
       if (!map.has(seriesName)) {
         map.set(seriesName, {
           name: seriesName,
-          seasons: []
+          seasons: [],
+          group: ch.group
         });
       }
 
@@ -211,96 +224,5 @@ export class IptvService {
     }
 
     return Array.from(map.values());
-  }
-
-
-
-
-  // ── Parse ─────────────────────────────────────────────
-  // async parseM3U(content: string) {
-  //   // Uso de Regex global para extração mais rápida em arquivos grandes
-  //   const lines = content.split('\n');
-  //   if (!lines[0]?.startsWith('#EXTM3U')) {
-  //     return { ok: false, error: 'Arquivo inválido.' };
-  //   }
-
-  //   let allGroups = this.loadAllGroups(lines);
-  //   let allNames = this.loadAllNames(lines);
-
-  //   const channels: Channel[] = [];
-
-  //   for (let i = 0; i < lines.length; i++) {
-  //     const line = lines[i].trim();
-
-  //     if (!line.startsWith('#EXTINF:')) continue;
-
-  //     // 🔹 Extrai nome
-  //     const name = line.split(',').pop()?.trim() || 'Sem nome';
-
-  //     // 🔹 Regex única por linha (melhor performance)
-  //     const groupMatch = line.match(/group-title="([^"]*)"/i);
-  //     const logoMatch = line.match(/tvg-logo="([^"]*)"/i);
-  //     const tvgIdMatch = line.match(/tvg-id="([^"]*)"/i);
-
-  //     const group = groupMatch?.[1] || 'Canais';
-  //     const logo = logoMatch?.[1] || '';
-  //     const tvgId = tvgIdMatch?.[1] || '';
-
-  //     // 🔹 Buscar URL (próxima linha válida)
-  //     let url = '';
-
-  //     for (let j = i + 1; j < lines.length; j++) {
-  //       const nextLine = lines[j].trim();
-
-  //       if (!nextLine || nextLine.startsWith('#')) continue;
-
-  //       url = nextLine;
-  //       i = j; // avança o cursor
-  //       break;
-  //     }
-
-  //     if (!url) continue;
-
-  //     const type = classifyContent(name, group, url);
-  //     channels.push({ id: `ch_${channels.length}`, name, url, logo, group, tvgId, type });
-  //   }
-
-  //   if (channels.length === 0)
-  //     return { ok: false, error: 'Playlist vazia.' };
-
-  //   this._allChannels = channels;
-  //   this._loaded = true;
-  //   return { ok: true, total: channels.length, data: channels };
-  // }
-
-  loadAllNames(lines: string[]): string[] {
-    const allNames = new Set<string>();
-
-    for (let i = 0; i < lines.length; i++) {
-      const line = lines[i].trim();
-
-      if (line.startsWith('#EXTINF:')) {
-        const name = line.split(',').pop()?.trim() || 'Sem nome';
-
-        allNames.add(name);
-      }
-    }
-    return Array.from(allNames);
-  }
-
-
-  loadAllGroups(lines: string[]): string[] {
-    const allGroups = new Set<string>();
-
-    for (let i = 0; i < lines.length; i++) {
-      const line = lines[i].trim();
-
-      if (line.startsWith('#EXTINF:')) {
-        const group = line.match(/group-title="([^"]*)"/i)?.[1] || '';
-
-        allGroups.add(group);
-      }
-    }
-    return Array.from(allGroups);
   }
 }

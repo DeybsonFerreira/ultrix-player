@@ -7,21 +7,13 @@ import { FormsModule } from '@angular/forms';
 import { Router } from '@angular/router';
 import { ScrollingModule, CdkVirtualScrollViewport } from '@angular/cdk/scrolling';
 
-import { ChannelGroup } from '../../models/channelGroup';
-import { Channel } from '../../models/channel';
 import { IptvService } from '../../services/iptv-service';
 import { NavbarComponent } from '../../components/navbar/navbar';
 import { HLS_CONFIG } from '../../models/hls.config';
 import { PlayerService } from '../../services/player-service';
+import { EpisodeFlat, Series, SeriesGroup } from '../../models/serie';
 
-// ─── Tipos auxiliares ────────────────────────────────────────────────────────
 
-/** Representa uma "série" agrupada por título (ex: "Todo Mundo Odeia o Chris") */
-export interface SeriesGroup {
-  title: string;          // Título extraído do nome do episódio
-  logo: string;           // Logo do primeiro episódio
-  episodes: Channel[];    // Lista completa de episódios
-}
 
 // ─── Constantes de layout ─────────────────────────────────────────────────────
 
@@ -46,23 +38,23 @@ export class SeriesComponent implements OnInit, OnDestroy {
   readonly POSTER_ROW_HEIGHT = POSTER_ROW_HEIGHT;
   readonly EP_ITEM_HEIGHT = EP_ITEM_HEIGHT;
 
-  // ── Navegação: 'categories' | 'posters' | 'episodes' | 'player'
-  view: 'categories' | 'posters' | 'episodes' | 'player' = 'categories';
+  // ── Navegação: 'groups' | 'series' | 'episodes' | 'player'
+  view: 'groups' | 'series' | 'episodes' | 'player' = 'groups';
 
   // ── Dados brutos da playlist
-  groups: ChannelGroup[] = [];
+  allSeriesGroups: SeriesGroup[] = [];
 
-  // ── Grupo selecionado (ex: "S • AMAZON PRIME VIDEO")
-  selectedGroup: ChannelGroup | null = null;
-
-  // ── Séries agrupadas por título dentro do grupo selecionado
-  seriesInGroup: SeriesGroup[] = [];
-
-  // ── Série selecionada (cartaz clicado)
+  // ── Grupo selecionado (ex: "AMAZON PRIME VIDEO")
   selectedSeriesGroup: SeriesGroup | null = null;
 
+  // ── Séries do grupo selecionado com busca aplicada
+  displaySeries: Series[] = [];
+
+  // ── Série selecionada (cartaz clicado)
+  selectedSeries: Series | null = null;
+
   // ── Episódio em reprodução
-  selectedEpisode: Channel | null = null;
+  selectedEpisode: EpisodeFlat | null = null;
 
   // ── Busca
   searchQuery: string = '';
@@ -83,9 +75,6 @@ export class SeriesComponent implements OnInit, OnDestroy {
   private clockInterval: any;
   currentTime = '';
 
-  // ── Controle de episódio anterior (para voltar do player)
-  private previousView: 'episodes' = 'episodes';
-
   constructor(
     private router: Router,
     private iptv: IptvService,
@@ -95,7 +84,7 @@ export class SeriesComponent implements OnInit, OnDestroy {
 
   async ngOnInit() {
     await this.iptv.reloadm3u('series');
-    this.groups = this.iptv.getGroupsByType('series');
+    this.loadSeriesGroups();
     this.playerService.preloadHls();
     this.startClock();
   }
@@ -104,6 +93,125 @@ export class SeriesComponent implements OnInit, OnDestroy {
     this.destroyPlayer();
     if (this.clockInterval) clearInterval(this.clockInterval);
     if (this.retryTimeout) clearTimeout(this.retryTimeout);
+  }
+
+  // ─── Carregamento de dados ────────────────────────────────────────────────
+
+  private loadSeriesGroups() {
+    // Suponha que este método retorna os grupos de séries
+    // Você precisa adaptá-lo ao seu serviço IptvService
+    this.allSeriesGroups = this.buildSeriesGroups();
+  }
+
+  /**
+   * Constrói a estrutura de SeriesGroup a partir dos dados do serviço
+   * Adapte conforme sua fonte de dados (M3U, API, etc)
+   */
+  private buildSeriesGroups(): SeriesGroup[] {
+    // Exemplo: obtém todos os canais do tipo série
+    const channels = this.iptv.getGroupsByType("series"); // Ajuste conforme seu serviço
+
+    const groupMap = new Map<string, Series[]>();
+
+    // Agrupa canais em séries por título
+    channels.forEach(group => {
+      group.channels.forEach(channel => {
+        const seriesTitle = this.extractSeriesTitle(channel.name);
+        const groupName = group.name;
+
+        if (!groupMap.has(groupName)) {
+          groupMap.set(groupName, []);
+        }
+
+        // Encontra ou cria série no grupo
+        let series = groupMap.get(groupName)!.find(s => s.name === seriesTitle);
+        if (!series) {
+          series = {
+            name: seriesTitle,
+            seasons: [],
+            group: groupName,
+            logo: channel.logo
+          };
+          groupMap.get(groupName)!.push(series);
+        }
+
+        // Extrai season/episode do nome do canal
+        const { season, episode } = this.extractSeasonEpisode(channel.name);
+
+        // Encontra ou cria temporada
+        let seasonData = series.seasons.find(s => s.season === season);
+        if (!seasonData) {
+          seasonData = { season, episodes: [] };
+          series.seasons.push(seasonData);
+        }
+
+        // Adiciona episódio
+        seasonData.episodes.push({
+          name: channel.name,
+          url: channel.url,
+          episode: episode,
+          logo: channel.logo,
+          id: channel.id,
+          group: groupName
+        });
+      });
+    });
+
+    // Converte para array de SeriesGroup
+    const result: SeriesGroup[] = Array.from(groupMap.entries()).map(([groupName, series]) => ({
+      name: groupName,
+      series: series.sort((a, b) => a.name.localeCompare(b.name))
+    }));
+
+    return result.sort((a, b) => a.name.localeCompare(b.name));
+  }
+
+  getEpisodeCount(serie: Series): number {
+    return serie.seasons.reduce((total, season) => {
+      return total + season.episodes.length;
+    }, 0);
+  }
+  /**
+   * Extrai o título da série removendo padrões de episódio.
+   * Ex: "Breaking Bad S03E07" → "Breaking Bad"
+   */
+  private extractSeriesTitle(name: string): string {
+    const cleaned = name
+      .replace(/\s*[Ss]\d{1,2}[Ee]\d{1,3}.*/g, '')
+      .replace(/\s*\d{1,2}[Xx]\d{1,2}.*/g, '')
+      .replace(/\s*[Tt]\d{1,2}\s*[Ee]\d{1,3}.*/g, '')
+      .replace(/\s*[Ee][Pp]\s*\d+.*/g, '')
+      .replace(/\s*[-–—]\s*[Ee]pisódio.*/gi, '')
+      .trim();
+
+    return cleaned || name.trim();
+  }
+
+  /**
+   * Extrai season e episode do nome
+   * Ex: "Breaking Bad S03E07" → { season: 3, episode: 7 }
+   */
+  private extractSeasonEpisode(name: string): { season: number; episode: number } {
+    let season = 1;
+    let episode = 1;
+
+    // Padrão S##E##
+    const match1 = name.match(/[Ss](\d{1,2})[Ee](\d{1,3})/);
+    if (match1) {
+      season = parseInt(match1[1], 10);
+      episode = parseInt(match1[2], 10);
+      return { season, episode };
+    }
+
+    // Padrão ##x##
+    const match2 = name.match(/(\d{1,2})[Xx](\d{1,2})/);
+    if (match2) {
+      season = parseInt(match2[1], 10);
+      episode = parseInt(match2[2], 10);
+      return { season, episode };
+    }
+
+    return { season, episode };
   }
 
   // ─── Clock ────────────────────────────────────────────────────────────────
@@ -120,128 +228,116 @@ export class SeriesComponent implements OnInit, OnDestroy {
 
   // ─── Navegação ────────────────────────────────────────────────────────────
 
-  goHome() { this.router.navigate(['/']); }
+  goHome() {
+    this.router.navigate(['/']);
+  }
 
-  onGlobalSearch(q: string) { this.searchQuery = q; }
+  onGlobalSearch(q: string) {
+    this.searchQuery = q;
+  }
 
-  backToCategories() {
-    this.view = 'categories';
-    this.selectedGroup = null;
+  backToGroups() {
+    this.view = 'groups';
     this.selectedSeriesGroup = null;
+    this.selectedSeries = null;
     this.searchQuery = '';
   }
 
-  backToPosters() {
-    this.view = 'posters';
-    this.selectedSeriesGroup = null;
+  backToSeries() {
+    this.view = 'series';
+    this.selectedSeries = null;
     this.searchQuery = '';
   }
 
   // ─── Grupos / Categorias ──────────────────────────────────────────────────
 
-  get filteredGroups(): ChannelGroup[] {
-    if (!this.searchQuery) return this.groups;
+  get filteredSeriesGroups(): SeriesGroup[] {
+    if (!this.searchQuery) return this.allSeriesGroups;
     const q = this.searchQuery.toLowerCase();
-    return this.groups.filter(g =>
+    return this.allSeriesGroups.filter(g =>
       g.name.toLowerCase().includes(q) ||
-      g.channels.some(c => c.name.toLowerCase().includes(q))
+      g.series.some(s => s.name.toLowerCase().includes(q))
     );
   }
 
-  selectGroup(group: ChannelGroup) {
-    this.selectedGroup = group;
-    this.seriesInGroup = this.buildSeriesGroups(group.channels);
-    this.view = 'posters';
+  selectSeriesGroup(group: SeriesGroup) {
+    this.selectedSeriesGroup = group;
+    this.displaySeries = [...group.series];
+    this.view = 'series';
     this.searchQuery = '';
   }
 
-  // ─── Séries agrupadas por título (cartazes) ───────────────────────────────
+  // ─── Grid de séries (cartazes) ────────────────────────────────────────────
 
-  /**
-   * Agrupa episódios por título de série.
-   * Extrai o título base antes do padrão SxxExx ou S01E01 etc.
-   * Ex: "Todo Mundo Odeia o Chris S01E01" → título = "Todo Mundo Odeia o Chris"
-   */
-  private buildSeriesGroups(channels: Channel[]): SeriesGroup[] {
-    const map = new Map<string, SeriesGroup>();
-
-    for (const ch of channels) {
-      const title = this.extractSeriesTitle(ch.name);
-      if (!map.has(title)) {
-        map.set(title, { title, logo: ch.logo || '', episodes: [] });
-      }
-      map.get(title)!.episodes.push(ch);
-    }
-
-    // Ordena episódios internamente por nome
-    for (const sg of map.values()) {
-      sg.episodes.sort((a, b) => a.name.localeCompare(b.name));
-    }
-
-    return Array.from(map.values()).sort((a, b) => a.title.localeCompare(b.title));
-  }
-
-  /**
-   * Extrai o título da série removendo padrões de episódio.
-   * Ex: "Breaking Bad S03E07" → "Breaking Bad"
-   */
-  private extractSeriesTitle(name: string): string {
-    // Remove SxxExx, S01E01, 1x01, T01 E01, EP01, etc.
-    const cleaned = name
-      .replace(/\s*[Ss]\d{1,2}[Ee]\d{1,3}.*/g, '')  // S01E01 e depois
-      .replace(/\s*\d{1,2}[Xx]\d{1,2}.*/g, '')       // 1x01
-      .replace(/\s*[Tt]\d{1,2}\s*[Ee]\d{1,3}.*/g, '') // T01 E01
-      .replace(/\s*[Ee][Pp]\s*\d+.*/g, '')             // EP01
-      .replace(/\s*[-–—]\s*[Ee]pisódio.*/gi, '')
-      .trim();
-
-    return cleaned || name.trim();
-  }
-
-  // ─── Grid de cartazes com linhas para o virtual scroll ───────────────────
-
-  get filteredSeries(): SeriesGroup[] {
-    if (!this.searchQuery) return this.seriesInGroup;
+  get filteredDisplaySeries(): Series[] {
+    if (!this.searchQuery) return this.displaySeries;
     const q = this.searchQuery.toLowerCase();
-    return this.seriesInGroup.filter(s => s.title.toLowerCase().includes(q));
+    return this.displaySeries.filter(s => s.name.toLowerCase().includes(q));
   }
 
   /** Divide as séries em linhas de N itens para o CDK Virtual Scroll */
-  get posterRows(): SeriesGroup[][] {
-    const series = this.filteredSeries;
-    const rows: SeriesGroup[][] = [];
+  get seriesPosterRows(): Series[][] {
+    const series = this.filteredDisplaySeries;
+    const rows: Series[][] = [];
     for (let i = 0; i < series.length; i += POSTERS_PER_ROW) {
       rows.push(series.slice(i, i + POSTERS_PER_ROW));
     }
     return rows;
   }
 
-  onPostersScrolled(_idx: number) { /* pode usar para pré-carregar imagens */ }
+  onSeriesScrolled(_idx: number) { /* pode usar para pré-carregar imagens */ }
 
   // ─── Seleção de série → episódios ─────────────────────────────────────────
 
-  get selectedSeriesTitle(): string {
-    return this.selectedSeriesGroup?.title ?? '';
-  }
-
-  selectSeries(series: SeriesGroup) {
-    this.selectedSeriesGroup = series;
+  selectSeries(series: Series) {
+    this.selectedSeries = series;
     this.view = 'episodes';
     this.searchQuery = '';
   }
 
-  get filteredEpisodes(): (Channel & { epIndex: number })[] {
-    if (!this.selectedSeriesGroup) return [];
-    const eps = this.selectedSeriesGroup.episodes;
-    const list = this.searchQuery
-      ? eps.filter(e => e.name.toLowerCase().includes(this.searchQuery.toLowerCase()))
-      : eps;
-    return list.map((e, i) => ({ ...e, epIndex: i + 1 }));
+  get selectedSeriesName(): string {
+    return this.selectedSeries?.name ?? '';
+  }
+
+  get allEpisodesOfSelectedSeries(): EpisodeFlat[] {
+    if (!this.selectedSeries) return [];
+
+    const episodes: EpisodeFlat[] = [];
+
+    // Achatamos as temporadas em uma lista flat de episódios
+    this.selectedSeries.seasons.forEach(season => {
+      season.episodes.forEach(ep => {
+        episodes.push({
+          ...ep,
+          seriesName: this.selectedSeries!.name
+        });
+      });
+    });
+
+    // Ordena por temporada e episódio
+    return episodes.sort((a, b) => {
+      const seasonA = a.episode; // Você pode querer extrair season também
+      const seasonB = b.episode;
+      return seasonA - seasonB;
+    });
+  }
+
+  get filteredEpisodes(): EpisodeFlat[] {
+    let episodes = this.allEpisodesOfSelectedSeries;
+
+    if (!this.searchQuery) {
+      return episodes.map((e, i) => ({ ...e, epIndex: i + 1 }));
+    }
+
+    const q = this.searchQuery.toLowerCase();
+    return episodes
+      .filter(e => e.name.toLowerCase().includes(q))
+      .map((e, i) => ({ ...e, epIndex: i + 1 }));
   }
 
   // ─── Player ───────────────────────────────────────────────────────────────
 
-  playEpisode(ep: Channel) {
+  playEpisode(ep: EpisodeFlat) {
     this.selectedEpisode = ep;
     this.playerError = '';
     this.retryCount = 0;
@@ -256,20 +352,20 @@ export class SeriesComponent implements OnInit, OnDestroy {
   }
 
   nextEpisode() {
-    if (!this.selectedSeriesGroup || !this.selectedEpisode) return;
-    const list = this.selectedSeriesGroup.episodes;
+    if (!this.selectedSeries || !this.selectedEpisode) return;
+    const list = this.allEpisodesOfSelectedSeries;
     const idx = list.findIndex(e => e.id === this.selectedEpisode?.id);
     if (idx < list.length - 1) this.playEpisode(list[idx + 1]);
   }
 
   prevEpisode() {
-    if (!this.selectedSeriesGroup || !this.selectedEpisode) return;
-    const list = this.selectedSeriesGroup.episodes;
+    if (!this.selectedSeries || !this.selectedEpisode) return;
+    const list = this.allEpisodesOfSelectedSeries;
     const idx = list.findIndex(e => e.id === this.selectedEpisode?.id);
     if (idx > 0) this.playEpisode(list[idx - 1]);
   }
 
-  async playItem(item: Channel) {
+  async playItem(item: EpisodeFlat) {
     this.destroyPlayer();
     const video = this.videoPlayerRef?.nativeElement;
     if (!video) return;
@@ -396,11 +492,13 @@ export class SeriesComponent implements OnInit, OnDestroy {
     return (v.currentTime / v.duration) * 100;
   }
 
-  get totalSeries(): number { return this.iptv.getCount('series'); }
+  get totalEpisodes(): number {
+    return this.allEpisodesOfSelectedSeries.length;
+  }
 
   // ─── TrackBy helpers ──────────────────────────────────────────────────────
 
   trackByIdx(_: number, __: any) { return _; }
-  trackBySeriesTitle(_: number, s: SeriesGroup) { return s.title; }
-  trackByEpId(_: number, e: Channel) { return e.id; }
+  trackBySeriesName(_: number, s: Series) { return s.name; }
+  trackByEpId(_: number, e: EpisodeFlat) { return e.id; }
 }

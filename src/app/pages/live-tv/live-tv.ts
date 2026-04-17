@@ -2,8 +2,7 @@ import { ChangeDetectorRef, Component, OnInit, OnDestroy, ViewChild, ElementRef,
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { NavbarComponent } from '../../components/navbar/navbar';
-import { Channel } from '../../models/channel';
-import { ChannelGroup } from '../../models/channelGroup';
+import { Channel, ChannelGroup } from '../../models/channel';
 import { IptvService } from '../../services/iptv-service';
 import { HLS_CONFIG } from '../../models/hls.config';
 import { PlayerService } from '../../services/player-service';
@@ -56,6 +55,7 @@ export class LiveTvComponent implements OnInit, OnDestroy {
 
     async ngOnInit(): Promise<void> {
         await this.iptv.reloadm3u('live');
+
         this.loadLiveGroups();
         this.playerService.preloadHls();
         this.startClock();

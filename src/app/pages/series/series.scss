@@ -37,7 +37,7 @@ $text-muted: rgba(255, 255, 255, 0.45);
     }
 }
 
-// ─── Layout de Browse (categorias / cartazes / episódios) ─────────────────────
+// ─── Layout de Browse ─────────────────────────────────────────────────────────
 
 .browse-layout {
     flex: 1;
@@ -171,9 +171,11 @@ $text-muted: rgba(255, 255, 255, 0.45);
     }
 }
 
-// ─── VIEW: CATEGORIAS ─────────────────────────────────────────────────────────
+// ═══════════════════════════════════════════════════════
+// VIEW: GRUPOS (similar a categories)
+// ═══════════════════════════════════════════════════════
 
-.categories-view {
+.groups-view {
     flex: 1;
     display: flex;
     flex-direction: column;
@@ -182,7 +184,7 @@ $text-muted: rgba(255, 255, 255, 0.45);
     gap: 20px;
 }
 
-.categories-search-row {
+.groups-search-row {
     display: flex;
     justify-content: center;
 
@@ -195,7 +197,7 @@ $text-muted: rgba(255, 255, 255, 0.45);
     }
 }
 
-.categories-grid {
+.groups-grid {
     display: grid;
     grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
     gap: 16px;
@@ -216,7 +218,7 @@ $text-muted: rgba(255, 255, 255, 0.45);
     }
 }
 
-.category-card {
+.group-card {
     background: rgba(14, 14, 32, 0.9);
     border: 1px solid rgba($neon, 0.12);
     border-radius: 14px;
@@ -237,7 +239,7 @@ $text-muted: rgba(255, 255, 255, 0.45);
     }
 }
 
-.category-poster-strip {
+.group-poster-strip {
     height: 90px;
     display: flex;
     gap: 2px;
@@ -260,7 +262,7 @@ $text-muted: rgba(255, 255, 255, 0.45);
     }
 }
 
-.category-info {
+.group-info {
     display: flex;
     align-items: center;
     justify-content: space-between;
@@ -268,7 +270,7 @@ $text-muted: rgba(255, 255, 255, 0.45);
     gap: 8px;
 }
 
-.category-name {
+.group-name {
     font-size: 13px;
     font-weight: 600;
     color: rgba(255, 255, 255, 0.88);
@@ -278,7 +280,7 @@ $text-muted: rgba(255, 255, 255, 0.45);
     flex: 1;
 }
 
-.category-badge {
+.group-badge {
     background: rgba($neon, 0.22);
     border: 1px solid rgba($neon, 0.35);
     color: $neon-light;
@@ -289,22 +291,24 @@ $text-muted: rgba(255, 255, 255, 0.45);
     flex-shrink: 0;
 }
 
-// ─── VIEW: CARTAZES (poster grid) ─────────────────────────────────────────────
+// ═══════════════════════════════════════════════════════
+// VIEW: SÉRIES (cartazes / posters)
+// ═══════════════════════════════════════════════════════
 
-.posters-view {
+.series-view {
     flex: 1;
     overflow: hidden;
     display: flex;
     flex-direction: column;
 }
 
-.posters-scroll-viewport {
+.series-scroll-viewport {
     flex: 1;
     width: 100%;
     contain: strict;
 }
 
-.posters-row-wrapper {
+.series-row-wrapper {
     display: flex;
     gap: 16px;
     padding: 8px 24px;
@@ -312,7 +316,7 @@ $text-muted: rgba(255, 255, 255, 0.45);
     height: 300px; // == POSTER_ROW_HEIGHT
 }
 
-.poster-card {
+.series-card {
     flex: 0 0 calc((100% - 80px) / 5); // 5 colunas com 4 gaps
     min-width: 140px;
     max-width: 200px;
@@ -330,7 +334,7 @@ $text-muted: rgba(255, 255, 255, 0.45);
         border-color: rgba($neon, 0.5);
         box-shadow: 0 12px 40px rgba($neon, 0.25);
 
-        .poster-overlay {
+        .series-overlay {
             opacity: 1;
         }
     }
@@ -342,7 +346,7 @@ $text-muted: rgba(255, 255, 255, 0.45);
     }
 }
 
-.poster-img-wrap {
+.series-img-wrap {
     position: relative;
     flex: 1;
     overflow: hidden;
@@ -350,19 +354,19 @@ $text-muted: rgba(255, 255, 255, 0.45);
     min-height: 0;
 }
 
-.poster-img {
+.series-img {
     width: 100%;
     height: 100%;
     object-fit: cover;
     display: block;
     transition: transform 0.3s ease;
 
-    .poster-card:hover & {
+    .series-card:hover & {
         transform: scale(1.05);
     }
 }
 
-.poster-no-img {
+.series-no-img {
     width: 100%;
     height: 100%;
     display: flex;
@@ -371,12 +375,12 @@ $text-muted: rgba(255, 255, 255, 0.45);
     background: rgba(20, 20, 45, 0.8);
 }
 
-.poster-no-icon {
+.series-no-icon {
     font-size: 40px;
     opacity: 0.3;
 }
 
-.poster-overlay {
+.series-overlay {
     position: absolute;
     inset: 0;
     background: rgba(0, 0, 0, 0.55);
@@ -387,55 +391,60 @@ $text-muted: rgba(255, 255, 255, 0.45);
     transition: opacity 0.25s;
 }
 
-.poster-play-btn {
+.series-play-btn {
     background: rgba($neon, 0.85);
     border: none;
     color: white;
-    width: 48px;
-    height: 48px;
+    width: 60px;
+    height: 60px;
     border-radius: 50%;
-    font-size: 18px;
+    font-size: 28px;
     cursor: pointer;
+    transition: all 0.2s;
     display: flex;
     align-items: center;
     justify-content: center;
-    transition: transform 0.15s;
-    @include neon-glow();
 
     &:hover {
-        transform: scale(1.1);
+        transform: scale(1.15);
+        background: $neon;
+        @include neon-glow();
     }
 }
 
-.poster-ep-count {
+.series-ep-count {
     position: absolute;
-    top: 8px;
-    right: 8px;
-    background: rgba(0, 0, 0, 0.75);
-    border: 1px solid rgba($accent, 0.4);
+    bottom: 10px;
+    right: 10px;
+    background: rgba(0, 0, 0, 0.8);
     color: $accent;
-    font-size: 10px;
-    font-weight: 700;
-    padding: 2px 7px;
+    font-size: 11px;
+    font-weight: 600;
+    padding: 4px 8px;
     border-radius: 6px;
+    border: 1px solid rgba($accent, 0.4);
+    backdrop-filter: blur(4px);
 }
 
-.poster-meta {
-    padding: 8px 10px;
-    flex-shrink: 0;
+.series-meta {
+    padding: 10px;
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
 }
 
-.poster-title {
+.series-title {
     font-size: 12px;
     font-weight: 600;
-    color: rgba(255, 255, 255, 0.85);
-    display: block;
+    color: rgba(255, 255, 255, 0.88);
     white-space: nowrap;
     overflow: hidden;
     text-overflow: ellipsis;
 }
 
-// ─── VIEW: EPISÓDIOS ──────────────────────────────────────────────────────────
+// ═══════════════════════════════════════════════════════
+// VIEW: EPISÓDIOS
+// ═══════════════════════════════════════════════════════
 
 .episodes-view {
     flex: 1;
@@ -447,62 +456,65 @@ $text-muted: rgba(255, 255, 255, 0.45);
 .series-hero {
     display: flex;
     gap: 24px;
-    padding: 24px 28px 20px;
-    background: linear-gradient(180deg, rgba($neon, 0.08) 0%, transparent 100%);
-    border-bottom: 1px solid rgba($neon, 0.1);
+    padding: 28px 24px;
+    background: linear-gradient(135deg, rgba($neon, 0.1) 0%, transparent 100%);
+    border-bottom: 1px solid rgba($neon, 0.15);
     flex-shrink: 0;
 }
 
 .hero-poster {
-    width: 80px;
-    height: 110px;
-    border-radius: 10px;
-    overflow: hidden;
     flex-shrink: 0;
-    background: rgba(20, 20, 45, 0.8);
-    border: 1px solid rgba($neon, 0.2);
-
-    .hero-img {
-        width: 100%;
-        height: 100%;
-        object-fit: cover;
-    }
-
-    .hero-no-img {
-        width: 100%;
-        height: 100%;
-        display: flex;
-        align-items: center;
-        justify-content: center;
-        font-size: 28px;
-        opacity: 0.3;
-    }
-}
-
-.hero-info {
+    width: 140px;
+    height: 180px;
+    border-radius: 12px;
+    overflow: hidden;
+    background: rgba(0, 0, 0, 0.6);
     display: flex;
-    flex-direction: column;
-    gap: 6px;
+    align-items: center;
     justify-content: center;
 }
 
+.hero-img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+}
+
+.hero-no-img {
+    font-size: 60px;
+    opacity: 0.2;
+}
+
+.hero-info {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    gap: 10px;
+}
+
 .hero-label {
-    font-size: 9px;
+    font-size: 10px;
     font-weight: 700;
-    letter-spacing: 3px;
+    letter-spacing: 2px;
     color: $accent;
     text-transform: uppercase;
+    padding: 4px 8px;
+    background: rgba(0, 204, 255, 0.15);
+    border: 1px solid rgba(0, 204, 255, 0.3);
+    border-radius: 6px;
+    width: fit-content;
 }
 
 .hero-title {
-    font-size: 22px;
-    font-weight: 800;
-    margin: 0;
+    font-size: 28px;
+    font-weight: 700;
     color: white;
+    margin: 0;
 }
 
 .hero-sub {
-    font-size: 13px;
+    font-size: 14px;
     color: $text-muted;
 }
 
@@ -510,17 +522,19 @@ $text-muted: rgba(255, 255, 255, 0.45);
     background: linear-gradient(135deg, $neon, $neon-light);
     border: none;
     color: white;
-    padding: 9px 20px;
-    border-radius: 8px;
-    font-size: 13px;
-    font-weight: 700;
+    padding: 12px 28px;
+    border-radius: 10px;
+    font-size: 15px;
+    font-weight: 600;
     cursor: pointer;
     width: fit-content;
-    margin-top: 6px;
     transition: all 0.2s;
+    display: flex;
+    align-items: center;
+    gap: 8px;
 
     &:hover {
-        transform: translateY(-1px);
+        transform: scale(1.05);
         @include neon-glow();
     }
 }
@@ -529,20 +543,25 @@ $text-muted: rgba(255, 255, 255, 0.45);
     display: flex;
     align-items: center;
     justify-content: space-between;
-    padding: 14px 28px 12px;
+    gap: 16px;
+    padding: 12px 24px;
+    background: rgba(8, 8, 22, 0.95);
+    border-bottom: 1px solid rgba($neon, 0.12);
     flex-shrink: 0;
 }
 
 .episodes-list-label {
-    font-size: 13px;
+    font-size: 12px;
     font-weight: 700;
-    letter-spacing: 1px;
-    color: rgba(255, 255, 255, 0.6);
+    color: $neon-light;
     text-transform: uppercase;
+    letter-spacing: 1px;
 }
 
 .ep-search {
-    width: 260px;
+    flex: 0 1 300px;
+    padding: 8px 12px;
+    font-size: 12px;
 }
 
 .episodes-scroll-viewport {
@@ -554,58 +573,54 @@ $text-muted: rgba(255, 255, 255, 0.45);
 .episode-item {
     display: flex;
     align-items: center;
-    gap: 14px;
-    padding: 12px 28px;
+    gap: 12px;
+    padding: 8px 24px;
+    border-bottom: 1px solid rgba($neon, 0.08);
+    cursor: pointer;
+    transition: all 0.18s;
     height: 72px; // == EP_ITEM_HEIGHT
     box-sizing: border-box;
-    cursor: pointer;
-    transition: background 0.18s;
-    border-bottom: 1px solid rgba(255, 255, 255, 0.04);
 
     &:hover {
         background: $bg-hover;
 
         .ep-play-btn {
             opacity: 1;
-            transform: scale(1.1);
         }
     }
 
     &:focus {
         outline: none;
-        background: $bg-active;
+        background: $bg-hover;
     }
 }
 
 .ep-num {
-    width: 28px;
-    text-align: center;
     font-size: 13px;
     font-weight: 700;
-    color: rgba($neon-light, 0.6);
-    flex-shrink: 0;
+    color: $neon-light;
+    min-width: 32px;
+    text-align: center;
 }
 
 .ep-thumb {
-    width: 72px;
-    height: 48px;
+    width: 56px;
+    height: 56px;
     object-fit: cover;
     border-radius: 6px;
-    flex-shrink: 0;
     background: rgba(0, 0, 0, 0.4);
+    flex-shrink: 0;
 }
 
 .ep-thumb-placeholder {
-    width: 72px;
-    height: 48px;
+    width: 56px;
+    height: 56px;
     display: flex;
     align-items: center;
     justify-content: center;
-    font-size: 22px;
+    font-size: 24px;
+    color: rgba(255, 255, 255, 0.15);
     flex-shrink: 0;
-    background: rgba(20, 20, 45, 0.8);
-    border-radius: 6px;
-    border: 1px solid rgba($neon, 0.1);
 }
 
 .ep-info {
@@ -613,13 +628,13 @@ $text-muted: rgba(255, 255, 255, 0.45);
     min-width: 0;
     display: flex;
     flex-direction: column;
-    gap: 3px;
+    gap: 2px;
 }
 
 .ep-name {
-    font-size: 14px;
+    font-size: 13px;
     font-weight: 600;
-    color: rgba(255, 255, 255, 0.88);
+    color: white;
     white-space: nowrap;
     overflow: hidden;
     text-overflow: ellipsis;
@@ -634,50 +649,55 @@ $text-muted: rgba(255, 255, 255, 0.45);
 }
 
 .ep-play-btn {
-    background: rgba($neon, 0.7);
+    background: rgba($neon, 0.65);
     border: none;
     color: white;
-    width: 34px;
-    height: 34px;
-    border-radius: 50%;
-    font-size: 12px;
+    width: 40px;
+    height: 40px;
+    border-radius: 8px;
+    font-size: 16px;
     cursor: pointer;
-    flex-shrink: 0;
-    opacity: 0;
     transition: all 0.2s;
+    opacity: 0;
+    flex-shrink: 0;
     display: flex;
     align-items: center;
     justify-content: center;
+
+    &:hover {
+        background: $neon;
+        @include neon-glow();
+    }
 }
 
-// ─── SIDEBAR DIREITA: Categorias ──────────────────────────────────────────────
+// ═══════════════════════════════════════════════════════
+// SIDEBAR ESQUERDA: GRUPOS
+// ═══════════════════════════════════════════════════════
 
-.cat-sidebar {
-    width: 240px;
-    min-width: 200px;
-    flex-shrink: 0;
+.groups-sidebar {
+    width: 220px;
     background: rgba(8, 8, 22, 0.98);
     border-left: 1px solid rgba($neon, 0.12);
     display: flex;
     flex-direction: column;
-    overflow: hidden;
-}
-
-.cat-sidebar-header {
-    padding: 16px 16px 12px;
-    border-bottom: 1px solid rgba($neon, 0.1);
-    background: rgba($neon, 0.04);
     flex-shrink: 0;
 }
 
-.cat-sidebar-title {
-    font-size: 13px;
-    font-weight: 700;
-    color: rgba(255, 255, 255, 0.8);
-    letter-spacing: 0.5px;
+.groups-sidebar-header {
+    padding: 16px 12px;
+    border-bottom: 1px solid rgba($neon, 0.12);
+    flex-shrink: 0;
 }
 
-.cat-sidebar-list {
+.groups-sidebar-title {
+    font-size: 11px;
+    font-weight: 700;
+    letter-spacing: 1.5px;
+    text-transform: uppercase;
+    color: rgba(255, 255, 255, 0.8);
+}
+
+.groups-sidebar-list {
     flex: 1;
     overflow-y: auto;
     padding: 6px;
@@ -696,7 +716,7 @@ $text-muted: rgba(255, 255, 255, 0.45);
     }
 }
 
-.cat-sidebar-item {
+.groups-sidebar-item {
     display: flex;
     align-items: center;
     justify-content: space-between;
@@ -724,7 +744,7 @@ $text-muted: rgba(255, 255, 255, 0.45);
     }
 }
 
-.cat-item-name {
+.groups-item-name {
     font-size: 12px;
     color: rgba(255, 255, 255, 0.82);
     flex: 1;
@@ -733,7 +753,7 @@ $text-muted: rgba(255, 255, 255, 0.45);
     text-overflow: ellipsis;
 }
 
-.cat-item-badge {
+.groups-item-badge {
     background: rgba($neon, 0.2);
     border: 1px solid rgba($neon, 0.35);
     color: $neon-light;
@@ -744,7 +764,9 @@ $text-muted: rgba(255, 255, 255, 0.45);
     flex-shrink: 0;
 }
 
-// ─── PLAYER FULLSCREEN ────────────────────────────────────────────────────────
+// ═══════════════════════════════════════════════════════
+// PLAYER FULLSCREEN
+// ═══════════════════════════════════════════════════════
 
 .player-fullscreen {
     flex: 1;
