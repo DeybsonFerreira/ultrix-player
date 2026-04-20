@@ -13,12 +13,10 @@ import { HLS_CONFIG } from '../../models/hls.config';
 import { PlayerService } from '../../services/player-service';
 import { EpisodeFlat, Series, SeriesGroup } from '../../models/serie';
 
-// ─── Constantes de layout ──────────────────────────────────────────────────────
-const POSTERS_PER_ROW = 6;          // cartazes de 148px em tela cheia
-const CARD_HEIGHT = 290; // px — altura do cartão (poster 2:3 + label)
-const GAP = 18;  // px — gap entre cartões
-
-// ─── Componente ────────────────────────────────────────────────────────────────
+// ─── Layout ────────────────────────────────────────────────────────────────────
+const POSTERS_PER_ROW = 6;
+const CARD_HEIGHT = 290;
+const GAP = 14;
 
 @Component({
   selector: 'app-series',
@@ -31,9 +29,9 @@ export class SeriesComponent implements OnInit, OnDestroy {
 
   @ViewChild('videoPlayer') videoPlayerRef!: ElementRef<HTMLVideoElement>;
 
-  rowHeight = CARD_HEIGHT + GAP;   // altura total de cada linha renderizada pelo CDK
+  rowHeight = CARD_HEIGHT + GAP;
 
-  // ── Navegação: 'browse' | 'episodes' | 'player'
+  // ── Views: 'browse' | 'episodes' | 'player'
   view: 'browse' | 'episodes' | 'player' = 'browse';
 
   // ── Dados
@@ -42,6 +40,9 @@ export class SeriesComponent implements OnInit, OnDestroy {
   displaySeries: Series[] = [];
   selectedSeries: Series | null = null;
   selectedEpisode: EpisodeFlat | null = null;
+
+  // ── Seasonas ativas no drawer
+  activeSeason = 1;
 
   // ── Buscas
   searchQuery = '';
@@ -83,7 +84,7 @@ export class SeriesComponent implements OnInit, OnDestroy {
     if (this.retryTimeout) clearTimeout(this.retryTimeout);
   }
 
-  // ─── Dados ───────────────────────────────────────────────────────────────────
+  // ─── Dados ────────────────────────────────────────────────────────────────────
 
   private loadSeriesGroups() {
     this.allSeriesGroups = this.buildSeriesGroups();
@@ -120,7 +121,8 @@ export class SeriesComponent implements OnInit, OnDestroy {
       .sort((a, b) => a.name.localeCompare(b.name));
   }
 
-  getEpisodeCount(serie: Series): number {
+  getEpisodeCount(serie: Series | null): number {
+    if (!serie) return 0;
     return serie.seasons.reduce((t, s) => t + s.episodes.length, 0);
   }
 
@@ -142,21 +144,32 @@ export class SeriesComponent implements OnInit, OnDestroy {
     return { season: 1, episode: 1 };
   }
 
-  // ─── Helper: converte ep de temporada → EpisodeFlat ──────────────────────────
+  // ─── Hero da categoria ────────────────────────────────────────────────────────
+
+  /** Primeiro item da lista (com logo preferível) */
+  get heroSeries(): Series | null {
+    const list = this.filteredDisplaySeries;
+    if (!list.length) return null;
+    return list.find(s => !!s.logo) ?? list[0];
+  }
+
+  get heroFirstEpisode(): EpisodeFlat {
+    const s = this.heroSeries;
+    if (!s || !s.seasons.length || !s.seasons[0].episodes.length) return null as any;
+    return this.toFlat(s.seasons[0].episodes[0], s.seasons[0].season, 0);
+  }
+
+  // ─── Helpers ─────────────────────────────────────────────────────────────────
 
   toFlat(ep: any, _season: number, index: number): EpisodeFlat {
     return { ...ep, seriesName: this.selectedSeries?.name ?? '', epIndex: index + 1 };
   }
-
-  // ─── Primeiro episódio (para "Assistir do início") ────────────────────────────
 
   get firstEpisode(): EpisodeFlat {
     const s = this.selectedSeries;
     if (!s || !s.seasons.length || !s.seasons[0].episodes.length) return null as any;
     return this.toFlat(s.seasons[0].episodes[0], s.seasons[0].season, 0);
   }
-
-  // ─── Slots fantasma (completa última linha do grid) ───────────────────────────
 
   getGhosts(row: Series[]): number[] {
     const missing = POSTERS_PER_ROW - row.length;
@@ -181,7 +194,6 @@ export class SeriesComponent implements OnInit, OnDestroy {
 
   onGlobalSearch(q: string) { this.searchQuery = q; }
 
-  /** Fecha a tela de episódios → volta ao browse */
   backToSeries() {
     this.selectedSeries = null;
     this.searchQuery = '';
@@ -196,14 +208,16 @@ export class SeriesComponent implements OnInit, OnDestroy {
     this.view = 'browse';
   }
 
-  /** Clica num cartaz → abre tela de episódios */
-  selectSeries(series: Series) {
+  /** Abre o drawer lateral de episódios */
+  selectSeries(series: Series | null) {
+    if (!series) return;
     this.selectedSeries = series;
+    this.activeSeason = series.seasons[0]?.season ?? 1;
     this.searchQuery = '';
     this.view = 'episodes';
   }
 
-  // ─── Busca ───────────────────────────────────────────────────────────────────
+  // ─── Filtros ─────────────────────────────────────────────────────────────────
 
   get filteredSidebarGroups(): SeriesGroup[] {
     if (!this.sidebarSearchQuery) return this.allSeriesGroups;
@@ -226,9 +240,7 @@ export class SeriesComponent implements OnInit, OnDestroy {
     return rows;
   }
 
-  onSeriesScrolled(_: number) { }
-
-  // ─── Getters de episódios ─────────────────────────────────────────────────────
+  // ─── Episódios ────────────────────────────────────────────────────────────────
 
   get selectedSeriesName(): string { return this.selectedSeries?.name ?? ''; }
 
@@ -239,10 +251,6 @@ export class SeriesComponent implements OnInit, OnDestroy {
       s.episodes.forEach(e => eps.push({ ...e, seriesName: this.selectedSeries!.name }))
     );
     return eps.sort((a, b) => a.episode - b.episode);
-  }
-
-  get filteredEpisodes(): EpisodeFlat[] {
-    return this.allEpisodesOfSelectedSeries.map((e, i) => ({ ...e, epIndex: i + 1 }));
   }
 
   get totalEpisodes(): number { return this.allEpisodesOfSelectedSeries.length; }
@@ -260,7 +268,7 @@ export class SeriesComponent implements OnInit, OnDestroy {
 
   closePlayer() {
     this.destroyPlayer();
-    this.view = 'episodes';   // volta para a tela de episódios
+    this.view = 'episodes';
     this.selectedEpisode = null;
   }
 
@@ -318,6 +326,7 @@ export class SeriesComponent implements OnInit, OnDestroy {
     video.addEventListener('waiting', () => { this.isBuffering = true; this.cdr.detectChanges(); });
     video.addEventListener('playing', () => { this.isBuffering = false; this.cdr.detectChanges(); });
     video.addEventListener('timeupdate', () => this.updateProgress(video));
+    video.addEventListener('ended', () => this.nextEpisode());
   }
 
   tryPlayNative(video: HTMLVideoElement, url: string) {
@@ -331,11 +340,14 @@ export class SeriesComponent implements OnInit, OnDestroy {
     video.addEventListener('waiting', () => { this.isBuffering = true; this.cdr.detectChanges(); });
     video.addEventListener('playing', () => { this.isBuffering = false; this.cdr.detectChanges(); });
     video.addEventListener('timeupdate', () => this.updateProgress(video));
+    video.addEventListener('ended', () => this.nextEpisode());
   }
 
   updateProgress(video: HTMLVideoElement) {
     const fmt = (s: number) => {
-      const h = Math.floor(s / 3600), m = Math.floor((s % 3600) / 60), sec = Math.floor(s % 60);
+      const h = Math.floor(s / 3600);
+      const m = Math.floor((s % 3600) / 60);
+      const sec = Math.floor(s % 60);
       return h > 0
         ? `${h}:${String(m).padStart(2, '0')}:${String(sec).padStart(2, '0')}`
         : `${String(m).padStart(2, '0')}:${String(sec).padStart(2, '0')}`;
@@ -388,8 +400,7 @@ export class SeriesComponent implements OnInit, OnDestroy {
     return (v.currentTime / v.duration) * 100;
   }
 
-  // ─── TrackBy helpers ──────────────────────────────────────────────────────────
-
+  // ─── TrackBy ─────────────────────────────────────────────────────────────────
   trackByIdx(_: number, __: any) { return _; }
   trackBySeriesName(_: number, s: Series) { return s.name; }
   trackByEpId(_: number, e: EpisodeFlat) { return e.id; }
