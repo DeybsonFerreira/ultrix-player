@@ -14,9 +14,21 @@ import { PlayerService } from '../../services/player-service';
 import { EpisodeFlat, Series, SeriesGroup } from '../../models/serie';
 
 // ─── Layout ────────────────────────────────────────────────────────────────────
-const POSTERS_PER_ROW = 6;
-const CARD_HEIGHT = 290;
+const SIDEBAR_WIDTH = 240;
+const SECTION_PADDING = 96; // 2rem (32px) cada lado + scrollbar ~16px
+const CARD_MIN_WIDTH = 155;
 const GAP = 14;
+const NAME_HEIGHT = 32;
+
+function calcCols(availableWidth: number): number {
+  const cols = Math.floor((availableWidth + GAP) / (CARD_MIN_WIDTH + GAP));
+  return Math.max(5, Math.min(10, cols));
+}
+
+function calcCardHeight(cols: number, availableWidth: number): number {
+  const cardWidth = (availableWidth - (cols - 1) * GAP) / cols;
+  return Math.round(cardWidth * (3 / 2)) + NAME_HEIGHT;
+}
 
 @Component({
   selector: 'app-series',
@@ -28,8 +40,14 @@ const GAP = 14;
 export class SeriesComponent implements OnInit, OnDestroy {
 
   @ViewChild('videoPlayer') videoPlayerRef!: ElementRef<HTMLVideoElement>;
+  @ViewChild('playerEl') playerElRef!: ElementRef<HTMLDivElement>;
 
-  rowHeight = CARD_HEIGHT + GAP;
+  cols = 7;
+  rowHeight = 300;
+  isIdle = false;
+
+  private resizeObserver: ResizeObserver | null = null;
+  private idleTimeout: any = null;
 
   // ── Views: 'browse' | 'episodes' | 'player'
   view: 'browse' | 'episodes' | 'player' = 'browse';
@@ -76,12 +94,29 @@ export class SeriesComponent implements OnInit, OnDestroy {
     this.loadSeriesGroups();
     this.playerService.preloadHls();
     this.startClock();
+    this.initResizeObserver();
   }
 
   ngOnDestroy() {
     this.destroyPlayer();
     if (this.clockInterval) clearInterval(this.clockInterval);
     if (this.retryTimeout) clearTimeout(this.retryTimeout);
+    this.clearIdleTimer();
+    this.resizeObserver?.disconnect();
+  }
+
+  private initResizeObserver() {
+    this.recalcLayout();
+    this.resizeObserver = new ResizeObserver(() => this.recalcLayout());
+    this.resizeObserver.observe(document.body);
+  }
+
+  private recalcLayout() {
+    const available = window.innerWidth - SIDEBAR_WIDTH - SECTION_PADDING;
+    this.cols = calcCols(available);
+    this.rowHeight = calcCardHeight(this.cols, available) + GAP;
+    document.documentElement.style.setProperty('--cols', String(this.cols));
+    this.cdr.detectChanges();
   }
 
   // ─── Dados ────────────────────────────────────────────────────────────────────
@@ -172,7 +207,7 @@ export class SeriesComponent implements OnInit, OnDestroy {
   }
 
   getGhosts(row: Series[]): number[] {
-    const missing = POSTERS_PER_ROW - row.length;
+    const missing = this.cols - row.length;
     return missing > 0 ? Array(missing).fill(0) : [];
   }
 
@@ -234,8 +269,8 @@ export class SeriesComponent implements OnInit, OnDestroy {
   get seriesPosterRows(): Series[][] {
     const series = this.filteredDisplaySeries;
     const rows: Series[][] = [];
-    for (let i = 0; i < series.length; i += POSTERS_PER_ROW) {
-      rows.push(series.slice(i, i + POSTERS_PER_ROW));
+    for (let i = 0; i < series.length; i += this.cols) {
+      rows.push(series.slice(i, i + this.cols));
     }
     return rows;
   }
@@ -263,13 +298,50 @@ export class SeriesComponent implements OnInit, OnDestroy {
     this.playerError = '';
     this.retryCount = 0;
     this.view = 'player';
-    setTimeout(() => this.playItem(ep), 100);
+    setTimeout(() => {
+      this.playItem(ep);
+      this.enterFullscreen();
+      this.resetIdleTimer();
+    }, 100);
   }
 
   closePlayer() {
+    this.exitFullscreen();
+    this.clearIdleTimer();
     this.destroyPlayer();
     this.view = 'episodes';
     this.selectedEpisode = null;
+  }
+
+  onPlayerMouseMove() {
+    this.isIdle = false;
+    this.resetIdleTimer();
+  }
+
+  private resetIdleTimer() {
+    this.clearIdleTimer();
+    this.idleTimeout = setTimeout(() => {
+      this.isIdle = true;
+      this.cdr.detectChanges();
+    }, 3000);
+  }
+
+  private clearIdleTimer() {
+    if (this.idleTimeout) { clearTimeout(this.idleTimeout); this.idleTimeout = null; }
+    this.isIdle = false;
+  }
+
+  private enterFullscreen() {
+    const el = document.documentElement as any;
+    const fn = el.requestFullscreen ?? el.webkitRequestFullscreen ?? el.mozRequestFullScreen ?? el.msRequestFullscreen;
+    fn?.call(el)?.catch(() => { });
+  }
+
+  private exitFullscreen() {
+    const doc = document as any;
+    if (!doc.fullscreenElement && !doc.webkitFullscreenElement) return;
+    const fn = doc.exitFullscreen ?? doc.webkitExitFullscreen ?? doc.mozCancelFullScreen ?? doc.msExitFullscreen;
+    fn?.call(doc)?.catch(() => { });
   }
 
   nextEpisode() {

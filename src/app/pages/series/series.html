@@ -1,169 +1,134 @@
 <app-navbar (searchEvent)="onGlobalSearch($event)"></app-navbar>
 
 <!-- ═══════════════════════════════════════════════
-     VIEW: BROWSE — hero + categorias + grid
+     LAYOUT PRINCIPAL: sidebar esquerda + conteúdo
 ════════════════════════════════════════════════ -->
-<div class="nx-root" [class.panel-open]="view === 'episodes'" [class.player-open]="view === 'player'">
+<div class="nx-root" [class.player-open]="view === 'player'">
 
-  <!-- TOPBAR DE CATEGORIAS (abaixo da navbar) -->
-  <div class="cat-bar" *ngIf="view === 'browse' || view === 'episodes'">
-    <button class="home-btn" (click)="goHome()" title="Home">⌂</button>
-    <div class="cat-scroll">
-      <button class="cat-pill" *ngFor="let g of filteredSidebarGroups"
+  <!-- ───────────── SIDEBAR ESQUERDA DE CATEGORIAS ───────────── -->
+  <aside class="cat-sidebar" *ngIf="view !== 'player'">
+    <div class="cat-sidebar-header">
+      <button class="home-btn" (click)="goHome()" title="Home">⌂</button>
+      <span class="cat-sidebar-title">Categorias</span>
+    </div>
+
+    <div class="cat-list">
+      <button class="cat-item" *ngFor="let g of filteredSidebarGroups"
         [class.active]="selectedSeriesGroup?.name === g.name" (click)="selectSeriesGroup(g)"
         (keydown.enter)="selectSeriesGroup(g)" tabindex="0">
-        {{ g.name }}
+        <span class="cat-item-name">{{ g.name }}</span>
         <span class="cat-count">{{ g.series.length }}</span>
       </button>
     </div>
-    <div class="cat-search-wrap">
-      <input class="cat-search" [(ngModel)]="sidebarSearchQuery" placeholder="Filtrar categorias..." />
-    </div>
-  </div>
-
-  <!-- ───────────── BROWSE VIEW ───────────── -->
-  <ng-container *ngIf="view === 'browse'">
-
-    <!-- WELCOME -->
-    <div class="welcome-state" *ngIf="!selectedSeriesGroup">
-      <div class="welcome-glow"></div>
-      <span class="welcome-icon">🎬</span>
-      <h2 class="welcome-title">Escolha uma categoria</h2>
-      <p class="welcome-sub">Selecione uma categoria acima para explorar as séries disponíveis.</p>
-    </div>
-
-    <!-- HERO: primeiro cartaz em destaque -->
-    <div class="nx-hero" *ngIf="selectedSeriesGroup && filteredDisplaySeries.length > 0">
-      <div class="hero-bg" [style.backgroundImage]="heroSeries?.logo ? 'url(' + heroSeries?.logo + ')' : 'none'">
-      </div>
-      <div class="hero-vignette"></div>
-      <div class="hero-content">
-        <span class="hero-badge">● Em Destaque</span>
-        <h1 class="hero-title">{{ heroSeries?.name }}</h1>
-        <div class="hero-meta">
-          <span>{{ heroSeries?.seasons?.length }} temp.</span>
-          <span>{{ getEpisodeCount(heroSeries) }} episódios</span>
-        </div>
-        <div class="hero-actions">
-          <button class="btn-play" (click)="playEpisode(heroFirstEpisode)">
-            ▶&nbsp; Assistir
-          </button>
-          <button class="btn-info" (click)="selectSeries(heroSeries)">
-            ⓘ&nbsp; Mais Informações
-          </button>
-        </div>
-      </div>
-      <div class="hero-poster" *ngIf="heroSeries?.logo">
-        <img [src]="heroSeries?.logo" [alt]="heroSeries?.name" onerror="this.style.display='none'" />
-      </div>
-    </div>
-
-    <!-- GRID DE CARTAZES -->
-    <div class="poster-section" *ngIf="selectedSeriesGroup">
-      <div class="poster-section-header">
-        <span class="poster-section-title">{{ selectedSeriesGroup.name }}</span>
-        <span class="poster-section-count">{{ filteredDisplaySeries.length }} séries</span>
-      </div>
-
-      <cdk-virtual-scroll-viewport class="posters-viewport" *ngIf="filteredDisplaySeries.length > 0"
-        [itemSize]="rowHeight">
-
-        <div class="poster-row" *cdkVirtualFor="let row of seriesPosterRows; trackBy: trackByIdx">
-          <div class="poster-card" *ngFor="let serie of row; trackBy: trackBySeriesName" (click)="selectSeries(serie)"
-            (keydown.enter)="selectSeries(serie)" tabindex="0">
-
-            <div class="card-img-wrap">
-              <img *ngIf="serie.logo" [src]="serie.logo" [alt]="serie.name"
-                onerror="this.src=''; this.parentElement.classList.add('no-img')" />
-              <div class="card-fallback" *ngIf="!serie.logo">
-                <span>🎬</span>
-              </div>
-              <div class="card-overlay">
-                <div class="play-circle">▶</div>
-              </div>
-              <div class="ep-badge-pill">{{ getEpisodeCount(serie) }} ep</div>
-            </div>
-            <div class="card-label">{{ serie.name }}</div>
-          </div>
-
-          <!-- ghosts -->
-          <div class="poster-card ghost" *ngFor="let x of getGhosts(row)"></div>
-        </div>
-
-        <div style="height: 40px"></div>
-      </cdk-virtual-scroll-viewport>
-
-      <div class="empty-state" *ngIf="filteredDisplaySeries.length === 0">
-        Nenhuma série encontrada
-      </div>
-    </div>
-
-  </ng-container>
-
-  <!-- ───────────── EPISODES PANEL (drawer lateral) ───────────── -->
-  <div class="ep-panel-overlay" *ngIf="view === 'episodes'" (click)="backToSeries()"></div>
-
-  <aside class="ep-panel" [class.open]="view === 'episodes'" *ngIf="selectedSeries || view === 'episodes'">
-
-    <!-- Hero da série no topo do drawer -->
-    <div class="ep-hero-wrap">
-      <img *ngIf="selectedSeries?.logo" [src]="selectedSeries?.logo" [alt]="selectedSeriesName"
-        onerror="this.style.display='none'" />
-      <div class="ep-hero-fallback" *ngIf="!selectedSeries?.logo">🎞</div>
-      <div class="ep-hero-grad"></div>
-      <button class="ep-back-btn" (click)="backToSeries()">‹ Fechar</button>
-    </div>
-
-    <!-- Info + botão assistir -->
-    <div class="ep-drawer-info">
-      <span class="ep-badge-label">SÉRIE</span>
-      <h2 class="ep-drawer-title">{{ selectedSeriesName }}</h2>
-      <p class="ep-drawer-sub">
-        {{ selectedSeries?.seasons?.length }} temporada{{ selectedSeries?.seasons?.length !== 1 ? 's' : '' }}
-        &nbsp;·&nbsp;
-        {{ totalEpisodes }} episódio{{ totalEpisodes !== 1 ? 's' : '' }}
-      </p>
-      <button class="ep-play-all-btn" (click)="playEpisode(firstEpisode)">
-        ▶&nbsp; Assistir do início
-      </button>
-    </div>
-
-    <!-- Tabs de temporada -->
-    <div class="season-tabs">
-      <button class="season-tab" *ngFor="let season of selectedSeries?.seasons"
-        [class.active]="activeSeason === season.season" (click)="activeSeason = season.season">
-        T{{ season.season }}
-      </button>
-    </div>
-
-    <!-- Lista de episódios -->
-    <div class="ep-list">
-      <ng-container *ngFor="let season of selectedSeries?.seasons">
-        <ng-container *ngIf="activeSeason === season.season || activeSeason === 0">
-          <div class="ep-item" *ngFor="let ep of season.episodes; let i = index"
-            [class.active]="selectedEpisode?.id === ep.id" (click)="playEpisode(toFlat(ep, season.season, i))"
-            (keydown.enter)="playEpisode(toFlat(ep, season.season, i))" tabindex="0">
-
-            <div class="ep-thumb">
-              <img *ngIf="ep.logo" [src]="ep.logo" [alt]="ep.name" onerror="this.style.display='none'" />
-              <div class="ep-thumb-fallback" *ngIf="!ep.logo">{{ ep.episode }}</div>
-              <div class="ep-thumb-overlay">▶</div>
-            </div>
-            <div class="ep-item-info">
-              <span class="ep-item-num">Ep. {{ ep.episode }}</span>
-              <span class="ep-item-name">{{ ep.name }}</span>
-            </div>
-          </div>
-        </ng-container>
-      </ng-container>
-    </div>
-
   </aside>
 
-  <!-- ───────────── PLAYER FULLSCREEN ───────────── -->
-  <div class="player-fullscreen" *ngIf="view === 'player' && selectedEpisode">
+  <!-- ───────────── ÁREA PRINCIPAL ───────────── -->
+  <div class="nx-main" *ngIf="view !== 'player'">
 
-    <button class="back-from-player" (click)="closePlayer()">‹ Voltar</button>
+    <!-- BROWSE: grid de séries -->
+    <ng-container *ngIf="view === 'browse'">
+
+      <!-- Welcome -->
+      <div class="welcome-state" *ngIf="!selectedSeriesGroup">
+        <div class="welcome-glow"></div>
+        <span class="welcome-icon">🎬</span>
+        <h2 class="welcome-title">Escolha uma categoria</h2>
+        <p class="welcome-sub">Selecione uma categoria na barra lateral para explorar as séries disponíveis.</p>
+      </div>
+
+      <!-- Grid de cartazes -->
+      <div class="poster-section" *ngIf="selectedSeriesGroup">
+        <div class="poster-section-header">
+          <span class="poster-section-title">{{ selectedSeriesGroup.name }}</span>
+          <span class="poster-section-count">{{ filteredDisplaySeries.length }} séries</span>
+        </div>
+
+        <cdk-virtual-scroll-viewport class="posters-viewport" *ngIf="filteredDisplaySeries.length > 0"
+          [itemSize]="rowHeight">
+          <div class="poster-row" *cdkVirtualFor="let row of seriesPosterRows; trackBy: trackByIdx">
+            <div class="poster-card" *ngFor="let serie of row; trackBy: trackBySeriesName" (click)="selectSeries(serie)"
+              (keydown.enter)="selectSeries(serie)" tabindex="0">
+              <div class="card-img-wrap">
+                <img *ngIf="serie.logo" [src]="serie.logo" [alt]="serie.name"
+                  onerror="this.src=''; this.parentElement.classList.add('no-img')" />
+                <div class="card-fallback" *ngIf="!serie.logo"><span>🎬</span></div>
+                <div class="card-overlay">
+                  <div class="play-circle">▶</div>
+                </div>
+                <div class="ep-badge-pill">{{ getEpisodeCount(serie) }} ep</div>
+              </div>
+              <div class="card-name">{{ serie.name }}</div>
+            </div>
+            <div class="poster-card ghost" *ngFor="let x of getGhosts(row)"></div>
+          </div>
+          <div style="height: 40px"></div>
+        </cdk-virtual-scroll-viewport>
+
+        <div class="empty-state" *ngIf="filteredDisplaySeries.length === 0">Nenhuma série encontrada</div>
+      </div>
+    </ng-container>
+
+    <!-- ───────────── EPISODES VIEW ───────────── -->
+    <ng-container *ngIf="view === 'episodes' && selectedSeries">
+
+      <!-- Hero da série -->
+      <div class="ep-hero-wrap">
+        <img *ngIf="selectedSeries?.logo" [src]="selectedSeries?.logo" [alt]="selectedSeriesName"
+          onerror="this.style.display='none'" />
+        <div class="ep-hero-fallback" *ngIf="!selectedSeries?.logo">🎞</div>
+        <div class="ep-hero-grad"></div>
+        <button class="ep-back-btn" (click)="backToSeries()">‹ Voltar</button>
+      </div>
+
+      <!-- Info + botão assistir -->
+      <div class="ep-drawer-info">
+        <span class="ep-badge-label">SÉRIE</span>
+        <h2 class="ep-drawer-title">{{ selectedSeriesName }}</h2>
+        <p class="ep-drawer-sub">
+          {{ selectedSeries?.seasons?.length }} temporada{{ selectedSeries?.seasons?.length !== 1 ? 's' : '' }}
+          &nbsp;·&nbsp;
+          {{ totalEpisodes }} episódio{{ totalEpisodes !== 1 ? 's' : '' }}
+        </p>
+        <button class="ep-play-all-btn" (click)="playEpisode(firstEpisode)">▶&nbsp; Assistir do início</button>
+      </div>
+
+      <!-- Tabs de temporada -->
+      <div class="season-tabs">
+        <button class="season-tab" *ngFor="let season of selectedSeries?.seasons"
+          [class.active]="activeSeason === season.season" (click)="activeSeason = season.season">
+          T{{ season.season }}
+        </button>
+      </div>
+
+      <!-- Lista de episódios -->
+      <div class="ep-list">
+        <ng-container *ngFor="let season of selectedSeries?.seasons">
+          <ng-container *ngIf="activeSeason === season.season || activeSeason === 0">
+            <div class="ep-item" *ngFor="let ep of season.episodes; let i = index"
+              [class.active]="selectedEpisode?.id === ep.id" (click)="playEpisode(toFlat(ep, season.season, i))"
+              (keydown.enter)="playEpisode(toFlat(ep, season.season, i))" tabindex="0">
+              <div class="ep-thumb">
+                <img *ngIf="ep.logo" [src]="ep.logo" [alt]="ep.name" onerror="this.style.display='none'" />
+                <div class="ep-thumb-fallback" *ngIf="!ep.logo">{{ ep.episode }}</div>
+                <div class="ep-thumb-overlay">▶</div>
+              </div>
+              <div class="ep-item-info">
+                <span class="ep-item-num">Ep. {{ ep.episode }}</span>
+                <span class="ep-item-name">{{ ep.name }}</span>
+              </div>
+            </div>
+          </ng-container>
+        </ng-container>
+      </div>
+
+    </ng-container>
+  </div>
+
+  <!-- ───────────── PLAYER FULLSCREEN ───────────── -->
+  <div class="player-fullscreen" *ngIf="view === 'player' && selectedEpisode" [class.idle]="isIdle"
+    (mousemove)="onPlayerMouseMove()">
+
+    <button class="back-from-player" (click)="closePlayer()">Episódios</button>
 
     <div class="player-info-bar">
       <div class="now-playing">
@@ -180,9 +145,7 @@
 
     <div class="video-wrap">
       <video #videoPlayer class="video-el" playsinline autoplay></video>
-      <div class="player-error" *ngIf="playerError">
-        <span>⚠</span> {{ playerError }}
-      </div>
+      <div class="player-error" *ngIf="playerError"><span>⚠</span> {{ playerError }}</div>
       <div class="player-loader" *ngIf="isBuffering && !playerError">
         <div class="spinner"></div><span>Carregando...</span>
       </div>
@@ -200,9 +163,7 @@
         <button class="ctrl big" (click)="togglePlay()">{{ isPlaying ? '⏸' : '▶' }}</button>
         <button class="ctrl" (click)="nextEpisode()" title="Próximo">⏭</button>
         <div class="vol-group">
-          <button class="ctrl small" (click)="toggleMute()">
-            {{ isMuted ? '🔇' : volume > 50 ? '🔊' : '🔉' }}
-          </button>
+          <button class="ctrl small" (click)="toggleMute()">{{ isMuted ? '🔇' : volume > 50 ? '🔊' : '🔉' }}</button>
           <input type="range" class="vol-slider" min="0" max="100" [value]="volume" (input)="setVolume($event)" />
         </div>
       </div>
