@@ -32,7 +32,8 @@ import { MessageService } from '../../../services/message-service';
 export class ConfigDialogComponent implements AfterViewInit {
   @ViewChild('urlInput') urlInput!: ElementRef;
 
-  m3uUrl: string = 'https://iptv-org.github.io/iptv/index.m3u';
+  // m3uUrl: string = 'https://iptv-org.github.io/iptv/index.m3u';
+  m3uUrl: string = 'https://iptv-org.github.io/iptv/countries/br.m3u';
   isLoading: boolean = false;
   importError: string = '';
   importSuccess: string = '';

@@ -1,6 +1,8 @@
 import {
-  ChangeDetectorRef, Component, OnInit, OnDestroy,
-  ViewChild, ElementRef
+  ChangeDetectorRef,
+  Component,
+  OnDestroy,
+  OnInit
 } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
@@ -9,13 +11,13 @@ import { ScrollingModule } from '@angular/cdk/scrolling';
 
 import { IptvService } from '../../services/iptv-service';
 import { NavbarComponent } from '../../components/navbar/navbar';
-import { HLS_CONFIG } from '../../models/hls.config';
 import { PlayerService } from '../../services/player-service';
 import { EpisodeFlat, Series, SeriesGroup } from '../../models/serie';
+import { PlayerBaseService } from '../../services/player-base-service';
 
-// ─── Layout ────────────────────────────────────────────────────────────────────
+// ─── Layout ────────────────────────────────────────────
 const SIDEBAR_WIDTH = 240;
-const SECTION_PADDING = 96; // 2rem (32px) cada lado + scrollbar ~16px
+const SECTION_PADDING = 96;
 const CARD_MIN_WIDTH = 155;
 const GAP = 14;
 const NAME_HEIGHT = 32;
@@ -37,11 +39,9 @@ function calcCardHeight(cols: number, availableWidth: number): number {
   standalone: true,
   imports: [CommonModule, FormsModule, NavbarComponent, ScrollingModule]
 })
-export class SeriesComponent implements OnInit, OnDestroy {
+export class SeriesComponent extends PlayerBaseService implements OnInit, OnDestroy {
 
-  @ViewChild('videoPlayer') videoPlayerRef!: ElementRef<HTMLVideoElement>;
-  @ViewChild('playerEl') playerElRef!: ElementRef<HTMLDivElement>;
-
+  // videoPlayerRef já está na base
   cols = 7;
   rowHeight = 300;
   isIdle = false;
@@ -49,7 +49,7 @@ export class SeriesComponent implements OnInit, OnDestroy {
   private resizeObserver: ResizeObserver | null = null;
   private idleTimeout: any = null;
 
-  // ── Views: 'browse' | 'episodes' | 'player'
+  // ── Views
   view: 'browse' | 'episodes' | 'player' = 'browse';
 
   // ── Dados
@@ -58,52 +58,46 @@ export class SeriesComponent implements OnInit, OnDestroy {
   displaySeries: Series[] = [];
   selectedSeries: Series | null = null;
   selectedEpisode: EpisodeFlat | null = null;
-
-  // ── Seasonas ativas no drawer
   activeSeason = 1;
 
   // ── Buscas
   searchQuery = '';
   sidebarSearchQuery = '';
 
-  // ── Player
-  isPlaying = false;
-  isBuffering = false;
-  playerError = '';
-  volume = 80;
-  isMuted = false;
+  // videoCurrentTime separado do relógio
   videoCurrentTime = '00:00';
-  duration = '00:00';
-
-  private hls: any = null;
-  private retryTimeout: any;
-  private retryCount = 0;
-  private readonly MAX_RETRIES = 3;
-  private clockInterval: any;
-  currentTime = '';
 
   constructor(
     private router: Router,
     private iptv: IptvService,
-    private cdr: ChangeDetectorRef,
-    private playerService: PlayerService
-  ) { }
+    cdr: ChangeDetectorRef,
+    playerService: PlayerService
+  ) {
+    super(cdr, playerService);
+  }
+
+  // ── Lifecycle ──────────────────────────────────────────
 
   async ngOnInit() {
     await this.iptv.reloadm3u('series');
-    this.loadSeriesGroups();
+    this.allSeriesGroups = this.buildSeriesGroups();
     this.playerService.preloadHls();
     this.startClock();
     this.initResizeObserver();
   }
 
-  ngOnDestroy() {
-    this.destroyPlayer();
-    if (this.clockInterval) clearInterval(this.clockInterval);
-    if (this.retryTimeout) clearTimeout(this.retryTimeout);
+  override ngOnDestroy() {
     this.clearIdleTimer();
     this.resizeObserver?.disconnect();
+    super.ngOnDestroy();
   }
+
+  get filteredSidebarGroups(): SeriesGroup[] {
+    if (!this.sidebarSearchQuery) return this.allSeriesGroups;
+    const q = this.sidebarSearchQuery.toLowerCase();
+    return this.allSeriesGroups.filter(g => g.name.toLowerCase().includes(q));
+  }
+  // ── Layout ─────────────────────────────────────────────
 
   private initResizeObserver() {
     this.recalcLayout();
@@ -119,11 +113,18 @@ export class SeriesComponent implements OnInit, OnDestroy {
     this.cdr.detectChanges();
   }
 
-  // ─── Dados ────────────────────────────────────────────────────────────────────
+  onGlobalSearch(q: string) { this.searchQuery = q; }
+  goHome() { this.router.navigate(['/']); }
 
-  private loadSeriesGroups() {
-    this.allSeriesGroups = this.buildSeriesGroups();
+  selectSeriesGroup(group: SeriesGroup) {
+    this.selectedSeriesGroup = group;
+    this.displaySeries = [...group.series];
+    this.selectedSeries = null;
+    this.searchQuery = '';
+    this.view = 'browse';
   }
+
+  // ── Dados ──────────────────────────────────────────────
 
   private buildSeriesGroups(): SeriesGroup[] {
     const channels = this.iptv.getGroupsByType('series');
@@ -179,22 +180,20 @@ export class SeriesComponent implements OnInit, OnDestroy {
     return { season: 1, episode: 1 };
   }
 
-  // ─── Hero da categoria ────────────────────────────────────────────────────────
+  // ── Hero ───────────────────────────────────────────────
 
-  /** Primeiro item da lista (com logo preferível) */
   get heroSeries(): Series | null {
     const list = this.filteredDisplaySeries;
-    if (!list.length) return null;
-    return list.find(s => !!s.logo) ?? list[0];
+    return list.find(s => !!s.logo) ?? list[0] ?? null;
   }
 
   get heroFirstEpisode(): EpisodeFlat {
     const s = this.heroSeries;
-    if (!s || !s.seasons.length || !s.seasons[0].episodes.length) return null as any;
+    if (!s?.seasons[0]?.episodes[0]) return null as any;
     return this.toFlat(s.seasons[0].episodes[0], s.seasons[0].season, 0);
   }
 
-  // ─── Helpers ─────────────────────────────────────────────────────────────────
+  // ── Helpers ────────────────────────────────────────────
 
   toFlat(ep: any, _season: number, index: number): EpisodeFlat {
     return { ...ep, seriesName: this.selectedSeries?.name ?? '', epIndex: index + 1 };
@@ -202,7 +201,7 @@ export class SeriesComponent implements OnInit, OnDestroy {
 
   get firstEpisode(): EpisodeFlat {
     const s = this.selectedSeries;
-    if (!s || !s.seasons.length || !s.seasons[0].episodes.length) return null as any;
+    if (!s?.seasons[0]?.episodes[0]) return null as any;
     return this.toFlat(s.seasons[0].episodes[0], s.seasons[0].season, 0);
   }
 
@@ -211,50 +210,9 @@ export class SeriesComponent implements OnInit, OnDestroy {
     return missing > 0 ? Array(missing).fill(0) : [];
   }
 
-  // ─── Clock ────────────────────────────────────────────────────────────────────
+  // ── Navegação ──────────────────────────────────────────
 
-  startClock() {
-    this.updateClock();
-    this.clockInterval = setInterval(() => this.updateClock(), 1000);
-  }
-
-  updateClock() {
-    this.currentTime = new Date().toLocaleTimeString('pt-BR', { hour: '2-digit', minute: '2-digit' });
-    this.cdr.detectChanges();
-  }
-
-  // ─── Navegação ────────────────────────────────────────────────────────────────
-
-  goHome() { this.router.navigate(['/']); }
-
-  onGlobalSearch(q: string) { this.searchQuery = q; }
-
-  backToSeries() {
-    this.selectedSeries = null;
-    this.searchQuery = '';
-    this.view = 'browse';
-  }
-
-  selectSeriesGroup(group: SeriesGroup) {
-    this.selectedSeriesGroup = group;
-    this.displaySeries = [...group.series];
-    this.selectedSeries = null;
-    this.searchQuery = '';
-    this.view = 'browse';
-  }
-
-  /** Abre o drawer lateral de episódios */
-  selectSeries(series: Series | null) {
-    if (!series) return;
-    this.selectedSeries = series;
-    this.activeSeason = series.seasons[0]?.season ?? 1;
-    this.searchQuery = '';
-    this.view = 'episodes';
-  }
-
-  // ─── Filtros ─────────────────────────────────────────────────────────────────
-
-  get filteredSidebarGroups(): SeriesGroup[] {
+  get filteredSeriesGroups(): SeriesGroup[] {
     if (!this.sidebarSearchQuery) return this.allSeriesGroups;
     const q = this.sidebarSearchQuery.toLowerCase();
     return this.allSeriesGroups.filter(g => g.name.toLowerCase().includes(q));
@@ -275,7 +233,7 @@ export class SeriesComponent implements OnInit, OnDestroy {
     return rows;
   }
 
-  // ─── Episódios ────────────────────────────────────────────────────────────────
+  // ── Episódios ──────────────────────────────────────────
 
   get selectedSeriesName(): string { return this.selectedSeries?.name ?? ''; }
 
@@ -290,7 +248,7 @@ export class SeriesComponent implements OnInit, OnDestroy {
 
   get totalEpisodes(): number { return this.allEpisodesOfSelectedSeries.length; }
 
-  // ─── Player ───────────────────────────────────────────────────────────────────
+  // ── Player ─────────────────────────────────────────────
 
   playEpisode(ep: EpisodeFlat) {
     if (!ep) return;
@@ -299,7 +257,7 @@ export class SeriesComponent implements OnInit, OnDestroy {
     this.retryCount = 0;
     this.view = 'player';
     setTimeout(() => {
-      this.playItem(ep);
+      this.startPlayback(ep.url);
       this.enterFullscreen();
       this.resetIdleTimer();
     }, 100);
@@ -344,6 +302,10 @@ export class SeriesComponent implements OnInit, OnDestroy {
     fn?.call(doc)?.catch(() => { });
   }
 
+  // ── Hook da base: avança episódio ao término ───────────
+
+  protected override onEnded(): void { this.nextEpisode(); }
+
   nextEpisode() {
     if (!this.selectedSeries || !this.selectedEpisode) return;
     const list = this.allEpisodesOfSelectedSeries;
@@ -358,122 +320,32 @@ export class SeriesComponent implements OnInit, OnDestroy {
     if (idx > 0) this.playEpisode(list[idx - 1]);
   }
 
-  async playItem(item: EpisodeFlat) {
-    this.destroyPlayer();
-    const video = this.videoPlayerRef?.nativeElement;
-    if (!video) return;
-    this.isPlaying = false; this.isBuffering = true; this.playerError = '';
-    this.cdr.detectChanges();
-    const url = item.url.trim();
-    const isHls = url.includes('.m3u8') || url.includes('/hls/');
-    isHls ? this.tryPlayHls(video, url) : this.tryPlayNative(video, url);
-  }
+  // ── Progresso: atualiza videoCurrentTime (≠ relógio) ──
 
-  tryPlayHls(video: HTMLVideoElement, url: string) {
-    const HlsLib = (window as any).Hls;
-    if (!HlsLib) {
-      setTimeout(() => (window as any).Hls ? this.tryPlayHls(video, url) : this.tryPlayNative(video, url), 1000);
-      return;
-    }
-    if (!HlsLib.isSupported()) { this.tryPlayNative(video, url); return; }
-
-    this.hls = new HlsLib(HLS_CONFIG);
-    this.hls.loadSource(url);
-    this.hls.attachMedia(video);
-
-    this.hls.on(HlsLib.Events.MANIFEST_PARSED, () => {
-      video.play()
-        .then(() => { this.isPlaying = true; this.isBuffering = false; this.cdr.detectChanges(); })
-        .catch(() => { video.muted = true; video.play().then(() => { this.isPlaying = true; this.isBuffering = false; this.cdr.detectChanges(); }); });
-    });
-
-    this.hls.on(HlsLib.Events.ERROR, (_: any, data: any) => {
-      if (!data.fatal) return;
-      if (data.type === HlsLib.ErrorTypes.NETWORK_ERROR && this.retryCount < this.MAX_RETRIES) {
-        this.retryCount++;
-        this.retryTimeout = setTimeout(() => this.hls?.startLoad(), 2000 * this.retryCount);
-      } else { this.hls?.destroy(); this.hls = null; this.tryPlayNative(video, url); }
-    });
-
-    video.addEventListener('waiting', () => { this.isBuffering = true; this.cdr.detectChanges(); });
-    video.addEventListener('playing', () => { this.isBuffering = false; this.cdr.detectChanges(); });
-    video.addEventListener('timeupdate', () => this.updateProgress(video));
-    video.addEventListener('ended', () => this.nextEpisode());
-  }
-
-  tryPlayNative(video: HTMLVideoElement, url: string) {
-    video.src = url; video.load();
-    video.addEventListener('canplay', () => {
-      video.play()
-        .then(() => { this.isPlaying = true; this.isBuffering = false; this.cdr.detectChanges(); })
-        .catch(() => { video.muted = true; video.play().then(() => { this.isPlaying = true; this.isBuffering = false; this.cdr.detectChanges(); }); });
-    });
-    video.addEventListener('error', () => this.showError('Não foi possível reproduzir este episódio.'));
-    video.addEventListener('waiting', () => { this.isBuffering = true; this.cdr.detectChanges(); });
-    video.addEventListener('playing', () => { this.isBuffering = false; this.cdr.detectChanges(); });
-    video.addEventListener('timeupdate', () => this.updateProgress(video));
-    video.addEventListener('ended', () => this.nextEpisode());
-  }
-
-  updateProgress(video: HTMLVideoElement) {
-    const fmt = (s: number) => {
-      const h = Math.floor(s / 3600);
-      const m = Math.floor((s % 3600) / 60);
-      const sec = Math.floor(s % 60);
-      return h > 0
-        ? `${h}:${String(m).padStart(2, '0')}:${String(sec).padStart(2, '0')}`
-        : `${String(m).padStart(2, '0')}:${String(sec).padStart(2, '0')}`;
-    };
-    this.videoCurrentTime = fmt(video.currentTime);
-    this.duration = isFinite(video.duration) ? fmt(video.duration) : '--:--';
+  protected override updateProgress(video: HTMLVideoElement) {
+    this.videoCurrentTime = this.fmtTime(video.currentTime);
+    this.duration = isFinite(video.duration) ? this.fmtTime(video.duration) : '--:--';
     this.cdr.detectChanges();
   }
 
-  showError(msg: string) {
-    this.playerError = msg; this.isPlaying = false; this.isBuffering = false;
-    this.cdr.detectChanges();
+  backToSeries() {
+    this.selectedSeries = null;
+    this.searchQuery = '';
+    this.view = 'browse';
   }
 
-  destroyPlayer() {
-    if (this.retryTimeout) { clearTimeout(this.retryTimeout); this.retryTimeout = null; }
-    if (this.hls) { this.hls.destroy(); this.hls = null; }
-    const v = this.videoPlayerRef?.nativeElement;
-    if (v) { v.pause(); v.removeAttribute('src'); v.load(); }
-    this.isPlaying = false; this.isBuffering = false;
+  /** Abre o drawer lateral de episódios */
+  selectSeries(series: Series | null) {
+    if (!series) return;
+    this.selectedSeries = series;
+    this.activeSeason = series.seasons[0]?.season ?? 1;
+    this.searchQuery = '';
+    this.view = 'episodes';
   }
 
-  togglePlay() {
-    const v = this.videoPlayerRef?.nativeElement; if (!v) return;
-    v.paused
-      ? v.play().then(() => { this.isPlaying = true; this.cdr.detectChanges(); })
-      : (v.pause(), this.isPlaying = false, this.cdr.detectChanges());
-  }
+  // ── TrackBy ────────────────────────────────────────────
 
-  toggleMute() {
-    const v = this.videoPlayerRef?.nativeElement; if (!v) return;
-    this.isMuted = !this.isMuted; v.muted = this.isMuted;
-  }
-
-  setVolume(event: Event) {
-    this.volume = +(event.target as HTMLInputElement).value;
-    const v = this.videoPlayerRef?.nativeElement;
-    if (v) { v.volume = this.volume / 100; this.isMuted = this.volume === 0; }
-  }
-
-  seek(event: Event) {
-    const v = this.videoPlayerRef?.nativeElement;
-    const val = +(event.target as HTMLInputElement).value;
-    if (v && isFinite(v.duration)) v.currentTime = (val / 100) * v.duration;
-  }
-
-  get progressPercent(): number {
-    const v = this.videoPlayerRef?.nativeElement;
-    if (!v || !isFinite(v.duration) || v.duration === 0) return 0;
-    return (v.currentTime / v.duration) * 100;
-  }
-
-  // ─── TrackBy ─────────────────────────────────────────────────────────────────
-  trackByIdx(_: number, __: any) { return _; }
+  trackByIdx(_: number) { return _; }
   trackBySeriesName(_: number, s: Series) { return s.name; }
   trackByEpId(_: number, e: EpisodeFlat) { return e.id; }
 }

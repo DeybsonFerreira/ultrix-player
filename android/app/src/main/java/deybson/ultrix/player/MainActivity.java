@@ -1,4 +1,4 @@
-package ultrix.player.app;
+package deybson.ultrix.player;
 
 import com.getcapacitor.BridgeActivity;
 

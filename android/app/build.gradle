@@ -1,10 +1,10 @@
 apply plugin: 'com.android.application'
 
 android {
-    namespace = "ultrix.player.app"
+    namespace = "deybson.ultrix.player"
     compileSdk = rootProject.ext.compileSdkVersion
     defaultConfig {
-        applicationId "ultrix.player.app"
+        applicationId "deybson.ultrix.player"
         minSdkVersion rootProject.ext.minSdkVersion
         targetSdkVersion rootProject.ext.targetSdkVersion
         versionCode 1

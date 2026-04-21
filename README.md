@@ -10,6 +10,7 @@ ng generate service services/iptvService  --skip-tests
 ng generate service services/storageService  --skip-tests
 ng generate service services/configService  --skip-tests
 ng generate service services/messageService
+ng generate service services/playerBaseService
 
 ng generate component components/navbar --skip-tests
 ng generate component components/import --skip-tests

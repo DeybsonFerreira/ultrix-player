@@ -1,35 +1,80 @@
-# 📦 Guia de Geração de APK (Android)
+# 📱 Gerar APK a partir de um projeto Angular (SEM Android Studio)
 
-Este guia detalha o processo para compilar e gerar o arquivo de instalação (.apk) do projeto utilizando Angular e Capacitor.
-
----
-
-## 🛠️ Pré-requisitos
-
-1. **Android Studio** instalado e configurado.
-2. **SDK do Android** atualizado (API 34+ recomendada para Angular 20).
-3. **Java JDK 17+** configurado no seu sistema.
+Este guia mostra como transformar uma aplicação Angular em um APK usando o Capacitor e o Gradle, sem precisar do Android Studio.
 
 ---
 
-## 🚀 Passo a Passo para Gerar o APK
+## ✅ Pré-requisitos
 
-### 1. Preparar o Ambiente Web
-Certifique-se de que o código Angular está compilado e os arquivos estáticos foram gerados:
+Antes de começar, você precisa ter instalado:
+
+- Node.js
+- Angular CLI
+- Java JDK (8 ou superior)
+- Variável de ambiente `JAVA_HOME` configurada
+
+---
+
+## 📦 1. Build do projeto Angular
+
+No diretório do seu projeto:
+
 ```bash
 ng build
 ```
-### 2. Sincronizar com a Plataforma Nativa
-Envie o build do Angular para a pasta do Android:
+
+## Após isso, será criada a pasta:
 
 ```bash
-npx cap sync android
+dist/nome-do-projeto
 ```
 
-### 3 Gerar o APK via Terminal (Windows)
-Navegue até a pasta android do seu projeto e execute o comando do Gradle:
+## ⚙️ 2. Instalar e configurar o Capacitor
+
+## Instale o Capacitor:
 
 ```bash
+npm install @capacitor/core @capacitor/cli
+```
+
+### inicializar capacitor
+
+```bash
+npx cap init
+```
+
+## 📁 3. Configurar pasta de build
+
+```bash
+capacitor.config.ts
+webDir: 'dist/nome-do-projeto'
+
+```
+
+
+## 🤖 4. Adicionar plataforma Android
+
+```bash
+npx cap add android
+
+```
+
+## 🔄 5. Copiar arquivos do Angular
+```bash
+npx cap copy
+```
+
+## 🏗️ 6. Gerar APK usando Gradle (sem Android Studio)
+```bash
 cd android
-./gradlew assembleDebug
+```
+
+## ▶️ Gerar APK de debug
+```bash
+.\gradlew assembleDebug
+-- android/app/build/outputs/apk/debug/app-debug.apk
+
+-- prod
+.\gradlew assembleRelease
+-- android/app/build/outputs/apk/release/app-release.apk
 ```
