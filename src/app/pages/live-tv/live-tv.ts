@@ -12,7 +12,6 @@ import { Channel, ChannelGroup } from '../../models/channel';
 import { IptvService } from '../../services/iptv-service';
 import { NavbarComponent } from '../../components/navbar/navbar';
 import { PlayerService } from '../../services/player-service';
-import { PlayerBaseService } from '../../services/player-base-service';
 
 @Component({
     selector: 'app-live-tv',
@@ -21,7 +20,7 @@ import { PlayerBaseService } from '../../services/player-base-service';
     standalone: true,
     imports: [CommonModule, FormsModule, NavbarComponent]
 })
-export class LiveTvComponent extends PlayerBaseService implements OnInit, OnDestroy {
+export class LiveTvComponent extends PlayerService implements OnInit, OnDestroy {
 
     // ── UI
     sidebarMode: 'groups' | 'channels' = 'groups';
@@ -39,11 +38,9 @@ export class LiveTvComponent extends PlayerBaseService implements OnInit, OnDest
     private fullscreenHintTimeout: any;
 
     constructor(
-        private iptv: IptvService,
-        cdr: ChangeDetectorRef,
-        playerService: PlayerService
+        private iptv: IptvService, cdr: ChangeDetectorRef
     ) {
-        super(cdr, playerService);
+        super(cdr);
     }
 
     // ── Lifecycle ──────────────────────────────────────────
@@ -52,7 +49,6 @@ export class LiveTvComponent extends PlayerBaseService implements OnInit, OnDest
         await this.iptv.reloadm3u('live');
         this.groups = this.iptv.getGroupsByType('live');
         this.allChannels = this.iptv.getByType('live');
-        this.playerService.preloadHls();
         this.startClock();
         document.addEventListener('fullscreenchange', this.onFullscreenChange);
     }

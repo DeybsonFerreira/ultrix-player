@@ -18,7 +18,6 @@ import { Channel, ChannelGroup } from '../../models/channel';
 import { IptvService } from '../../services/iptv-service';
 import { NavbarComponent } from '../../components/navbar/navbar';
 import { PlayerService } from '../../services/player-service';
-import { PlayerBaseService } from '../../services/player-base-service';
 
 // ── Tipos para o virtual scroll por linhas ─────────────
 export interface MovieRow {
@@ -41,9 +40,9 @@ const ROW_PADDING = 28;
   changeDetection: ChangeDetectionStrategy.OnPush,
   imports: [CommonModule, FormsModule, NavbarComponent, ScrollingModule]
 })
-export class MoviesComponent extends PlayerBaseService implements OnInit, OnDestroy {
+export class MoviesComponent extends PlayerService implements OnInit, OnDestroy {
 
-  // videoPlayerRef já está declarado na classe base (PlayerBase)
+  // videoPlayerRef já está declarado na classe base (PlayerBaseService)
   @ViewChild(CdkVirtualScrollViewport) viewport!: CdkVirtualScrollViewport;
 
   // ── Dados
@@ -62,12 +61,8 @@ export class MoviesComponent extends PlayerBaseService implements OnInit, OnDest
   private search$ = new Subject<string>();
 
   constructor(
-    private router: Router,
-    private iptv: IptvService,
-    cdr: ChangeDetectorRef,          // sem modificador — passado ao super
-    playerService: PlayerService
-  ) {
-    super(cdr, playerService);
+    private iptv: IptvService, cdr: ChangeDetectorRef) {
+    super(cdr);
   }
 
   // ── Lifecycle ──────────────────────────────────────────
@@ -75,7 +70,7 @@ export class MoviesComponent extends PlayerBaseService implements OnInit, OnDest
   async ngOnInit() {
     await this.iptv.reloadm3u('movie');
     this.groups = this.iptv.getGroupsByType('movie');
-    this.playerService.preloadHls();
+    this.preloadHls();        // agora vive na própria classe base
     this.startClock();
     this.calcCols();
 
@@ -189,8 +184,4 @@ export class MoviesComponent extends PlayerBaseService implements OnInit, OnDest
     this.duration = isFinite(video.duration) ? this.fmtTime(video.duration) : '--:--';
     this.cdr.markForCheck();
   }
-
-  // updateClock já está na base — aqui o currentTime é reaproveitado para o relógio
-  // somente quando o player não está ativo. Se preferir campos separados, declare
-  // videoCurrentTime separado e sobrescreva updateProgress sem tocar currentTime.
 }

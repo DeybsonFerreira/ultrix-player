@@ -11,9 +11,8 @@ import { ScrollingModule } from '@angular/cdk/scrolling';
 
 import { IptvService } from '../../services/iptv-service';
 import { NavbarComponent } from '../../components/navbar/navbar';
-import { PlayerService } from '../../services/player-service';
 import { EpisodeFlat, Series, SeriesGroup } from '../../models/serie';
-import { PlayerBaseService } from '../../services/player-base-service';
+import { PlayerService } from '../../services/player-service';
 
 // ─── Layout ────────────────────────────────────────────
 const SIDEBAR_WIDTH = 240;
@@ -39,7 +38,7 @@ function calcCardHeight(cols: number, availableWidth: number): number {
   standalone: true,
   imports: [CommonModule, FormsModule, NavbarComponent, ScrollingModule]
 })
-export class SeriesComponent extends PlayerBaseService implements OnInit, OnDestroy {
+export class SeriesComponent extends PlayerService implements OnInit, OnDestroy {
 
   // videoPlayerRef já está na base
   cols = 7;
@@ -70,10 +69,9 @@ export class SeriesComponent extends PlayerBaseService implements OnInit, OnDest
   constructor(
     private router: Router,
     private iptv: IptvService,
-    cdr: ChangeDetectorRef,
-    playerService: PlayerService
+    cdr: ChangeDetectorRef
   ) {
-    super(cdr, playerService);
+    super(cdr);
   }
 
   // ── Lifecycle ──────────────────────────────────────────
@@ -81,7 +79,6 @@ export class SeriesComponent extends PlayerBaseService implements OnInit, OnDest
   async ngOnInit() {
     await this.iptv.reloadm3u('series');
     this.allSeriesGroups = this.buildSeriesGroups();
-    this.playerService.preloadHls();
     this.startClock();
     this.initResizeObserver();
   }
