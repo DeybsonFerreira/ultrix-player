@@ -67,12 +67,15 @@ $text-muted: rgba(255, 255, 255, 0.45);
 }
 
 .main-wrapper {
-    height: 100%;
+    height: calc(100dvh - clamp(64px, 9vh, 92px));
+    display: flex;
+    flex-direction: column;
 }
 
 // ─── CONTAINER RAIZ ────────────────────────────────────
 .live-container {
-    height: 80%;
+    flex: 1;
+    min-height: 0;
     background: $bg-deep;
     background-image:
         radial-gradient(ellipse at 20% 50%, rgba($neon, 0.06) 0%, transparent 60%),
@@ -141,47 +144,47 @@ $text-muted: rgba(255, 255, 255, 0.45);
     flex: 1;
     display: flex;
     height: 100%;
+    min-height: 0;
+}
 
-    // Fullscreen: esconde os painéis laterais
-    &.fullscreen-mode {
+.live-container.fullscreen-mode {
 
-        .groups-panel,
-        .channels-panel {
-            display: none;
-        }
+    .groups-panel,
+    .channels-panel {
+        display: none;
+    }
 
-        .player-area {
-            flex: 1;
-        }
+    .player-area {
+        flex: 1;
+    }
 
-        .player-controls {
-            position: absolute;
-            bottom: 0;
-            left: 0;
-            right: 0;
-            z-index: 10;
-            opacity: 0;
-            transition: opacity 0.3s;
-        }
+    .player-controls {
+        position: absolute;
+        bottom: 0;
+        left: 0;
+        right: 0;
+        z-index: 10;
+        opacity: 0;
+        transition: opacity 0.3s;
+    }
 
-        .player-wrapper:hover .player-controls {
-            opacity: 1;
-        }
+    .player-wrapper:hover .player-controls {
+        opacity: 1;
+    }
 
-        .player-info-bar {
-            position: absolute;
-            top: 0;
-            left: 0;
-            right: 0;
-            z-index: 10;
-            opacity: 0;
-            transition: opacity 0.3s;
-            background: linear-gradient(to bottom, rgba(0, 0, 0, 0.85), transparent);
-        }
+    .player-info-bar {
+        position: absolute;
+        top: 0;
+        left: 0;
+        right: 0;
+        z-index: 10;
+        opacity: 0;
+        transition: opacity 0.3s;
+        background: linear-gradient(to bottom, rgba(0, 0, 0, 0.85), transparent);
+    }
 
-        .player-wrapper:hover .player-info-bar {
-            opacity: 1;
-        }
+    .player-wrapper:hover .player-info-bar {
+        opacity: 1;
     }
 }
 
@@ -317,9 +320,11 @@ $text-muted: rgba(255, 255, 255, 0.45);
         border-left-color: rgba($neon, 0.4);
     }
 
-    &:focus {
+    &:focus,
+    &:focus-visible {
         outline: none;
         background: $bg-hover;
+        box-shadow: 0 0 0 2px rgba($neon, 0.45);
     }
 
     &.active {
@@ -377,9 +382,11 @@ $text-muted: rgba(255, 255, 255, 0.45);
         border-left-color: rgba($neon, 0.4);
     }
 
-    &:focus {
+    &:focus,
+    &:focus-visible {
         outline: none;
         background: $bg-hover;
+        box-shadow: 0 0 0 2px rgba($neon, 0.45);
     }
 
     &.active {
@@ -710,9 +717,11 @@ $text-muted: rgba(255, 255, 255, 0.45);
         @include neon-glow($neon);
     }
 
-    &:focus {
+    &:focus,
+    &:focus-visible {
         outline: none;
         @include neon-glow($neon-light);
+        box-shadow: 0 0 0 2px rgba($neon-light, 0.55), 0 0 14px rgba($neon-light, 0.4);
     }
 
     &.play-pause {
@@ -868,5 +877,146 @@ $text-muted: rgba(255, 255, 255, 0.45);
         outline: none;
         border-color: $neon-light;
         @include neon-glow($neon);
+    }
+}
+
+@media (max-width: 1100px) {
+    .groups-panel {
+        width: 210px;
+        min-width: 170px;
+    }
+
+    .channels-panel {
+        width: 230px;
+        min-width: 190px;
+    }
+
+    .player-controls {
+        padding: 10px 12px;
+        gap: 8px;
+    }
+
+    .now-name {
+        font-size: 14px;
+    }
+}
+
+@media (max-width: 900px) {
+    .main-wrapper {
+        height: auto;
+        min-height: calc(100dvh - clamp(64px, 9vh, 92px));
+    }
+
+    .live-container {
+        min-height: calc(100dvh - clamp(64px, 9vh, 92px));
+    }
+
+    .player-layout {
+        flex-direction: column;
+    }
+
+    .groups-panel,
+    .channels-panel {
+        width: 100%;
+        min-width: 0;
+        border-right: none;
+        border-bottom: 1px solid rgba($neon, 0.12);
+    }
+
+    .groups-panel {
+        max-height: 22dvh;
+    }
+
+    .channels-panel {
+        max-height: 30dvh;
+    }
+
+    .sidebar-list {
+        padding: 8px;
+    }
+
+    .channel-item,
+    .group-item {
+        padding: 12px 14px;
+    }
+
+    .player-area {
+        min-height: 42dvh;
+    }
+
+    .player-controls {
+        flex-wrap: wrap;
+        justify-content: center;
+    }
+
+    .ctrl-btn.fullscreen-btn {
+        margin-left: 0;
+    }
+}
+
+@media (max-width: 600px) {
+    .player-info-bar {
+        padding: 10px 12px;
+    }
+
+    .clock {
+        font-size: 14px;
+    }
+
+    .now-playing-logo {
+        width: 32px;
+        height: 32px;
+    }
+
+    .now-name {
+        font-size: 12px;
+    }
+
+    .now-group {
+        display: none;
+    }
+
+    .volume-slider {
+        width: 84px;
+    }
+
+    .ctrl-btn.fullscreen-btn .fullscreen-label {
+        display: none;
+    }
+}
+
+@media (min-width: 1600px) and (min-height: 900px) {
+    .groups-panel {
+        width: 290px;
+    }
+
+    .channels-panel {
+        width: 340px;
+    }
+
+    .group-item,
+    .channel-item {
+        padding: 13px 14px;
+    }
+
+    .group-name,
+    .channel-name {
+        font-size: 14px;
+    }
+
+    .ctrl-btn {
+        width: 50px;
+        height: 50px;
+        font-size: 20px;
+    }
+
+    .ctrl-btn.small {
+        width: 40px;
+        height: 40px;
+    }
+
+    .ctrl-btn.play-pause {
+        width: 58px;
+        height: 58px;
     }
 }

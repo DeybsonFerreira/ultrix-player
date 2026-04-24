@@ -6,12 +6,12 @@ $text-muted: rgba(255, 255, 255, 0.45);
 
 .navbar-container {
     background-color: $bg-deep;
-    padding: 0 60px;
-    height: 15%;
-    /* Altura fixa para alinhar tudo verticalmente */
+    padding: 0 42px;
+    min-height: clamp(64px, 9vh, 92px);
     display: flex;
     align-items: center;
     justify-content: space-between;
+    gap: 20px;
     border-bottom: 1px solid rgba($neon, 0.15);
     box-shadow: 0 4px 30px rgba(0, 0, 0, 0.5);
     position: sticky;
@@ -22,9 +22,9 @@ $text-muted: rgba(255, 255, 255, 0.45);
 /* LINKS DE NAVEGAÇÃO */
 .nav-links {
     display: flex;
-    gap: 40px;
+    gap: 28px;
     flex: 1;
-    /* Garante que o lado esquerdo ocupe espaço igual ao direito */
+    min-width: 0;
 }
 
 .nav-item {
@@ -64,22 +64,27 @@ $text-muted: rgba(255, 255, 255, 0.45);
 
     &:focus {
         color: $neon-light;
-        transform: scale(1.1);
+        transform: scale(1.04);
+    }
+
+    &:focus-visible {
+        color: #fff;
+        text-shadow: 0 0 12px rgba($neon-light, 0.7);
     }
 }
 
 /* INPUT DE BUSCA (CENTRALIZADO) */
 .search-row {
     flex: 2;
-    /* Dá mais destaque ao centro */
     display: flex;
     justify-content: center;
+    min-width: 0;
 }
 
 .search-wrapper {
     position: relative;
     width: 100%;
-    max-width: 350px;
+    max-width: 440px;
     display: flex;
     align-items: center;
 }
@@ -111,8 +116,7 @@ $text-muted: rgba(255, 255, 255, 0.45);
 
     &:focus {
         outline: none;
-        width: 115%;
-        /* Expansão suave no foco */
+        width: 100%;
         background: rgba($neon, 0.05);
         border-color: $neon-light;
         box-shadow: 0 0 20px rgba($neon, 0.2);
@@ -132,7 +136,91 @@ $text-muted: rgba(255, 255, 255, 0.45);
 }
 
 .logo-img {
-    height: 100px;
+    height: clamp(46px, 8vh, 82px);
     width: auto;
 
+}
+
+@media (max-width: 980px) {
+    .navbar-container {
+        padding: 0 18px;
+        gap: 14px;
+    }
+
+    .nav-links {
+        gap: 16px;
+    }
+
+    .nav-item {
+        font-size: 12px;
+        letter-spacing: 1px;
+    }
+
+    .search-wrapper {
+        max-width: 320px;
+    }
+}
+
+@media (max-width: 760px) {
+    .navbar-container {
+        min-height: auto;
+        padding: 10px 12px;
+        flex-wrap: wrap;
+        gap: 10px;
+    }
+
+    .nav-logo {
+        order: 1;
+        flex: 0;
+    }
+
+    .logo-img {
+        height: 42px;
+    }
+
+    .nav-links {
+        order: 2;
+        flex: 1 0 100%;
+        justify-content: space-between;
+        gap: 8px;
+    }
+
+    .search-row {
+        order: 3;
+        flex: 1 0 100%;
+        justify-content: stretch;
+    }
+
+    .search-wrapper {
+        max-width: none;
+    }
+
+    .search-input {
+        font-size: 12px;
+        padding: 10px 12px 10px 38px;
+    }
+}
+
+@media (min-width: 1600px) and (min-height: 900px) {
+    .navbar-container {
+        padding: 0 60px;
+        min-height: 106px;
+    }
+
+    .nav-links {
+        gap: 40px;
+    }
+
+    .nav-item {
+        font-size: 16px;
+    }
+
+    .search-wrapper {
+        max-width: 540px;
+    }
+
+    .search-input {
+        padding: 14px 16px 14px 52px;
+        font-size: 15px;
+    }
 }

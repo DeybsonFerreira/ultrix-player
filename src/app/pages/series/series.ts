@@ -23,7 +23,7 @@ const NAME_HEIGHT = 32;
 
 function calcCols(availableWidth: number): number {
   const cols = Math.floor((availableWidth + GAP) / (CARD_MIN_WIDTH + GAP));
-  return Math.max(5, Math.min(10, cols));
+  return Math.max(2, Math.min(10, cols));
 }
 
 function calcCardHeight(cols: number, availableWidth: number): number {
@@ -103,7 +103,10 @@ export class SeriesComponent extends PlayerService implements OnInit, OnDestroy 
   }
 
   private recalcLayout() {
-    const available = window.innerWidth - SIDEBAR_WIDTH - SECTION_PADDING;
+    const isCompact = window.innerWidth <= 960;
+    const sidebarWidth = isCompact ? 0 : SIDEBAR_WIDTH;
+    const sectionPadding = isCompact ? 28 : SECTION_PADDING;
+    const available = Math.max(320, window.innerWidth - sidebarWidth - sectionPadding);
     this.cols = calcCols(available);
     this.rowHeight = calcCardHeight(this.cols, available) + GAP;
     document.documentElement.style.setProperty('--cols', String(this.cols));

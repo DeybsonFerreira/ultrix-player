@@ -19,6 +19,22 @@ body {
     height: 100%;
 }
 
+app-root {
+    display: block;
+    min-height: 100dvh;
+}
+
+:focus-visible {
+    outline: 2px solid rgba(166, 108, 255, 0.85);
+    outline-offset: 2px;
+}
+
+@media (max-width: 900px) {
+    body {
+        overflow: auto;
+    }
+}
+
 /* Cards estilo Netflix */
 .ultrix-card {
     background: var(--card-bg);
