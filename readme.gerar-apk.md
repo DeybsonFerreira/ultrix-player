@@ -62,7 +62,8 @@ npx cap add android
 ## 🔄 5. Copiar arquivos do Angular
 ```bash
 npx cap copy
-npx cap sync
+npx cap sync 
+npx cap sync android 
 ```
 
 ## 🏗️ 6. Gerar APK usando Gradle (sem Android Studio)
@@ -79,3 +80,7 @@ cd android
 .\gradlew assembleRelease
 -- android/app/build/outputs/apk/release/app-release.apk
 ```
+
+
+## Licensa
+C:\android\sdk\cmdline-tools\latest\bin\sdkmanager.bat --licenses
