@@ -17,11 +17,11 @@ $sidebar-width: 240px;
 
 // ─── Reset / base ────────────────────────────────────────────
 .nx-root {
-    min-height: 100vh;
+    min-height: calc(100dvh - clamp(64px, 9vh, 92px));
     background: $bg-deep;
     color: $text;
     font-family: 'Segoe UI', system-ui, -apple-system, sans-serif;
-    padding-top: 56px; // navbar height
+    padding-top: 0;
     display: flex;
     position: relative;
 }
@@ -29,10 +29,10 @@ $sidebar-width: 240px;
 // ─── Sidebar esquerda de categorias ──────────────────────────
 .cat-sidebar {
     position: fixed;
-    top: 56px;
+    top: clamp(64px, 9vh, 92px);
     left: 0;
     width: $sidebar-width;
-    height: calc(100vh - 56px);
+    height: calc(100dvh - clamp(64px, 9vh, 92px));
     background: rgba(10, 10, 15, 0.97);
     border-right: 1px solid $border;
     display: flex;
@@ -227,7 +227,7 @@ $sidebar-width: 240px;
 }
 
 .posters-viewport {
-    height: calc(100vh - 160px);
+    height: calc(100dvh - clamp(64px, 9vh, 92px) - 100px);
     min-height: 400px;
 }
 
@@ -879,5 +879,132 @@ $sidebar-width: 240px;
 
     to {
         opacity: 1;
+    }
+}
+
+@media (max-width: 960px) {
+    .nx-root {
+        min-height: calc(100dvh - clamp(64px, 9vh, 92px));
+        padding-top: 0;
+        flex-direction: column;
+    }
+
+    .cat-sidebar {
+        position: relative;
+        top: 0;
+        width: 100%;
+        height: auto;
+        border-right: none;
+        border-bottom: 1px solid $border;
+    }
+
+    .cat-sidebar-header {
+        padding: 0.75rem 1rem;
+    }
+
+    .cat-list {
+        display: flex;
+        overflow-x: auto;
+        overflow-y: hidden;
+        gap: 8px;
+        padding: 0.5rem 0.75rem 0.85rem;
+    }
+
+    .cat-item {
+        min-width: max-content;
+        white-space: nowrap;
+    }
+
+    .nx-main {
+        margin-left: 0;
+    }
+
+    .poster-section {
+        padding: 1rem 1rem 0;
+    }
+
+    .posters-viewport {
+        height: calc(100dvh - 265px);
+        min-height: 280px;
+    }
+
+    .ep-drawer-info,
+    .season-tabs,
+    .ep-list {
+        padding-left: 1rem;
+        padding-right: 1rem;
+    }
+
+    .now-playing {
+        padding-left: 0;
+    }
+
+    .player-info-bar {
+        padding: 0.8rem 1rem;
+    }
+
+    .back-from-player {
+        top: 12px;
+        left: 12px;
+        padding: 8px 12px;
+    }
+
+    .player-bottom {
+        padding: 1.25rem 1rem 1rem;
+    }
+}
+
+@media (max-width: 600px) {
+    .poster-row {
+        gap: 10px;
+        padding-bottom: 10px;
+    }
+
+    .card-name {
+        font-size: 0.7rem;
+    }
+
+    .ep-hero-wrap {
+        height: 180px;
+    }
+
+    .ep-drawer-title {
+        font-size: 1.3rem;
+    }
+
+    .ep-thumb {
+        width: 84px;
+        height: 52px;
+    }
+
+    .player-clock {
+        display: none;
+    }
+
+    .vol-group .vol-slider {
+        width: 64px;
+    }
+}
+
+@media (min-width: 1600px) and (min-height: 900px) {
+    .cat-sidebar {
+        width: 300px;
+    }
+
+    .nx-main {
+        margin-left: 300px;
+    }
+
+    .poster-section-title {
+        font-size: 1.2rem;
+    }
+
+    .cat-item {
+        font-size: 0.9rem;
+        padding: 0.55rem 0.9rem;
+    }
+
+    .card-name {
+        font-size: 0.85rem;
     }
 }

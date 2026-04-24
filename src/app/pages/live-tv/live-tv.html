@@ -17,7 +17,7 @@
 
                 <div class="sidebar-list">
                     <div class="group-item" *ngFor="let group of groups" (click)="selectGroup(group)"
-                        [class.active]="selectedGroup?.name === group.name" tabindex="0"
+                        [class.active]="selectedGroup?.name === group.name" tabindex="0" #groupBtn
                         (keydown.enter)="selectGroup(group)">
                         <span class="group-name">{{ group.name }}</span>
                         <span class="group-badge">{{ group.channels.length }}</span>
@@ -52,7 +52,7 @@
 
                     <div class="channel-item" *ngFor="let channel of filteredChannels; let i = index"
                         (click)="selectChannel(channel)" (dblclick)="selectChannelAndFullscreen(channel)"
-                        [class.active]="selectedChannel?.id === channel.id" tabindex="0"
+                        [class.active]="selectedChannel?.id === channel.id" tabindex="0" #channelBtn
                         (keydown.enter)="selectChannel(channel)">
 
                         <span class="channel-number">{{ i + 1 }}</span>
@@ -141,14 +141,16 @@
 
                     <!-- Controles -->
                     <div class="player-controls" [class.fullscreen-controls]="isFullscreen">
-                        <button class="ctrl-btn" (click)="prevChannel()" tabindex="0" title="Canal anterior">⏮</button>
-                        <button class="ctrl-btn play-pause" (click)="togglePlay()" tabindex="0">
+                        <button class="ctrl-btn" (click)="prevChannel()" tabindex="0" #playerCtrlBtn
+                            title="Canal anterior">⏮</button>
+                        <button class="ctrl-btn play-pause" (click)="togglePlay()" tabindex="0" #playerCtrlBtn>
                             {{ isPlaying ? '⏸' : '▶' }}
                         </button>
-                        <button class="ctrl-btn" (click)="nextChannel()" tabindex="0" title="Próximo canal">⏭</button>
+                        <button class="ctrl-btn" (click)="nextChannel()" tabindex="0" #playerCtrlBtn
+                            title="Próximo canal">⏭</button>
 
                         <div class="volume-section">
-                            <button class="ctrl-btn small" (click)="toggleMute()" tabindex="0">
+                            <button class="ctrl-btn small" (click)="toggleMute()" tabindex="0" #playerCtrlBtn>
                                 {{ isMuted ? '🔇' : volume > 50 ? '🔊' : '🔉' }}
                             </button>
                             <input type="range" class="volume-slider" min="0" max="100" [value]="volume"
@@ -156,7 +158,7 @@
                         </div>
 
                         <!-- Botão Tela Cheia -->
-                        <button class="ctrl-btn fullscreen-btn" (click)="toggleFullscreen()" tabindex="0"
+                        <button class="ctrl-btn fullscreen-btn" (click)="toggleFullscreen()" tabindex="0" #playerCtrlBtn
                             [title]="isFullscreen ? 'Sair da tela cheia (F)' : 'Tela cheia (F)'">
                             {{ isFullscreen ? '⛶' : '⛶' }}
                             <span class="fullscreen-label">{{ isFullscreen ? 'Sair' : 'Tela Cheia' }}</span>

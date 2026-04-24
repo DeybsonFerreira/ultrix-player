@@ -10,23 +10,23 @@
 
         <div class="grid">
 
-            <div class="ultrix-card" tabindex="0" (click)="goLive()">
-                <img src="icons/tv.png">
+            <div class="ultrix-card" #menuCard tabindex="0" (click)="goLive()" (keydown.enter)="goLive()">
+                <img src="icons/tv.png" alt="TV Ao Vivo">
                 <span>TV Ao Vivo</span>
             </div>
 
-            <div class="ultrix-card" tabindex="0" (click)="goMovies()">
-                <img src="icons/filmes.png">
+            <div class="ultrix-card" #menuCard tabindex="0" (click)="goMovies()" (keydown.enter)="goMovies()">
+                <img src="icons/filmes.png" alt="Filmes">
                 <span>Filmes</span>
             </div>
 
-            <div class="ultrix-card" tabindex="0" (click)="goSeries()">
-                <img src="icons/series.png">
+            <div class="ultrix-card" #menuCard tabindex="0" (click)="goSeries()" (keydown.enter)="goSeries()">
+                <img src="icons/series.png" alt="Séries">
                 <span>Séries</span>
             </div>
 
-            <div class="ultrix-card" tabindex="0" (click)="openConfig()">
-                <img src="icons/config.png">
+            <div class="ultrix-card" #menuCard tabindex="0" (click)="openConfig()" (keydown.enter)="openConfig()">
+                <img src="icons/config.png" alt="Configurações">
                 <span>Configurações</span>
             </div>
 

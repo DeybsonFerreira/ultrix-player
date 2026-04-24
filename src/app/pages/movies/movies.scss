@@ -22,7 +22,7 @@ $row-padding: 28px;
 // ─── Container raiz ────────────────────────────────────
 .movies-container {
     width: 100vw;
-    height: 80%;
+    height: calc(100dvh - clamp(64px, 9vh, 92px));
     background: $bg-deep;
     background-image:
         radial-gradient(ellipse at 20% 50%, rgba($neon, 0.06) 0%, transparent 60%),
@@ -704,4 +704,107 @@ $row-padding: 28px;
     color: rgba(255, 255, 255, 0.5);
     font-variant-numeric: tabular-nums;
     margin-left: auto;
+}
+
+@media (max-width: 920px) {
+    .movies-container {
+        height: calc(100dvh - clamp(64px, 9vh, 92px));
+        flex-direction: column;
+    }
+
+    .sidebar {
+        width: 100%;
+        min-width: 0;
+        border-right: none;
+        border-bottom: 1px solid rgba($neon, 0.15);
+    }
+
+    .sidebar-header {
+        padding: 12px 16px;
+    }
+
+    .sidebar-list {
+        display: flex;
+        overflow-x: auto;
+        overflow-y: hidden;
+        gap: 8px;
+        padding: 10px 12px;
+    }
+
+    .group-item {
+        min-width: max-content;
+        margin-bottom: 0;
+    }
+
+    .sidebar-footer {
+        display: none;
+    }
+
+    .browse-header {
+        padding: 12px 14px;
+    }
+
+    .movie-row {
+        gap: 12px;
+        padding: 0 14px;
+        height: 264px;
+        padding-top: 12px;
+    }
+
+    .movie-card {
+        width: 140px;
+        min-width: 140px;
+        max-width: 140px;
+        height: 252px;
+    }
+
+    .card-poster {
+        height: 206px;
+    }
+
+    .card-info {
+        height: 46px;
+        padding: 7px 8px 8px;
+    }
+
+    .player-topbar {
+        padding: 10px 12px;
+    }
+
+    .progress-bar-row,
+    .player-controls {
+        padding-left: 12px;
+        padding-right: 12px;
+    }
+
+    .clock-player {
+        font-size: 14px;
+    }
+}
+
+@media (max-width: 600px) {
+    .sidebar-title {
+        font-size: 13px;
+    }
+
+    .browse-title {
+        font-size: 14px;
+    }
+
+    .browse-count {
+        font-size: 11px;
+    }
+
+    .player-movie-name {
+        font-size: 13px;
+    }
+
+    .player-group,
+    .clock-player {
+        display: none;
+    }
+
+    .volume-slider {
+        width: 84px;
+    }
 }

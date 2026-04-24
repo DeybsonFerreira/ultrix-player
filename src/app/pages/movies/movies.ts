@@ -31,6 +31,7 @@ const CARD_WIDTH = 160;
 const CARD_HEIGHT = 290;
 const GAP = 18;
 const ROW_PADDING = 28;
+const COMPACT_BREAKPOINT = 920;
 
 @Component({
   selector: 'app-movies',
@@ -101,7 +102,10 @@ export class MoviesComponent extends PlayerService implements OnInit, OnDestroy 
   }
 
   private calcCols() {
-    const available = window.innerWidth - 270 - ROW_PADDING * 2;
+    const isCompact = window.innerWidth <= COMPACT_BREAKPOINT;
+    const sidebarWidth = isCompact ? 0 : 270;
+    const horizontalPadding = isCompact ? 24 : ROW_PADDING * 2;
+    const available = Math.max(320, window.innerWidth - sidebarWidth - horizontalPadding);
     this.colsCount = Math.max(2, Math.floor((available + GAP) / (CARD_WIDTH + GAP)));
   }
 
