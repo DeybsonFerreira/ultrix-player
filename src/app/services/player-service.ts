@@ -117,6 +117,7 @@ export abstract class PlayerService implements OnDestroy {
 
     const clean = url.trim();
     const isHls = clean.includes('.m3u8')
+      || clean.includes('.m3u')
       || clean.includes('/hls/')
       || clean.includes('type=m3u_plus');
 

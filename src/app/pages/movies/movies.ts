@@ -52,6 +52,10 @@ export class MoviesComponent extends PlayerService implements OnInit, OnDestroy 
   selectedMovie: Channel | null = null;
   searchQuery = '';
 
+  // ── Player auto-hide
+  isIdle = false;
+  private idleTimeout: any;
+
   // ── Virtual scroll
   movieRows: MovieRow[] = [];
   rowHeight = CARD_HEIGHT + GAP;
@@ -89,6 +93,7 @@ export class MoviesComponent extends PlayerService implements OnInit, OnDestroy 
   override ngOnDestroy() {
     this.destroy$.next();
     this.destroy$.complete();
+    this.clearIdleTimer();
     super.ngOnDestroy();   // destroyPlayer + clearInterval do relógio
   }
 
@@ -160,6 +165,8 @@ export class MoviesComponent extends PlayerService implements OnInit, OnDestroy 
     this.selectedMovie = movie;
     this.playerError = '';
     this.retryCount = 0;
+    this.isIdle = false;
+    this.resetIdleTimer();
     this.cdr.markForCheck();
     setTimeout(() => this.startPlayback(movie.url), 100);
   }
@@ -172,6 +179,7 @@ export class MoviesComponent extends PlayerService implements OnInit, OnDestroy 
     this.destroyPlayer();
     this.selectedMovie = null;
     this.duration = '00:00';
+    this.clearIdleTimer();
     this.cdr.markForCheck();
   }
 
@@ -179,6 +187,24 @@ export class MoviesComponent extends PlayerService implements OnInit, OnDestroy 
     if ((event.target as HTMLElement).classList.contains('player-fullscreen')) {
       this.closePlayer();
     }
+  }
+
+  onPlayerMouseMove() {
+    this.isIdle = false;
+    this.resetIdleTimer();
+  }
+
+  private resetIdleTimer() {
+    this.clearIdleTimer();
+    this.idleTimeout = setTimeout(() => {
+      this.isIdle = true;
+      this.cdr.detectChanges();
+    }, 3000);
+  }
+
+  private clearIdleTimer() {
+    if (this.idleTimeout) { clearTimeout(this.idleTimeout); this.idleTimeout = null; }
+    this.isIdle = false;
   }
 
   // ── Progresso (sobrescreve para atualizar currentTime como posição) ──

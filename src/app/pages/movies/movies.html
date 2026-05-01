@@ -91,7 +91,7 @@
 </div>
 
 <!-- PLAYER FULLSCREEN OVERLAY -->
-<div class="player-fullscreen" *ngIf="selectedMovie" (click)="closePlayerIfBackdrop($event)">
+<div class="player-fullscreen" *ngIf="selectedMovie" [class.idle]="isIdle" (mousemove)="onPlayerMouseMove()">
     <div class="player-panel" #playerPanel>
 
         <div class="player-topbar">
@@ -140,9 +140,6 @@
         </div>
 
         <div class="player-controls">
-            <button class="ctrl-btn play-pause" (click)="togglePlay()" tabindex="0">
-                {{ isPlaying ? '⏸' : '▶' }}
-            </button>
             <div class="volume-section">
                 <button class="ctrl-btn small" (click)="toggleMute()" tabindex="0">
                     {{ isMuted ? '🔇' : volume > 50 ? '🔊' : '🔉' }}

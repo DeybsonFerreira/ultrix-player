@@ -379,6 +379,23 @@ $row-padding: 28px;
     align-items: center;
     justify-content: center;
     animation: fadeInOverlay 0.2s ease;
+
+    &.idle {
+        .player-topbar,
+        .progress-bar-row,
+        .player-controls {
+            opacity: 0;
+            pointer-events: none;
+        }
+
+        cursor: none;
+    }
+
+    .player-topbar,
+    .progress-bar-row,
+    .player-controls {
+        transition: opacity 0.35s ease;
+    }
 }
 
 @keyframes fadeInOverlay {

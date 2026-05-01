@@ -168,7 +168,7 @@ $text-muted: rgba(255, 255, 255, 0.45);
         transition: opacity 0.3s;
     }
 
-    .player-wrapper:hover .player-controls {
+    .player-controls.controls-visible {
         opacity: 1;
     }
 
@@ -183,7 +183,7 @@ $text-muted: rgba(255, 255, 255, 0.45);
         background: linear-gradient(to bottom, rgba(0, 0, 0, 0.85), transparent);
     }
 
-    .player-wrapper:hover .player-info-bar {
+    .player-info-bar.controls-visible {
         opacity: 1;
     }
 }

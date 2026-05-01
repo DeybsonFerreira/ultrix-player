@@ -160,7 +160,6 @@
       </div>
       <div class="controls-row">
         <button class="ctrl" (click)="prevEpisode()" title="Anterior">⏮</button>
-        <button class="ctrl big" (click)="togglePlay()">{{ isPlaying ? '⏸' : '▶' }}</button>
         <button class="ctrl" (click)="nextEpisode()" title="Próximo">⏭</button>
         <div class="vol-group">
           <button class="ctrl small" (click)="toggleMute()">{{ isMuted ? '🔇' : volume > 50 ? '🔊' : '🔉' }}</button>

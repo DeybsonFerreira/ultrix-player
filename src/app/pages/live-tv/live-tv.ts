@@ -45,6 +45,10 @@ export class LiveTvComponent extends PlayerService implements OnInit, AfterViewI
     showFullscreenHint = false;
     private fullscreenHintTimeout: ReturnType<typeof setTimeout> | null = null;
 
+    // ── Controls auto-hide
+    showControls = false;
+    private controlsTimeout: any;
+
     constructor(
         private iptv: IptvService, cdr: ChangeDetectorRef
     ) {
@@ -71,6 +75,7 @@ export class LiveTvComponent extends PlayerService implements OnInit, AfterViewI
             clearTimeout(this.fullscreenHintTimeout);
             this.fullscreenHintTimeout = null;
         }
+        if (this.controlsTimeout) clearTimeout(this.controlsTimeout);
         document.removeEventListener('fullscreenchange', this.onFullscreenChange);
         super.ngOnDestroy();
     }
@@ -154,8 +159,15 @@ export class LiveTvComponent extends PlayerService implements OnInit, AfterViewI
 
         if (!handled) return;
 
-        event.preventDefault();
         event.stopPropagation();
+    }
+
+    @HostListener('document:mousemove', ['$event'])
+    onMouseMove(event: MouseEvent): void {
+        if (this.isFullscreen) {
+            this.showControls = true;
+            this.resetControlsTimeout();
+        }
     }
 
     // ── Sidebar ────────────────────────────────────────────
@@ -204,6 +216,8 @@ export class LiveTvComponent extends PlayerService implements OnInit, AfterViewI
 
     enterFullscreen() {
         this.isFullscreen = true;
+        this.showControls = true;
+        this.resetControlsTimeout();
         this.showFullscreenHintBriefly();
         this.cdr.detectChanges();
 
@@ -214,6 +228,8 @@ export class LiveTvComponent extends PlayerService implements OnInit, AfterViewI
 
     exitFullscreen() {
         this.isFullscreen = false;
+        this.showControls = false;
+        if (this.controlsTimeout) clearTimeout(this.controlsTimeout);
         this.cdr.detectChanges();
         if (document.fullscreenElement) document.exitFullscreen().catch(() => { });
     }
@@ -224,6 +240,14 @@ export class LiveTvComponent extends PlayerService implements OnInit, AfterViewI
             this.cdr.detectChanges();
         }
     };
+
+    private resetControlsTimeout() {
+        if (this.controlsTimeout) clearTimeout(this.controlsTimeout);
+        this.controlsTimeout = setTimeout(() => {
+            this.showControls = false;
+            this.cdr.detectChanges();
+        }, 3000);
+    }
 
     private showFullscreenHintBriefly() {
         this.showFullscreenHint = true;
